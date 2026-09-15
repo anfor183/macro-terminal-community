@@ -217,6 +217,23 @@ async def get_asset_history(symbol: str, limit: int = 30, db: AsyncSession = Dep
     )
     snaps = res.scalars().all()
     
+    if len(snaps) <= 1:
+        from backend.app.engine.regime_signal_engine import _build_score_series, SCORED_ASSETS
+        if sym in SCORED_ASSETS:
+            series = _build_score_series(sym)
+            if series:
+                recent = series[-limit:]
+                return [
+                    {
+                        "timestamp": dt,
+                        "score": sc,
+                        "weekly_score": round(sc - 2.0, 1),
+                        "tactical_bias": bi,
+                        "confidence": round(min(95.0, max(65.0, 70.0 + abs(sc) * 0.15)), 1),
+                    }
+                    for dt, sc, bi, _ in recent
+                ]
+
     return [
         {
             "timestamp": s.timestamp.isoformat(),
@@ -1204,5 +1221,53 @@ async def analyze_nlp_sentiment(payload: NLPAnalyzeRequest):
         "confidence": res.confidence,
         "detected_currencies": res.detected_currencies,
         "key_signals": res.key_signals,
+    }
+
+
+# ── VPS-Friendly Autonomous Resource Governor Routes ──────────────────────────
+
+@router.get("/vps/status")
+async def get_vps_status():
+    """
+    Retrieve real-time VPS telemetry, memory RSS, CPU usage, SQLite storage,
+    and adaptive throttling state.
+    """
+    from backend.app.engine.vps_governor import vps_governor
+    return vps_governor.get_telemetry()
+
+
+@router.post("/vps/optimize")
+async def trigger_vps_optimization(db: AsyncSession = Depends(get_db)):
+    """
+    Manually trigger instant memory cleanup (gc.collect + malloc_trim)
+    and SQLite WAL checkpointing / vacuum optimization.
+    """
+    from backend.app.engine.vps_governor import vps_governor
+    mem_res = vps_governor.run_memory_reclamation()
+    db_res = await vps_governor.run_sqlite_maintenance(db)
+    return {
+        "status": "SUCCESS",
+        "message": "VPS resources successfully reclaimed and optimized.",
+        "memory": mem_res,
+        "database": db_res,
+        "telemetry": vps_governor.get_telemetry(),
+    }
+
+
+@router.post("/vps/toggle-mode")
+async def toggle_vps_mode(mode: str = Query(..., description="'ACTIVE' or 'ECO_MODE'")):
+    """
+    Manually switch VPS engine between ACTIVE and ECO_MODE.
+    """
+    from backend.app.engine.vps_governor import vps_governor
+    mode_upper = mode.upper()
+    if mode_upper not in ("ACTIVE", "ECO_MODE"):
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail="Mode must be 'ACTIVE' or 'ECO_MODE'")
+    vps_governor.set_mode(mode_upper)
+    return {
+        "status": "SUCCESS",
+        "new_mode": vps_governor.mode,
+        "telemetry": vps_governor.get_telemetry(),
     }
 

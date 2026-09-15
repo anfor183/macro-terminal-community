@@ -44,6 +44,7 @@ export function App() {
   const [assets, setAssets] = useState<AssetItem[]>([]);
   const [whatChanged, setWhatChanged] = useState<WhatChangedItem[]>([]);
   const [calendar, setCalendar] = useState<CalendarEvent[]>([]);
+  const [currencies, setCurrencies] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const [selectedAsset, setSelectedAsset] = useState<string | null>(null);
@@ -77,16 +78,18 @@ export function App() {
       if (triggerSync) {
         await api.triggerLiveSync();
       }
-      const [regData, astData, wcData, calData] = await Promise.all([
+      const [regData, astData, wcData, calData, currData] = await Promise.all([
         api.getRegime(),
         api.getAssets(),
         api.getWhatChanged(),
         api.getCalendar(),
+        api.getCurrencyRanking(),
       ]);
       setRegime(regData);
       setAssets(astData);
       setWhatChanged(wcData);
       setCalendar(calData);
+      setCurrencies(currData);
     } catch (err) {
       console.error('Failed loading macro data:', err);
     } finally {
@@ -237,6 +240,7 @@ export function App() {
               assets={assets}
               whatChanged={whatChanged}
               calendar={calendar}
+              currencies={currencies}
               onSelectAsset={setSelectedAsset}
               onNavigateTab={setActiveTab}
               onOpenEvidence={() => setIsEvidenceDrawerOpen(true)}

@@ -59,6 +59,9 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+from backend.app.engine.vps_governor import vps_governor
+from fastapi import Request
+
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
@@ -67,6 +70,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# VPS Activity Monitoring Middleware
+@app.middleware("http")
+async def vps_governor_middleware(request: Request, call_next):
+    vps_governor.record_user_activity()
+    return await call_next(request)
 
 # Mount API routes under /api/v1
 @api_router.get("/info")

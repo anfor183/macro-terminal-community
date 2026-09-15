@@ -23,6 +23,7 @@ from backend.app.ingestion.live_news_manager import LiveNewsManager, LIVE_RSS_FE
 from backend.app.ingestion.live_cot_data import LiveCOTManager
 from backend.app.scoring.currency_model import calculate_forex_pair_score
 from backend.app.engine.forward_test_tracker import ForwardTestTracker
+from backend.app.engine.vps_governor import vps_governor
 
 logger = logging.getLogger(__name__)
 
@@ -60,6 +61,7 @@ class LiveOrchestrator:
             "last_error": self.last_error,
             "providers_monitored": len(LIVE_RSS_FEEDS) + 3, # RSS + Yahoo Finance + ForexFactory + CFTC COT
             "cost": "100% Free / Zero Paid Subscriptions",
+            "vps_governor": vps_governor.get_telemetry()["vps_governor"],
             "timestamp": now.isoformat(),
         }
 
@@ -313,32 +315,46 @@ class LiveOrchestrator:
         last_cot_run = 0.0
 
         loop = asyncio.get_event_loop()
+        last_governor_check = 0.0
 
         while not self._stop_event.is_set():
             now_mono = loop.time()
 
+            # Dynamic adaptive intervals governed by VPS resource engine (Active vs Eco Mode)
+            eff_price_int, eff_cal_int, eff_news_int, eff_cot_int = (
+                vps_governor.get_effective_polling_intervals(
+                    price_interval_sec, calendar_interval_sec, news_interval_sec, cot_interval_sec
+                )
+            )
+
             try:
+                # 0. Periodic VPS Governor Check (every 15s)
+                if now_mono - last_governor_check >= 15.0:
+                    async with AsyncSessionLocal() as session:
+                        await vps_governor.periodic_check(session)
+                    last_governor_check = now_mono
+
                 # 1. Price polling
-                if now_mono - last_price_run >= price_interval_sec:
+                if now_mono - last_price_run >= eff_price_int:
                     async with AsyncSessionLocal() as session:
                         await self.sync_market_prices(session)
                     last_price_run = now_mono
 
                 # 2. Calendar polling
-                if now_mono - last_cal_run >= calendar_interval_sec:
+                if now_mono - last_cal_run >= eff_cal_int:
                     async with AsyncSessionLocal() as session:
                         await self.sync_economic_calendar(session)
                     last_cal_run = now_mono
 
                 # 3. News polling & bias recalculation
-                if now_mono - last_news_run >= news_interval_sec:
+                if now_mono - last_news_run >= eff_news_int:
                     async with AsyncSessionLocal() as session:
                         await self.sync_macro_news(session)
                         await self.recalculate_asset_biases(session)
                     last_news_run = now_mono
 
                 # 4. Weekly CFTC Commitments of Traders polling
-                if now_mono - last_cot_run >= cot_interval_sec:
+                if now_mono - last_cot_run >= eff_cot_int:
                     await self.sync_cot_positioning()
                     last_cot_run = now_mono
 
@@ -348,9 +364,9 @@ class LiveOrchestrator:
                 self.last_error = f"Scheduler iteration error: {exc}"
                 logger.error(self.last_error)
 
-            # Sleep 1 second before checking next tick, allows clean cancellation
+            # Sleep 1.5 second before checking next tick, allows clean cancellation & saves CPU
             try:
-                await asyncio.sleep(1.0)
+                await asyncio.sleep(1.5)
 
             except asyncio.CancelledError:
                 break

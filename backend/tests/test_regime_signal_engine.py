@@ -477,4 +477,31 @@ class TestHistoricalSignalLog:
         assert res1["total_signals"] == res2["total_signals"]
         assert len(res1["signals"]) == len(res2["signals"])
 
+    def test_ethusd_in_scored_assets(self):
+        assert "ETHUSD" in SCORED_ASSETS
+        assert SCORED_ASSETS["ETHUSD"] == "Ethereum (ETH/USD)"
+
+    def test_ethusd_score_series_and_scanning(self):
+        series = _build_score_series("ETHUSD")
+        assert len(series) >= 700
+        # Check last observation has non-empty score and cot_z
+        date, score, bias, cot_z = series[-1]
+        assert isinstance(date, str)
+        assert isinstance(score, float)
+        assert -100.0 <= score <= 100.0
+        assert isinstance(cot_z, float)
+
+        signals = RegimeSignalEngine.detect_signals_for_asset(
+            "ETHUSD", SCORED_ASSETS["ETHUSD"], current_price=2550.0
+        )
+        assert isinstance(signals, list)
+
+    def test_ethusd_15y_backtest_validator(self):
+        from backend.app.backtest.historical_15y_validator import Historical15YearValidator
+        report = Historical15YearValidator.run_15y_validation(symbol="ETHUSD", horizon_weeks=4)
+        assert report.asset_symbol == "ETHUSD"
+        assert report.total_signals > 0
+        assert 0.0 <= report.overall_hit_rate_pct <= 100.0
+
+
 

@@ -105,6 +105,7 @@ def _build_score_series(symbol: str) -> List[Tuple[str, float, str, float]]:
         "XAGUSD": "cot_silver_zscore",
         "CL":     "cot_oil_zscore",
         "BTCUSD": "cot_btc_zscore",
+        "ETHUSD": "cot_eth_zscore",
     }
     attr = cot_attr_map.get(symbol.upper(), "cot_eur_zscore")
 
@@ -523,6 +524,7 @@ SCORED_ASSETS = {
     "XAGUSD": "Silver (XAG/USD)",
     "CL":     "WTI Crude Oil",
     "BTCUSD": "Bitcoin (BTC/USD)",
+    "ETHUSD": "Ethereum (ETH/USD)",
 }
 
 

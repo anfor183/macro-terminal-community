@@ -249,6 +249,17 @@ class Historical15YearValidator:
             raw = liq_mom + ry_mom + ry_drag + rate_lvl + 22.0
             score = max(-100.0, min(100.0, round(raw, 1)))
 
+        elif symbol == "ETHUSD":
+            # Ethereum: Global fiat liquidity impulse, smart-contract & risk-on beta, real yield drag
+            real_yield = obs.us_10y_yield - obs.us_cpi_yoy
+            prev_real_yield = p.us_10y_yield - p.us_cpi_yoy
+            liq_mom = (obs.fed_funds_rate - p.fed_funds_rate) * -80.0
+            ry_mom = (real_yield - prev_real_yield) * -35.0
+            ry_drag = -real_yield * 14.0
+            rate_lvl = 25.0 if obs.fed_funds_rate <= 1.50 else (-25.0 if obs.fed_funds_rate >= 4.50 else 0.0)
+            raw = liq_mom + ry_mom + ry_drag + rate_lvl + 20.0
+            score = max(-100.0, min(100.0, round(raw, 1)))
+
         else:
             score = 0.0
 
@@ -301,6 +312,8 @@ class Historical15YearValidator:
             return obs.xagusd_price
         elif sym == "BTCUSD":
             return obs.btcusd_price
+        elif sym == "ETHUSD":
+            return obs.ethusd_price
         return obs.eurusd_price
 
     @classmethod
@@ -330,6 +343,7 @@ class Historical15YearValidator:
             "XAGUSD": "Silver (Spot USD)",
             "CL": "WTI Crude Oil",
             "BTCUSD": "Bitcoin / US Dollar",
+            "ETHUSD": "Ethereum / US Dollar",
         }
 
         # Step 1: Generate signals and measure forward returns
@@ -351,7 +365,7 @@ class Historical15YearValidator:
             elif bias in ("STRONG BEARISH", "BEARISH"):
                 is_correct = fwd_ret < 0.0
             else:
-                flat_thresh = 5.0 if symbol.upper() == "BTCUSD" else (2.0 if symbol.upper() in ("CL", "XAGUSD", "NDX") else 1.25)
+                flat_thresh = 5.0 if symbol.upper() in ("BTCUSD", "ETHUSD") else (2.0 if symbol.upper() in ("CL", "XAGUSD", "NDX") else 1.25)
                 is_correct = abs(fwd_ret) < flat_thresh  # Neutral prediction is correct if market stayed flat
 
             results.append(BacktestSignalResult(
@@ -446,6 +460,7 @@ class Historical15YearValidator:
             "XAGUSD": "cot_silver_zscore",
             "CL": "cot_oil_zscore",
             "BTCUSD": "cot_btc_zscore",
+            "ETHUSD": "cot_eth_zscore",
         }
         cot_attr = cot_attr_map.get(symbol, "cot_eur_zscore")
 

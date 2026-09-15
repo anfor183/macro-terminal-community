@@ -230,4 +230,17 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text, title }),
     }),
+
+  // ── VPS Autonomous Resource Governor ─────────────────────────────────────────
+  getVpsStatus: () => fetchJson<any>(`${API_BASE}/vps/status`),
+
+  optimizeVps: () =>
+    fetchJson<any>(`${API_BASE}/vps/optimize`, {
+      method: 'POST',
+    }),
+
+  toggleVpsMode: (mode: string) =>
+    fetchJson<any>(`${API_BASE}/vps/toggle-mode?mode=${encodeURIComponent(mode)}`, {
+      method: 'POST',
+    }),
 };

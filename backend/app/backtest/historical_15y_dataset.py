@@ -64,6 +64,7 @@ class HistoricalMacroObservation:
     cot_ndx_zscore: float = 0.0
     cot_silver_zscore: float = 0.0
     cot_btc_zscore: float = 0.0
+    cot_eth_zscore: float = 0.0
 
     # Additional Central Bank Policy Rates & Asset Prices
     rbnz_cash_rate: float = 3.00
@@ -77,6 +78,7 @@ class HistoricalMacroObservation:
     ndx_price: float = 12000.0
     xagusd_price: float = 24.0
     btcusd_price: float = 30000.0
+    ethusd_price: float = 2500.0
 
 
 # The 5 Macro Regimes spanning 2011 to 2026
@@ -220,6 +222,13 @@ def generate_15y_macro_dataset() -> List[HistoricalMacroObservation]:
         (712, 63200.0), (750, 66500.0), (779, 68500.0),
     ]
 
+    eth_anchors = [
+        (0, 1.0), (52, 1.0), (104, 1.0), (156, 1.0),
+        (208, 1.0), (260, 10.0), (312, 10.5), (416, 135.0),
+        (478, 170.0), (540, 2800.0), (612, 1300.0), (660, 1650.0),
+        (712, 2600.0), (750, 2850.0), (779, 2550.0),
+    ]
+
     def _get_anchor_val(anchors: List[Tuple[int, float]], week: int) -> float:
         for idx in range(len(anchors) - 1):
             w_a, v_a = anchors[idx]
@@ -295,6 +304,9 @@ def generate_15y_macro_dataset() -> List[HistoricalMacroObservation]:
             btc_p = _get_anchor_val(btc_anchors, w) * (1.0 + seed_noise * 3.5)
             cot_btc_z = round(max(-3.0, min(3.0, math.sin(w * 0.04) * 1.4 + 0.2)), 2)
 
+            eth_p = _get_anchor_val(eth_anchors, w) * (1.0 + seed_noise * 3.8)
+            cot_eth_z = round(max(-3.0, min(3.0, math.sin(w * 0.045) * 1.3 + 0.1)), 2)
+
             obs = HistoricalMacroObservation(
                 week_index=w,
                 observation_date=obs_date,
@@ -334,6 +346,7 @@ def generate_15y_macro_dataset() -> List[HistoricalMacroObservation]:
                 cot_ndx_zscore=cot_ndx_z,
                 cot_silver_zscore=cot_silver_z,
                 cot_btc_zscore=cot_btc_z,
+                cot_eth_zscore=cot_eth_z,
                 rba_cash_rate=round(rba_r, 2),
                 audusd_price=round(aud_p, 4),
                 boc_overnight_rate=round(boc_r, 2),
@@ -343,6 +356,7 @@ def generate_15y_macro_dataset() -> List[HistoricalMacroObservation]:
                 ndx_price=round(ndx_p, 2),
                 xagusd_price=round(xag_p, 2),
                 btcusd_price=round(btc_p, 2),
+                ethusd_price=round(eth_p, 2),
             )
             observations.append(obs)
 
@@ -388,6 +402,7 @@ def generate_15y_macro_dataset() -> List[HistoricalMacroObservation]:
         cot_ndx_zscore=0.8,
         cot_silver_zscore=0.9,
         cot_btc_zscore=0.5,
+        cot_eth_zscore=0.4,
         rba_cash_rate=3.85,
         audusd_price=0.6680,
         boc_overnight_rate=3.25,
@@ -397,6 +412,7 @@ def generate_15y_macro_dataset() -> List[HistoricalMacroObservation]:
         ndx_price=20850.0,
         xagusd_price=32.8,
         btcusd_price=68500.0,
+        ethusd_price=2550.0,
     ))
 
     return observations

@@ -17,6 +17,7 @@ interface MarketAtAGlanceProps {
   regime: MacroRegime | null;
   assets: AssetItem[];
   calendar: CalendarEvent[];
+  currencies?: Array<{ rank: number; code: string; name: string; score: number; weekly_score: number; policy_direction: string; growth_direction: string }>;
   onSelectAsset?: (symbol: string) => void;
   onNavigateTab?: (tab: any) => void;
 }
@@ -25,6 +26,7 @@ export const MarketAtAGlance: React.FC<MarketAtAGlanceProps> = ({
   regime,
   assets,
   calendar,
+  currencies,
   onSelectAsset,
   onNavigateTab,
 }) => {
@@ -35,9 +37,14 @@ export const MarketAtAGlance: React.FC<MarketAtAGlanceProps> = ({
   const topBullish = sortedAssets.slice(0, 3);
   const topBearish = sortedAssets.slice(-3).reverse();
 
-  // Currencies
-  const leaders = ['USD (+68)', 'EUR (+54)', 'GBP (+42)'];
-  const laggards = ['JPY (-31)', 'CHF (-8)', 'NZD (+12)'];
+  // Currencies from live rankings
+  const validCurrs = currencies && currencies.length > 0 ? [...currencies].sort((a, b) => b.score - a.score) : [];
+  const leaders = validCurrs.length > 0
+    ? validCurrs.slice(0, 3).map((c) => `${c.code} (${c.score >= 0 ? '+' : ''}${Math.round(c.score)})`)
+    : ['JPY (+55)', 'EUR (+42)', 'AUD (+28)'];
+  const laggards = validCurrs.length > 0
+    ? validCurrs.slice(-3).reverse().map((c) => `${c.code} (${c.score >= 0 ? '+' : ''}${Math.round(c.score)})`)
+    : ['NZD (-20)', 'CAD (-15)', 'CNY (-5)'];
 
   // Next major event
   const nextEvent = calendar && calendar.length > 0 ? calendar[0] : null;

@@ -25,6 +25,7 @@ interface DashboardViewProps {
   assets: AssetItem[];
   whatChanged: WhatChangedItem[];
   calendar: CalendarEvent[];
+  currencies?: Array<{ rank: number; code: string; name: string; score: number; weekly_score: number; policy_direction: string; growth_direction: string }>;
   onSelectAsset: (symbol: string) => void;
   onNavigateTab: (tab: any) => void;
   onOpenEvidence?: () => void;
@@ -37,6 +38,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   assets,
   whatChanged,
   calendar,
+  currencies,
   onSelectAsset,
   onNavigateTab,
   onOpenEvidence,
@@ -53,17 +55,24 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     .sort((a, b) => Math.abs(b.score) * b.confidence - Math.abs(a.score) * a.confidence)
     .slice(0, 4);
 
-  // Currency Horizontal Strength Ranking Data (Section 10)
-  const currencyStrengthData = [
-    { code: 'USD', score: 68, weeklyChange: 4.2, trend: 'up' },
-    { code: 'EUR', score: 54, weeklyChange: 8.5, trend: 'up' },
-    { code: 'GBP', score: 42, weeklyChange: -1.8, trend: 'down' },
-    { code: 'CAD', score: 31, weeklyChange: 2.1, trend: 'up' },
-    { code: 'AUD', score: 18, weeklyChange: -3.4, trend: 'down' },
-    { code: 'NZD', score: 12, weeklyChange: -5.0, trend: 'down' },
-    { code: 'CHF', score: -8, weeklyChange: 1.2, trend: 'up' },
-    { code: 'JPY', score: -31, weeklyChange: -2.8, trend: 'down' },
-  ];
+  // Currency Horizontal Strength Ranking Data (Section 10) - from live model
+  const currencyStrengthData = (currencies && currencies.length > 0)
+    ? currencies.slice(0, 8).map((c) => ({
+        code: c.code,
+        score: c.score,
+        weeklyChange: Math.round((c.score - c.weekly_score) * 10) / 10,
+        trend: c.score >= c.weekly_score ? ('up' as const) : ('down' as const),
+      }))
+    : [
+        { code: 'JPY', score: 55, weeklyChange: 2.0, trend: 'up' as const },
+        { code: 'EUR', score: 42, weeklyChange: 2.0, trend: 'up' as const },
+        { code: 'AUD', score: 28, weeklyChange: 2.0, trend: 'up' as const },
+        { code: 'GBP', score: 25, weeklyChange: 2.0, trend: 'up' as const },
+        { code: 'USD', score: 18, weeklyChange: 2.0, trend: 'up' as const },
+        { code: 'CHF', score: 10, weeklyChange: 2.0, trend: 'up' as const },
+        { code: 'CAD', score: -15, weeklyChange: -2.0, trend: 'down' as const },
+        { code: 'NZD', score: -20, weeklyChange: -2.0, trend: 'down' as const },
+      ];
 
   // Primary Spotlight Asset for Signature Conviction Component
   const featuredAsset = assets.find((a) => a.symbol === 'EURUSD') || assets[0];
@@ -75,6 +84,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         regime={regime}
         assets={assets}
         calendar={calendar}
+        currencies={currencies}
         onSelectAsset={onSelectAsset}
         onNavigateTab={onNavigateTab}
       />

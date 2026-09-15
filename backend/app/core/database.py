@@ -50,6 +50,12 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 
 
 async def init_db():
-    """Create tables if they don't exist."""
+    """Create tables and configure SQLite WAL and caching for VPS efficiency."""
     async with engine.begin() as conn:
+        if "sqlite" in settings.DATABASE_URL:
+            from sqlalchemy import text
+            await conn.execute(text("PRAGMA journal_mode=WAL;"))
+            await conn.execute(text("PRAGMA synchronous=NORMAL;"))
+            await conn.execute(text("PRAGMA cache_size=-16000;"))
+            await conn.execute(text("PRAGMA temp_store=MEMORY;"))
         await conn.run_sync(Base.metadata.create_all)

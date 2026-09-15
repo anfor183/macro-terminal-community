@@ -64,7 +64,7 @@ class TestHighConvictionScorer:
             asset_name="Euro / US Dollar",
             current_price=1.1050,
             daily_atr=0.0065,
-            macro_score=45.0,
+            macro_score=50.0,
             cot_snapshot=snap,
             policy_spread_score=35.0,
             growth_inflation_score=20.0,

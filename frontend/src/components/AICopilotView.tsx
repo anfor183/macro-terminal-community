@@ -436,6 +436,7 @@ export const AICopilotView: React.FC = () => {
                   <option value="USOIL">WTI Crude Oil</option>
                   <option value="SPX">S&P 500 Index</option>
                   <option value="BTCUSD">Bitcoin / USD</option>
+                  <option value="ETHUSD">Ethereum / USD</option>
                 </select>
               </div>
 

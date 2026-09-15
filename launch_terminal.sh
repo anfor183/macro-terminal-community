@@ -5,7 +5,7 @@
 
 set -e
 
-PROJECT_DIR="/home/fortune/Documents/fx fundamentals"
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PORT=8080
 TARGET_URL="http://127.0.0.1:${PORT}/"
 HEALTH_URL="http://127.0.0.1:${PORT}/api/v1/info"
@@ -13,12 +13,17 @@ LOG_FILE="${PROJECT_DIR}/terminal.log"
 
 cd "${PROJECT_DIR}"
 
+PYTHON_BIN="${PROJECT_DIR}/backend/venv/bin/python"
+if [ ! -x "${PYTHON_BIN}" ]; then
+    PYTHON_BIN="python3"
+fi
+
 # Function to check if server is responsive
 is_server_running() {
-    python3 -c "
+    "${PYTHON_BIN}" -c "
 import urllib.request, sys
 try:
-    resp = urllib.request.urlopen('${HEALTH_URL}', timeout=1)
+    resp = urllib.request.urlopen('${HEALTH_URL}', timeout=2)
     if resp.status == 200:
         sys.exit(0)
     sys.exit(1)
@@ -39,10 +44,16 @@ else
         (cd "${PROJECT_DIR}/frontend" && npm run build)
     fi
 
-    # Launch uvicorn server fully detached with setsid
-    setsid python3 -m uvicorn backend.app.main:app --host 127.0.0.1 --port ${PORT} </dev/null > "${LOG_FILE}" 2>&1 &
-    SERVER_PID=$!
-    echo "[INFO] Server spawned (PID $SERVER_PID). Waiting for health check..."
+    # Check if PM2 is available
+    if command -v pm2 >/dev/null 2>&1; then
+        echo "[INFO] Starting via PM2 for VPS persistence & memory limits..."
+        pm2 start "${PYTHON_BIN}" --name "macro-terminal" --max-memory-restart 400M -- -m uvicorn backend.app.main:app --host 0.0.0.0 --port ${PORT}
+    else
+        # Launch uvicorn server detached
+        setsid "${PYTHON_BIN}" -m uvicorn backend.app.main:app --host 0.0.0.0 --port ${PORT} </dev/null > "${LOG_FILE}" 2>&1 &
+        SERVER_PID=$!
+        echo "[INFO] Server spawned (PID $SERVER_PID). Waiting for health check..."
+    fi
 
     # Wait for server to become responsive (up to 15 seconds)
     READY=0
@@ -57,19 +68,19 @@ else
 
     if [ $READY -eq 0 ]; then
         echo "[ERROR] Terminal server failed to respond within 15 seconds. Check ${LOG_FILE}"
-        # Still attempt to open browser in case it's slowly spinning up
     fi
 fi
 
 # 2. Launch browser client
 echo "[INFO] Launching Terminal interface at ${TARGET_URL}..."
-if [ -x "/home/fortune/.local/bin/google-chrome" ] || command -v google-chrome >/dev/null 2>&1; then
-    CHROME_BIN="$(which google-chrome 2>/dev/null || echo '/home/fortune/.local/bin/google-chrome')"
-    "${CHROME_BIN}" --app="${TARGET_URL}" >/dev/null 2>&1 &
+if command -v google-chrome >/dev/null 2>&1; then
+    google-chrome --app="${TARGET_URL}" >/dev/null 2>&1 &
+elif command -v chromium >/dev/null 2>&1; then
+    chromium --app="${TARGET_URL}" >/dev/null 2>&1 &
 elif command -v xdg-open >/dev/null 2>&1; then
     xdg-open "${TARGET_URL}" >/dev/null 2>&1 &
 else
-    python3 -m webbrowser "${TARGET_URL}" >/dev/null 2>&1 &
+    "${PYTHON_BIN}" -m webbrowser "${TARGET_URL}" >/dev/null 2>&1 &
 fi
 
 echo "[SUCCESS] Fortune Anukposi Quantitative Macro Terminal launched."
