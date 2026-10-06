@@ -10,6 +10,22 @@ interface COTWeeklyBreakdownTableProps {
   isLight?: boolean;
 }
 
+interface ColumnMinMax {
+  min: number;
+  max: number;
+  span: number;
+}
+
+interface SignedColumnStats {
+  posMax: number;
+  posMin: number;
+  negMax: number; // most negative (lowest number, furthest from 0, e.g. -41,094)
+  negMin: number; // least negative (highest number, closest to 0, e.g. -19,946)
+  hasPos: boolean;
+  hasNeg: boolean;
+  maxAbs: number;
+}
+
 const formatNumber = (val: number | undefined | null): string => {
   if (val === undefined || val === null || isNaN(val)) return '-';
   return val.toLocaleString('en-US');
@@ -78,7 +94,7 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
   }, [propIsLight]);
 
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc'); // asc = oldest to newest (like cot-reports.com)
-  const [heatmapMode, setHeatmapMode] = useState<'ultra' | 'vibrant' | 'subtle'>('ultra'); // Defaults to strongest institutional punch
+  const [heatmapMode, setHeatmapMode] = useState<'ultra' | 'vibrant' | 'subtle'>('vibrant');
 
   const rows: COTWeeklyBreakdownRow[] = useMemo(() => {
     if (!data?.reports) return [];
@@ -89,11 +105,11 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
     return list;
   }, [data, sortDirection]);
 
-  // Precompute stats across all columns for relative multi-tier heatmapping
+  // Precompute column ranges (min, max, span, pos/neg extremes) across all 26 columns
   const stats = useMemo(() => {
     if (!rows.length) return null;
 
-    const getMinMax = (getter: (r: COTWeeklyBreakdownRow) => number | undefined | null) => {
+    const getMinMax = (getter: (r: COTWeeklyBreakdownRow) => number | undefined | null): ColumnMinMax => {
       let min = Infinity;
       let max = -Infinity;
       for (const r of rows) {
@@ -103,31 +119,59 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
           if (v > max) max = v;
         }
       }
+      const cleanMin = min === Infinity ? 0 : min;
+      const cleanMax = max === -Infinity ? 1 : max;
       return {
-        min: min === Infinity ? 0 : min,
-        max: max === -Infinity ? 1 : max,
+        min: cleanMin,
+        max: cleanMax,
+        span: cleanMax > cleanMin ? cleanMax - cleanMin : 1,
       };
     };
 
-    const getMaxAbs = (getter: (r: COTWeeklyBreakdownRow) => number | undefined | null) => {
+    const getSignedStats = (getter: (r: COTWeeklyBreakdownRow) => number | undefined | null): SignedColumnStats => {
+      let posMax = 0;
+      let posMin = Infinity;
+      let negMax = 0; // lowest number (furthest from 0)
+      let negMin = -Infinity; // highest negative (closest to 0)
+      let hasPos = false;
+      let hasNeg = false;
       let maxAbs = 0;
+
       for (const r of rows) {
         const v = getter(r);
         if (v !== undefined && v !== null && !isNaN(v)) {
           const abs = Math.abs(v);
           if (abs > maxAbs) maxAbs = abs;
+          if (v > 0) {
+            hasPos = true;
+            if (v > posMax) posMax = v;
+            if (v < posMin) posMin = v;
+          } else if (v < 0) {
+            hasNeg = true;
+            if (v < negMax) negMax = v;
+            if (v > negMin) negMin = v;
+          }
         }
       }
-      return maxAbs || 1;
+
+      return {
+        posMax: posMax || 1,
+        posMin: posMin === Infinity ? 0 : posMin,
+        negMax: negMax || -1,
+        negMin: negMin === -Infinity ? 0 : negMin,
+        hasPos,
+        hasNeg,
+        maxAbs: maxAbs || 1,
+      };
     };
 
     return {
       // Non-Commercial (Large Speculators)
       noncomm_long: getMinMax((r) => r.noncomm_long),
       noncomm_short: getMinMax((r) => r.noncomm_short),
-      change_noncomm_long_abs: getMaxAbs((r) => r.change_noncomm_long),
-      change_noncomm_short_abs: getMaxAbs((r) => r.change_noncomm_short),
-      noncomm_net_abs: getMaxAbs((r) => r.noncomm_net),
+      change_noncomm_long: getSignedStats((r) => r.change_noncomm_long),
+      change_noncomm_short: getSignedStats((r) => r.change_noncomm_short),
+      noncomm_net: getSignedStats((r) => r.noncomm_net),
       noncomm_spreading: getMinMax((r) => r.noncomm_spreading),
       pct_oi_noncomm_spreading: getMinMax((r) => r.pct_oi_noncomm_spreading),
       pct_oi_noncomm_long: getMinMax((r) => r.pct_oi_noncomm_long),
@@ -136,18 +180,18 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
       // Commercial (Hedgers)
       comm_long: getMinMax((r) => r.comm_long),
       comm_short: getMinMax((r) => r.comm_short),
-      change_comm_long_abs: getMaxAbs((r) => r.change_comm_long),
-      change_comm_short_abs: getMaxAbs((r) => r.change_comm_short),
-      comm_net_abs: getMaxAbs((r) => r.comm_net),
+      change_comm_long: getSignedStats((r) => r.change_comm_long),
+      change_comm_short: getSignedStats((r) => r.change_comm_short),
+      comm_net: getSignedStats((r) => r.comm_net),
       pct_oi_comm_long: getMinMax((r) => r.pct_oi_comm_long),
       pct_oi_comm_short: getMinMax((r) => r.pct_oi_comm_short),
 
       // Non-Reportable (Small Speculators)
       nonrept_long: getMinMax((r) => r.nonrept_long),
       nonrept_short: getMinMax((r) => r.nonrept_short),
-      change_nonrept_long_abs: getMaxAbs((r) => r.change_nonrept_long),
-      change_nonrept_short_abs: getMaxAbs((r) => r.change_nonrept_short),
-      nonrept_net_abs: getMaxAbs((r) => r.nonrept_net),
+      change_nonrept_long: getSignedStats((r) => r.change_nonrept_long),
+      change_nonrept_short: getSignedStats((r) => r.change_nonrept_short),
+      nonrept_net: getSignedStats((r) => r.nonrept_net),
       pct_oi_nonrept_long: getMinMax((r) => r.pct_oi_nonrept_long),
       pct_oi_nonrept_short: getMinMax((r) => r.pct_oi_nonrept_short),
 
@@ -157,52 +201,78 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
     };
   }, [rows]);
 
-  // Sub-linear power curve (gamma = 0.48) to boost typical moves
-  // so normal weekly swings have vivid, punchy reactions without being squashed by peak outliers
-  const boostRatio = (raw: number) => {
-    const clamped = Math.max(0, Math.min(1, isNaN(raw) ? 0 : raw));
-    return Math.pow(clamped, 0.48);
+  // Heatmap intensity multiplier
+  const intensity = heatmapMode === 'ultra' ? 1.15 : heatmapMode === 'vibrant' ? 1.0 : 0.6;
+
+  // Linear dynamic alpha interpolation across the full range
+  const getAlpha = (ratio: number, minAlpha = 0.06, maxAlpha = 0.72) => {
+    const clamped = Math.max(0, Math.min(1, isNaN(ratio) ? 0 : ratio));
+    const raw = minAlpha + clamped * (maxAlpha - minAlpha);
+    return Math.min(0.85, Math.max(0.04, raw * intensity));
   };
 
-  // Heatmap intensity multiplier
-  const intensity = heatmapMode === 'ultra' ? 1.25 : heatmapMode === 'vibrant' ? 1.0 : 0.55;
+  // Magnitude ratio calculator
+  const getMagnitudeRatio = (val: number, stat?: ColumnMinMax) => {
+    if (!stat || stat.span <= 0) return 0;
+    return Math.max(0, Math.min(1, (val - stat.min) / stat.span));
+  };
+
+  // Signed Net Position dynamic ratio calculator
+  const getNetRatio = (net: number, stat?: SignedColumnStats) => {
+    if (!stat || !net) return 0;
+    if (net > 0) {
+      if (stat.hasNeg) {
+        return Math.max(0, Math.min(1, net / stat.posMax));
+      }
+      const span = stat.posMax - stat.posMin;
+      return span > 0 ? Math.max(0, Math.min(1, (net - stat.posMin) / span)) : 0.5;
+    }
+    if (net < 0) {
+      if (stat.hasPos) {
+        return Math.max(0, Math.min(1, Math.abs(net) / Math.abs(stat.negMax)));
+      }
+      const span = Math.abs(stat.negMax - stat.negMin);
+      return span > 0 ? Math.max(0, Math.min(1, Math.abs(net - stat.negMin) / span)) : 0.5;
+    }
+    return 0;
+  };
+
+  // Signed Weekly Change dynamic ratio calculator
+  const getChangeRatio = (val: number, stat?: SignedColumnStats) => {
+    if (!stat || !val) return 0;
+    if (val > 0) {
+      return Math.max(0, Math.min(1, val / stat.posMax));
+    }
+    return Math.max(0, Math.min(1, Math.abs(val) / Math.abs(stat.negMax)));
+  };
 
   // 1. Contracts Magnitude Heatmap (Longs - Emerald Green gradient)
-  const getLongContractsHeatmap = (val: number, range?: { min: number; max: number }) => {
-    if (!range || range.max === range.min) return { color: isLight ? '#0f172a' : '#f8fafc' };
-    const rawRatio = (val - range.min) / (range.max - range.min);
-    const boosted = boostRatio(rawRatio);
-    const alpha = Math.min(0.65, (0.10 + boosted * 0.45) * intensity);
+  const getLongContractsHeatmap = (val: number, stat?: ColumnMinMax) => {
+    const ratio = getMagnitudeRatio(val, stat);
+    const alpha = getAlpha(ratio, 0.06, 0.66);
     return {
-      backgroundColor: isLight ? `rgba(16, 185, 129, ${alpha})` : `rgba(16, 185, 129, ${alpha * 1.15})`,
+      backgroundColor: isLight ? `rgba(16, 185, 129, ${alpha})` : `rgba(16, 185, 129, ${alpha * 1.1})`,
       color: isLight ? (alpha > 0.45 ? '#064e3b' : '#0f172a') : '#f8fafc',
       fontWeight: 700,
     };
   };
 
   // 2. Contracts Magnitude Heatmap (Shorts - Coral/Ruby gradient)
-  const getShortContractsHeatmap = (val: number, range?: { min: number; max: number }) => {
-    if (!range || range.max === range.min) return { color: isLight ? '#0f172a' : '#f8fafc' };
-    const rawRatio = (val - range.min) / (range.max - range.min);
-    const boosted = boostRatio(rawRatio);
-    const alpha = Math.min(0.65, (0.10 + boosted * 0.45) * intensity);
+  const getShortContractsHeatmap = (val: number, stat?: ColumnMinMax) => {
+    const ratio = getMagnitudeRatio(val, stat);
+    const alpha = getAlpha(ratio, 0.06, 0.66);
     return {
-      backgroundColor: isLight ? `rgba(244, 63, 94, ${alpha})` : `rgba(244, 63, 94, ${alpha * 1.15})`,
+      backgroundColor: isLight ? `rgba(244, 63, 94, ${alpha})` : `rgba(244, 63, 94, ${alpha * 1.1})`,
       color: isLight ? (alpha > 0.45 ? '#7f1d1d' : '#0f172a') : '#f8fafc',
       fontWeight: 700,
     };
   };
 
   // 3. Change in Longs (Signed Heatmap: Positive = Green Bullish, Negative = Red Bearish)
-  const getChangeLongsHeatmap = (val: number, maxAbs?: number) => {
-    if (!val || val === 0) {
-      return { color: isLight ? '#64748b' : '#94a3b8' };
-    }
-    const maxVal = maxAbs || 1;
-    const rawRatio = Math.abs(val) / maxVal;
-    const boosted = boostRatio(rawRatio);
-    const alpha = Math.min(0.85, (0.18 + boosted * 0.58) * intensity);
-
+  const getChangeLongsHeatmap = (val: number, stat?: SignedColumnStats) => {
+    if (!val || val === 0) return { color: isLight ? '#64748b' : '#94a3b8' };
+    const ratio = getChangeRatio(val, stat);
+    const alpha = getAlpha(ratio, 0.08, 0.72);
     if (val > 0) {
       return {
         backgroundColor: isLight ? `rgba(34, 197, 94, ${alpha})` : `rgba(34, 197, 94, ${alpha * 0.95})`,
@@ -217,17 +287,11 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
     };
   };
 
-  // 4. Change in Shorts (COT Convention Heatmap: Positive shorts increase = Red Bearish, Negative shorts reduction = Green Bullish)
-  const getChangeShortsHeatmap = (val: number, maxAbs?: number) => {
-    if (!val || val === 0) {
-      return { color: isLight ? '#64748b' : '#94a3b8' };
-    }
-    const maxVal = maxAbs || 1;
-    const rawRatio = Math.abs(val) / maxVal;
-    const boosted = boostRatio(rawRatio);
-    const alpha = Math.min(0.85, (0.18 + boosted * 0.58) * intensity);
-
-    // Positive shorts addition = Bearish (Red)
+  // 4. Change in Shorts (COT Convention: Positive shorts increase = Red Bearish, Negative shorts reduction = Green Bullish)
+  const getChangeShortsHeatmap = (val: number, stat?: SignedColumnStats) => {
+    if (!val || val === 0) return { color: isLight ? '#64748b' : '#94a3b8' };
+    const ratio = getChangeRatio(val, stat);
+    const alpha = getAlpha(ratio, 0.08, 0.72);
     if (val > 0) {
       return {
         backgroundColor: isLight ? `rgba(239, 68, 68, ${alpha})` : `rgba(239, 68, 68, ${alpha * 0.95})`,
@@ -235,7 +299,6 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
         fontWeight: 800,
       };
     }
-    // Negative shorts reduction (covering) = Bullish (Green)
     return {
       backgroundColor: isLight ? `rgba(34, 197, 94, ${alpha})` : `rgba(34, 197, 94, ${alpha * 0.95})`,
       color: isLight ? (alpha > 0.45 ? '#052e16' : '#14532d') : (alpha > 0.45 ? '#ffffff' : '#86efac'),
@@ -244,49 +307,42 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
   };
 
   // 5. Net Positions (Full Bi-directional Divergent Heatmap: Positive = Green Net Long, Negative = Red Net Short)
-  const getNetPositionsHeatmap = (net: number, maxAbs?: number) => {
+  const getNetPositionsHeatmap = (net: number, stat?: SignedColumnStats) => {
     if (!net || net === 0) {
-      return { color: isLight ? '#64748b' : '#94a3b8', fontWeight: 800 };
+      return { color: isLight ? '#64748b' : '#94a3b8', fontWeight: 700 };
     }
-    const maxVal = maxAbs || 1;
-    const rawRatio = Math.abs(net) / maxVal;
-    const boosted = boostRatio(rawRatio);
-    const alpha = Math.min(0.88, (0.22 + boosted * 0.60) * intensity);
+    const ratio = getNetRatio(net, stat);
+    const alpha = getAlpha(ratio, 0.08, 0.74);
 
     if (net > 0) {
       return {
         backgroundColor: isLight ? `rgba(16, 185, 129, ${alpha})` : `rgba(16, 185, 129, ${alpha * 0.95})`,
-        color: isLight ? (alpha > 0.45 ? '#022c22' : '#064e3b') : (alpha > 0.45 ? '#ffffff' : '#6ee7b7'),
-        fontWeight: 900,
+        color: isLight ? (alpha > 0.48 ? '#022c22' : '#065f46') : (alpha > 0.45 ? '#ffffff' : '#6ee7b7'),
+        fontWeight: 800,
       };
     }
     return {
       backgroundColor: isLight ? `rgba(239, 68, 68, ${alpha})` : `rgba(239, 68, 68, ${alpha * 0.95})`,
-      color: isLight ? (alpha > 0.45 ? '#450a0a' : '#7f1d1d') : (alpha > 0.45 ? '#ffffff' : '#fca5a5'),
-      fontWeight: 900,
+      color: isLight ? (alpha > 0.48 ? '#450a0a' : '#991b1b') : (alpha > 0.45 ? '#ffffff' : '#fca5a5'),
+      fontWeight: 800,
     };
   };
 
   // 6. Spreads Contracts Heatmap (Purple/Violet gradient)
-  const getSpreadContractsHeatmap = (val: number, range?: { min: number; max: number }) => {
-    if (!range || range.max === range.min) return { color: isLight ? '#0f172a' : '#f8fafc' };
-    const rawRatio = (val - range.min) / (range.max - range.min);
-    const boosted = boostRatio(rawRatio);
-    const alpha = Math.min(0.65, (0.10 + boosted * 0.45) * intensity);
+  const getSpreadContractsHeatmap = (val: number, stat?: ColumnMinMax) => {
+    const ratio = getMagnitudeRatio(val, stat);
+    const alpha = getAlpha(ratio, 0.06, 0.66);
     return {
-      backgroundColor: isLight ? `rgba(147, 51, 234, ${alpha})` : `rgba(147, 51, 234, ${alpha * 1.15})`,
+      backgroundColor: isLight ? `rgba(147, 51, 234, ${alpha})` : `rgba(147, 51, 234, ${alpha * 1.1})`,
       color: isLight ? (alpha > 0.45 ? '#3b0764' : '#581c87') : '#f8fafc',
       fontWeight: 700,
     };
   };
 
   // 7. %OI Spreads Heatmap (Indigo/Cyan saturated gradient)
-  const getSpreadPctHeatmap = (pct: number, range?: { min: number; max: number }) => {
-    const span = range && range.max > range.min ? range.max - range.min : 30;
-    const min = range ? range.min : 0;
-    const rawRatio = (pct - min) / (span || 1);
-    const boosted = boostRatio(rawRatio);
-    const alpha = Math.min(0.80, (0.16 + boosted * 0.58) * intensity);
+  const getSpreadPctHeatmap = (pct: number, stat?: ColumnMinMax) => {
+    const ratio = getMagnitudeRatio(pct, stat);
+    const alpha = getAlpha(ratio, 0.08, 0.72);
     return {
       backgroundColor: isLight ? `rgba(99, 102, 241, ${alpha})` : `rgba(99, 102, 241, ${alpha * 0.95})`,
       color: isLight ? (alpha > 0.45 ? '#1e1b4b' : '#312e81') : (alpha > 0.45 ? '#ffffff' : '#c7d2fe'),
@@ -295,12 +351,9 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
   };
 
   // 8. %OI Longs Heatmap (Rich Emerald Green gradient)
-  const getLongPctHeatmap = (pct: number, range?: { min: number; max: number }) => {
-    const span = range && range.max > range.min ? range.max - range.min : 50;
-    const min = range ? range.min : 0;
-    const rawRatio = (pct - min) / (span || 1);
-    const boosted = boostRatio(rawRatio);
-    const alpha = Math.min(0.85, (0.18 + boosted * 0.60) * intensity);
+  const getLongPctHeatmap = (pct: number, stat?: ColumnMinMax) => {
+    const ratio = getMagnitudeRatio(pct, stat);
+    const alpha = getAlpha(ratio, 0.08, 0.74);
     return {
       backgroundColor: isLight ? `rgba(16, 185, 129, ${alpha})` : `rgba(16, 185, 129, ${alpha * 0.95})`,
       color: isLight ? (alpha > 0.45 ? '#022c22' : '#064e3b') : (alpha > 0.45 ? '#ffffff' : '#6ee7b7'),
@@ -309,12 +362,9 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
   };
 
   // 9. %OI Shorts Heatmap (Rich Crimson Red gradient)
-  const getShortPctHeatmap = (pct: number, range?: { min: number; max: number }) => {
-    const span = range && range.max > range.min ? range.max - range.min : 50;
-    const min = range ? range.min : 0;
-    const rawRatio = (pct - min) / (span || 1);
-    const boosted = boostRatio(rawRatio);
-    const alpha = Math.min(0.85, (0.18 + boosted * 0.60) * intensity);
+  const getShortPctHeatmap = (pct: number, stat?: ColumnMinMax) => {
+    const ratio = getMagnitudeRatio(pct, stat);
+    const alpha = getAlpha(ratio, 0.08, 0.74);
     return {
       backgroundColor: isLight ? `rgba(239, 68, 68, ${alpha})` : `rgba(239, 68, 68, ${alpha * 0.95})`,
       color: isLight ? (alpha > 0.45 ? '#450a0a' : '#7f1d1d') : (alpha > 0.45 ? '#ffffff' : '#fca5a5'),
@@ -323,12 +373,9 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
   };
 
   // 10. Open Interest Total Heatmap (Electric Sapphire Blue gradient)
-  const getOIHeatmap = (oi: number, range?: { min: number; max: number }) => {
-    const span = range && range.max > range.min ? range.max - range.min : 1;
-    const min = range ? range.min : 0;
-    const rawRatio = (oi - min) / (span || 1);
-    const boosted = boostRatio(rawRatio);
-    const alpha = Math.min(0.78, (0.14 + boosted * 0.54) * intensity);
+  const getOIHeatmap = (oi: number, stat?: ColumnMinMax) => {
+    const ratio = getMagnitudeRatio(oi, stat);
+    const alpha = getAlpha(ratio, 0.08, 0.72);
     return {
       backgroundColor: isLight ? `rgba(2, 132, 199, ${alpha})` : `rgba(2, 132, 199, ${alpha * 0.95})`,
       color: isLight ? (alpha > 0.45 ? '#082f49' : '#075985') : (alpha > 0.45 ? '#ffffff' : '#bae6fd'),
@@ -337,16 +384,15 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
   };
 
   // 11. Price Heatmap (Warm Gold/Amber gradient)
-  const getPriceHeatmap = (price: number | undefined | null, range?: { min: number; max: number }) => {
-    if (price === undefined || price === null || !range || range.max === range.min) {
+  const getPriceHeatmap = (price: number | undefined | null, stat?: ColumnMinMax) => {
+    if (price === undefined || price === null || !stat || stat.span <= 0) {
       return { color: isLight ? '#0f172a' : '#f8fafc', fontWeight: 800 };
     }
-    const rawRatio = (price - range.min) / (range.max - range.min);
-    const boosted = boostRatio(rawRatio);
-    const alpha = Math.min(0.55, (0.08 + boosted * 0.38) * intensity);
+    const ratio = getMagnitudeRatio(price, stat);
+    const alpha = getAlpha(ratio, 0.05, 0.62);
     return {
       backgroundColor: isLight ? `rgba(245, 158, 11, ${alpha})` : `rgba(245, 158, 11, ${alpha * 0.90})`,
-      color: isLight ? (alpha > 0.35 ? '#451a03' : '#0f172a') : '#f8fafc',
+      color: isLight ? (alpha > 0.40 ? '#451a03' : '#0f172a') : '#f8fafc',
       fontWeight: 800,
     };
   };
@@ -391,9 +437,9 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
   const timeframes = ['YTD', '3M', '6M', '1Y', '2Y', '3Y', '5Y', '10Y'];
 
   const cycleHeatmapMode = () => {
-    if (heatmapMode === 'ultra') setHeatmapMode('vibrant');
-    else if (heatmapMode === 'vibrant') setHeatmapMode('subtle');
-    else setHeatmapMode('ultra');
+    if (heatmapMode === 'vibrant') setHeatmapMode('ultra');
+    else if (heatmapMode === 'ultra') setHeatmapMode('subtle');
+    else setHeatmapMode('vibrant');
   };
 
   return (
@@ -470,25 +516,25 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
           {/* Heatmap Mode Selector */}
           <button
             onClick={cycleHeatmapMode}
-            title="Toggle between Ultra, Vibrant, and Subtle heatmap reactions"
+            title="Toggle between Dynamic (standard institutional), Boosted, and Subtle heatmap variations"
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: 6,
-              background: heatmapMode === 'ultra'
-                ? isLight ? '#f0fdf4' : '#052e16'
-                : heatmapMode === 'vibrant'
+              background: heatmapMode === 'vibrant'
                 ? isLight ? '#ecfdf5' : '#064e3b'
+                : heatmapMode === 'ultra'
+                ? isLight ? '#f0fdf4' : '#052e16'
                 : isLight ? 'var(--surface-2)' : '#0f172a',
-              border: heatmapMode === 'ultra'
-                ? isLight ? '1.5px solid #15803d' : '1.5px solid #22c55e'
-                : heatmapMode === 'vibrant'
+              border: heatmapMode === 'vibrant'
                 ? isLight ? '1px solid #10b981' : '1px solid #059669'
+                : heatmapMode === 'ultra'
+                ? isLight ? '1.5px solid #15803d' : '1.5px solid #22c55e'
                 : isLight ? '1px solid var(--border-subtle)' : '1px solid rgba(51, 65, 85, 0.7)',
-              color: heatmapMode === 'ultra'
-                ? isLight ? '#14532d' : '#86efac'
-                : heatmapMode === 'vibrant'
+              color: heatmapMode === 'vibrant'
                 ? isLight ? '#065f46' : '#6ee7b7'
+                : heatmapMode === 'ultra'
+                ? isLight ? '#14532d' : '#86efac'
                 : isLight ? 'var(--text-primary)' : '#e2e8f0',
               padding: '6px 14px',
               borderRadius: 6,
@@ -500,7 +546,7 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
             }}
           >
             <Palette size={13} />
-            <span>Heatmap: {heatmapMode === 'ultra' ? 'Ultra (Strongest)' : heatmapMode === 'vibrant' ? 'Vibrant' : 'Subtle'}</span>
+            <span>Heatmap: {heatmapMode === 'vibrant' ? 'Dynamic' : heatmapMode === 'ultra' ? 'Boosted' : 'Subtle'}</span>
           </button>
 
           {/* Sort Chronological Direction */}
@@ -971,13 +1017,13 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                       <td style={{ ...cellBaseStyle, ...getShortContractsHeatmap(r.noncomm_short, stats?.noncomm_short) }}>
                         {formatNumber(r.noncomm_short)}
                       </td>
-                      <td style={{ ...cellBaseStyle, ...getChangeLongsHeatmap(r.change_noncomm_long, stats?.change_noncomm_long_abs) }}>
+                      <td style={{ ...cellBaseStyle, ...getChangeLongsHeatmap(r.change_noncomm_long, stats?.change_noncomm_long) }}>
                         {formatSigned(r.change_noncomm_long)}
                       </td>
-                      <td style={{ ...cellBaseStyle, ...getChangeShortsHeatmap(r.change_noncomm_short, stats?.change_noncomm_short_abs) }}>
+                      <td style={{ ...cellBaseStyle, ...getChangeShortsHeatmap(r.change_noncomm_short, stats?.change_noncomm_short) }}>
                         {formatSigned(r.change_noncomm_short)}
                       </td>
-                      <td style={{ ...cellBaseStyle, ...getNetPositionsHeatmap(r.noncomm_net, stats?.noncomm_net_abs) }}>
+                      <td style={{ ...cellBaseStyle, ...getNetPositionsHeatmap(r.noncomm_net, stats?.noncomm_net) }}>
                         {formatNumber(r.noncomm_net)}
                       </td>
                       <td style={{ ...cellBaseStyle, ...getSpreadContractsHeatmap(r.noncomm_spreading, stats?.noncomm_spreading) }}>
@@ -1006,13 +1052,13 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                       <td style={{ ...cellBaseStyle, ...getShortContractsHeatmap(r.comm_short, stats?.comm_short) }}>
                         {formatNumber(r.comm_short)}
                       </td>
-                      <td style={{ ...cellBaseStyle, ...getChangeLongsHeatmap(r.change_comm_long, stats?.change_comm_long_abs) }}>
+                      <td style={{ ...cellBaseStyle, ...getChangeLongsHeatmap(r.change_comm_long, stats?.change_comm_long) }}>
                         {formatSigned(r.change_comm_long)}
                       </td>
-                      <td style={{ ...cellBaseStyle, ...getChangeShortsHeatmap(r.change_comm_short, stats?.change_comm_short_abs) }}>
+                      <td style={{ ...cellBaseStyle, ...getChangeShortsHeatmap(r.change_comm_short, stats?.change_comm_short) }}>
                         {formatSigned(r.change_comm_short)}
                       </td>
-                      <td style={{ ...cellBaseStyle, ...getNetPositionsHeatmap(r.comm_net, stats?.comm_net_abs) }}>
+                      <td style={{ ...cellBaseStyle, ...getNetPositionsHeatmap(r.comm_net, stats?.comm_net) }}>
                         {formatNumber(r.comm_net)}
                       </td>
                       <td style={{ ...cellBaseStyle, ...getLongPctHeatmap(r.pct_oi_comm_long, stats?.pct_oi_comm_long) }}>
@@ -1035,13 +1081,13 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                       <td style={{ ...cellBaseStyle, ...getShortContractsHeatmap(r.nonrept_short, stats?.nonrept_short) }}>
                         {formatNumber(r.nonrept_short)}
                       </td>
-                      <td style={{ ...cellBaseStyle, ...getChangeLongsHeatmap(r.change_nonrept_long, stats?.change_nonrept_long_abs) }}>
+                      <td style={{ ...cellBaseStyle, ...getChangeLongsHeatmap(r.change_nonrept_long, stats?.change_nonrept_long) }}>
                         {formatSigned(r.change_nonrept_long)}
                       </td>
-                      <td style={{ ...cellBaseStyle, ...getChangeShortsHeatmap(r.change_nonrept_short, stats?.change_nonrept_short_abs) }}>
+                      <td style={{ ...cellBaseStyle, ...getChangeShortsHeatmap(r.change_nonrept_short, stats?.change_nonrept_short) }}>
                         {formatSigned(r.change_nonrept_short)}
                       </td>
-                      <td style={{ ...cellBaseStyle, ...getNetPositionsHeatmap(r.nonrept_net, stats?.nonrept_net_abs) }}>
+                      <td style={{ ...cellBaseStyle, ...getNetPositionsHeatmap(r.nonrept_net, stats?.nonrept_net) }}>
                         {formatNumber(r.nonrept_net)}
                       </td>
                       <td style={{ ...cellBaseStyle, ...getLongPctHeatmap(r.pct_oi_nonrept_long, stats?.pct_oi_nonrept_long) }}>
