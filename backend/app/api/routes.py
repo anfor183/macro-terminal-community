@@ -291,32 +291,34 @@ async def get_asset_history(symbol: str, limit: int = 30, db: AsyncSession = Dep
     snaps = res.scalars().all()
     
     if len(snaps) <= 1:
-        from backend.app.engine.regime_signal_engine import _build_score_series, SCORED_ASSETS
-        if sym in SCORED_ASSETS:
-            series = _build_score_series(sym)
-            if series:
-                recent = series[-limit:]
-                return [
-                    {
-                        "timestamp": dt,
-                        "score": sc,
-                        "weekly_score": round(sc - 2.0, 1),
-                        "tactical_bias": bi,
-                        "confidence": round(min(95.0, max(65.0, 70.0 + abs(sc) * 0.15)), 1),
-                    }
-                    for dt, sc, bi, _ in recent
-                ]
+        from backend.app.engine.historical_bias_service import build_asset_score_trajectory
+        latest_snap = snaps[0] if snaps else None
+        return build_asset_score_trajectory(
+            symbol=asset.symbol,
+            asset_class=asset.asset_class,
+            current_score=latest_snap.score if latest_snap else 0.0,
+            current_bias=latest_snap.tactical_bias if latest_snap else "NEUTRAL",
+            current_weekly_score=latest_snap.weekly_score if latest_snap else 0.0,
+            current_confidence=latest_snap.confidence if latest_snap else 75.0,
+            current_driver=latest_snap.primary_driver if latest_snap else "",
+            base_currency=asset.base_currency,
+            quote_currency=asset.quote_currency,
+            total_weeks=min(limit, 26),
+        )
 
-    return [
-        {
-            "timestamp": s.timestamp.isoformat(),
-            "score": s.score,
-            "weekly_score": s.weekly_score,
+    # Format database snapshots
+    history_points = []
+    for s in reversed(snaps):
+        dt_str = s.timestamp.strftime("%Y-%m-%d") if hasattr(s.timestamp, "strftime") else str(s.timestamp)[:10]
+        history_points.append({
+            "timestamp": dt_str,
+            "score": round(s.score, 1),
+            "weekly_score": round(s.weekly_score, 1),
             "tactical_bias": s.tactical_bias,
-            "confidence": s.confidence,
-        }
-        for s in reversed(snaps)
-    ]
+            "confidence": round(s.confidence, 1),
+            "catalyst": s.primary_driver,
+        })
+    return history_points
 
 
 @router.get("/currencies/matrix")
