@@ -105,6 +105,7 @@ export interface CurrencyMatrixItem {
   policy_stance: string;
   growth_stance: string;
   relative_scores: Record<string, number>;
+  asset_class?: string;
 }
 
 export interface ForexRankingItem {
@@ -117,6 +118,9 @@ export interface ForexRankingItem {
   confidence: number;
   conviction_score: number;
   primary_driver: string;
+  asset_class?: string;
+  base_currency?: string;
+  quote_currency?: string;
 }
 
 export interface GoldDashboard {

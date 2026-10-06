@@ -155,6 +155,7 @@ _PROVIDERS = [
     {"id": "sp_global_pmi", "name": "S&P Global (Composite PMI)", "category": "Growth", "country": "GLOBAL", "interval_min": 43200, "lag_min": 8},
     {"id": "us_treasury_yields", "name": "US Treasury (Yield Curve)", "category": "Yields", "country": "US", "interval_min": 1440, "lag_min": 0},
     {"id": "geopolitical_monitor", "name": "Geopolitical Risk Monitor", "category": "Geopolitical", "country": "GLOBAL", "interval_min": 360, "lag_min": 5},
+    {"id": "cftc_cot", "name": "CFTC Commitments of Traders (COT)", "category": "Positioning", "country": "US", "interval_min": 10080, "lag_min": 0},
 ]
 
 _EXPECTED_SCHEMA_FIELDS = {
@@ -176,6 +177,7 @@ _EXPECTED_SCHEMA_FIELDS = {
     "sp_global_pmi": ["manufacturing_pmi", "services_pmi", "composite_pmi", "release_date"],
     "us_treasury_yields": ["y2", "y5", "y10", "y30", "date", "inversion_flag"],
     "geopolitical_monitor": ["risk_score", "events_count", "hotspots", "updated_at"],
+    "cftc_cot": ["report_date", "commercial_net", "non_commercial_net", "open_interest", "cot_index"],
 }
 
 
@@ -223,6 +225,10 @@ class DataFreshnessMonitor:
             # have wider tolerance windows before being marked stale, since central banks
             # only publish decisions every several weeks.
             if interval >= 20160:  # Bi-weekly or monthly (Central Bank Rates & Monthly CPI)
+                live_thresh = 720.0      # 12 hours
+                delayed_thresh = 1440.0  # 24 hours
+                stale_thresh = 2880.0    # 48 hours
+            elif interval >= 10080:  # Weekly (CFTC Commitments of Traders)
                 live_thresh = 720.0      # 12 hours
                 delayed_thresh = 1440.0  # 24 hours
                 stale_thresh = 2880.0    # 48 hours
@@ -337,6 +343,7 @@ _EXPECTED_RELEASES = [
     {"id": "fed_rate_decision", "name": "FOMC Rate Decision", "country": "US", "interval_hours": 1344},
     {"id": "ecb_rate_decision", "name": "ECB Rate Decision", "country": "EU", "interval_hours": 1008},
     {"id": "boe_rate_decision", "name": "BoE Rate Decision", "country": "GB", "interval_hours": 1008},
+    {"id": "cftc_cot_weekly", "name": "CFTC Commitments of Traders (COT)", "country": "US", "interval_hours": 168},
 ]
 
 
@@ -408,6 +415,7 @@ _CROSS_SOURCE_CHECKS = [
     {"indicator": "US PMI Composite", "country": "US", "provider_a": "ISM", "value_a": 52.1, "provider_b": "S&P Global", "value_b": 51.4},
     {"indicator": "UK CPI YoY", "country": "GB", "provider_a": "ONS (Official)", "value_a": 3.8, "provider_b": "BoE Survey", "value_b": 3.6},
     {"indicator": "US 10Y Yield", "country": "US", "provider_a": "US Treasury", "value_a": 4.32, "provider_b": "Bloomberg", "value_b": 4.31},
+    {"indicator": "Gold COT Commercial Net", "country": "US", "provider_a": "CFTC Official", "value_a": -238500, "provider_b": "Bloomberg Terminal", "value_b": -238100},
 ]
 
 

@@ -37,6 +37,7 @@ def calculate_currency_strength_matrix(
             "policy_stance": curr.get("policy_direction", "Neutral"),
             "growth_stance": curr.get("growth_direction", "Stable"),
             "relative_scores": rel_scores,
+            "asset_class": curr.get("asset_class", "currency"),
         })
 
     return matrix

@@ -210,6 +210,23 @@ class LiveOrchestrator:
                 curr.current_score = max(-100.0, min(100.0, synthesized))
                 curr.updated_at = now
 
+                # Synchronize policy & growth direction with central bank guidance and dynamic score
+                if cb:
+                    if cb.guidance_stance in ("Dovish", "Accommodative") or (cb.expected_next_rate and cb.expected_next_rate < cb.current_rate):
+                        curr.policy_direction = "Easing"
+                    elif cb.guidance_stance == "Hawkish" or (cb.expected_next_rate and cb.expected_next_rate > cb.current_rate):
+                        curr.policy_direction = "Tightening"
+                    elif curr.current_score > 20.0:
+                        curr.policy_direction = "Tightening"
+                    elif curr.current_score < -15.0:
+                        curr.policy_direction = "Easing"
+                    else:
+                        curr.policy_direction = "Paused"
+                else:
+                    curr.policy_direction = "Tightening" if curr.current_score > 20.0 else ("Easing" if curr.current_score < -15.0 else "Paused")
+
+                curr.growth_direction = "Accelerating" if curr.current_score > 5.0 else ("Slowing" if curr.current_score < -15.0 else "Stable")
+
             # 6. Fetch all assets and update scores & biases
             asset_res = await session.execute(select(Asset))
             assets = asset_res.scalars().all()

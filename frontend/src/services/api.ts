@@ -64,14 +64,16 @@ export const api = {
       `${API_BASE}/assets/${encodeURIComponent(symbol)}/history`
     ),
 
-  getCurrencyMatrix: () => fetchJson<CurrencyMatrixItem[]>(`${API_BASE}/currencies/matrix`),
+  getCurrencyMatrix: (assetClass?: string) =>
+    fetchJson<CurrencyMatrixItem[]>(`${API_BASE}/currencies/matrix${assetClass ? `?asset_class=${assetClass}` : ''}`),
 
-  getCurrencyRanking: () =>
-    fetchJson<Array<{ rank: number; code: string; name: string; score: number; weekly_score: number; policy_direction: string; growth_direction: string }>>(
-      `${API_BASE}/currencies/ranking`
+  getCurrencyRanking: (assetClass?: string) =>
+    fetchJson<Array<{ rank: number; code: string; name: string; score: number; weekly_score: number; policy_direction: string; growth_direction: string; asset_class?: string }>>(
+      `${API_BASE}/currencies/ranking${assetClass ? `?asset_class=${assetClass}` : ''}`
     ),
 
-  getForexRankings: () => fetchJson<ForexRankingItem[]>(`${API_BASE}/forex/rankings`),
+  getForexRankings: (assetClass?: string) =>
+    fetchJson<ForexRankingItem[]>(`${API_BASE}/forex/rankings${assetClass ? `?asset_class=${assetClass}` : ''}`),
 
   getGoldDashboard: () => fetchJson<GoldDashboard>(`${API_BASE}/specialized/gold`),
 

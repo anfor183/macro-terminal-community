@@ -10,6 +10,9 @@ import {
   Minus,
   Swords,
   CheckCircle2,
+  Coins,
+  Globe,
+  Layers,
 } from 'lucide-react';
 import { CurrencyMatrixItem } from '../types/macro';
 import { api } from '../services/api';
@@ -39,7 +42,6 @@ function getMatrixCellStyles(score: number, isLight: boolean) {
   const intensity = Math.min(0.4, Math.abs(score) / 160.0);
 
   if (isLight) {
-    // High-contrast Light Mode: deep forest green (#065f46) and deep crimson (#991b1b)
     const alpha = (0.09 + intensity * 0.28).toFixed(2);
     return {
       bg: isPositive ? `rgba(16, 185, 129, ${alpha})` : `rgba(239, 68, 68, ${alpha})`,
@@ -48,7 +50,6 @@ function getMatrixCellStyles(score: number, isLight: boolean) {
       borderColor: isPositive ? 'rgba(5, 150, 105, 0.35)' : 'rgba(220, 38, 38, 0.35)',
     };
   } else {
-    // Terminal Dark Mode: glowing pastel mint (#6ee7b7) and rose (#fca5a5)
     const alpha = (0.14 + intensity).toFixed(2);
     return {
       bg: isPositive ? `rgba(16, 185, 129, ${alpha})` : `rgba(239, 68, 68, ${alpha})`,
@@ -67,7 +68,6 @@ export const CurrencyMatrixView: React.FC<CurrencyMatrixViewProps> = ({
 }) => {
   const { activeOption, formatTime } = useTimezone();
 
-  // Live reactive light mode detection across React props, DOM data-theme and body classes
   const [isLightMode, setIsLightMode] = useState<boolean>(() => {
     if (typeof document !== 'undefined') {
       const docTheme = document.documentElement.getAttribute('data-theme');
@@ -104,6 +104,7 @@ export const CurrencyMatrixView: React.FC<CurrencyMatrixViewProps> = ({
   const [justRefreshed, setJustRefreshed] = useState(false);
   const [lastRefreshedDate, setLastRefreshedDate] = useState<Date | null>(null);
   const [hoveredCell, setHoveredCell] = useState<CellHoverData | null>(null);
+  const [assetFilter, setAssetFilter] = useState<'all' | 'currencies' | 'metals'>('all');
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const loadData = async (triggerSync = false) => {
@@ -165,7 +166,21 @@ export const CurrencyMatrixView: React.FC<CurrencyMatrixViewProps> = ({
     };
   }, []);
 
-  const currencies = matrix.map((m) => m.currency);
+  const isMetal = (item: CurrencyMatrixItem) =>
+    item.asset_class === 'metal' ||
+    item.asset_class === 'commodity' ||
+    ['XAU', 'XAG', 'XPT', 'COPPER'].includes(item.currency);
+
+  const currencyCount = matrix.filter((c) => !isMetal(c)).length;
+  const metalCount = matrix.filter((c) => isMetal(c)).length;
+
+  const displayMatrix = matrix.filter((c) => {
+    if (assetFilter === 'currencies') return !isMetal(c);
+    if (assetFilter === 'metals') return isMetal(c);
+    return true;
+  });
+
+  const displayCurrencies = displayMatrix.map((m) => m.currency);
 
   const handleMouseEnterCell = (
     e: React.MouseEvent,
@@ -186,10 +201,18 @@ export const CurrencyMatrixView: React.FC<CurrencyMatrixViewProps> = ({
         : 'BEARISH'
       : 'NEUTRAL';
 
-    const driver =
-      row.policy_stance.includes('Hawkish') || row.policy_stance.includes('Restrictive')
-        ? `${row.currency} monetary policy divergence over ${colCurr}`
-        : `${row.currency} yield differential & growth momentum vs ${colCurr}`;
+    const isMetalBase = isMetal(row);
+    const isMetalQuote = ['XAU', 'XAG', 'XPT', 'COPPER'].includes(colCurr);
+
+    const driver = isMetalBase && isMetalQuote
+      ? `${row.currency} vs ${colCurr} gold/silver beta and monetary-industrial divergence`
+      : isMetalBase
+      ? `${row.currency} real yield sensitivity & central bank reserve inflows vs ${colCurr}`
+      : isMetalQuote
+      ? `${row.currency} monetary policy divergence and carry cost against bullion ${colCurr}`
+      : row.policy_stance.includes('Hawkish') || row.policy_stance.includes('Restrictive')
+      ? `${row.currency} monetary policy divergence over ${colCurr}`
+      : `${row.currency} yield differential & growth momentum vs ${colCurr}`;
 
     setHoveredCell({
       base: row.currency,
@@ -202,6 +225,21 @@ export const CurrencyMatrixView: React.FC<CurrencyMatrixViewProps> = ({
       x: rect.right + 10,
       y: rect.top,
     });
+  };
+
+  const getMetalBadge = (code: string) => {
+    switch (code) {
+      case 'XAU':
+        return { label: 'GOLD', color: '#eab308', bg: 'rgba(234, 179, 8, 0.15)', border: 'rgba(234, 179, 8, 0.4)' };
+      case 'XAG':
+        return { label: 'SILVER', color: '#94a3b8', bg: 'rgba(148, 163, 184, 0.15)', border: 'rgba(148, 163, 184, 0.4)' };
+      case 'XPT':
+        return { label: 'PLATINUM', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.15)', border: 'rgba(56, 189, 248, 0.4)' };
+      case 'COPPER':
+        return { label: 'COPPER', color: '#f97316', bg: 'rgba(249, 115, 22, 0.15)', border: 'rgba(249, 115, 22, 0.4)' };
+      default:
+        return null;
+    }
   };
 
   return (
@@ -219,7 +257,7 @@ export const CurrencyMatrixView: React.FC<CurrencyMatrixViewProps> = ({
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
-              Global Currency Relative-Value Strength Matrix
+              Global Relative-Value Fundamental Strength Matrix
             </h2>
             <span
               style={{
@@ -234,14 +272,14 @@ export const CurrencyMatrixView: React.FC<CurrencyMatrixViewProps> = ({
                 letterSpacing: '0.05em',
               }}
             >
-              11×11 Cross Matrix
+              {displayCurrencies.length}?{displayCurrencies.length} Cross Matrix
             </span>
           </div>
           <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 4 }}>
-            Base vs. Quote relative fundamental strength model • Hover cells for driver attribution
+            Base vs. Quote relative fundamental strength model ? Hover cells for driver attribution
             {lastRefreshedDate && (
               <span style={{ marginLeft: 8, color: 'var(--text-muted)' }}>
-                • Synced{' '}
+                ? Synced{' '}
                 <span className="mono" style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>
                   {formatTime(lastRefreshedDate, true)}
                 </span>
@@ -251,6 +289,79 @@ export const CurrencyMatrixView: React.FC<CurrencyMatrixViewProps> = ({
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {/* Asset Class Filter Pills */}
+          <div
+            style={{
+              display: 'flex',
+              background: 'var(--surface-2)',
+              border: '1px solid var(--border-subtle)',
+              borderRadius: 6,
+              padding: 2,
+              gap: 2,
+            }}
+          >
+            <button
+              onClick={() => setAssetFilter('all')}
+              style={{
+                padding: '5px 12px',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                borderRadius: 4,
+                border: 'none',
+                background: assetFilter === 'all' ? 'var(--accent-blue)' : 'transparent',
+                color: assetFilter === 'all' ? '#fff' : 'var(--text-muted)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 5,
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <Layers size={13} />
+              All Assets ({matrix.length})
+            </button>
+            <button
+              onClick={() => setAssetFilter('currencies')}
+              style={{
+                padding: '5px 12px',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                borderRadius: 4,
+                border: 'none',
+                background: assetFilter === 'currencies' ? 'var(--accent-blue)' : 'transparent',
+                color: assetFilter === 'currencies' ? '#fff' : 'var(--text-muted)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 5,
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <Globe size={13} />
+              G10 Currencies ({currencyCount})
+            </button>
+            <button
+              onClick={() => setAssetFilter('metals')}
+              style={{
+                padding: '5px 12px',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                borderRadius: 4,
+                border: 'none',
+                background: assetFilter === 'metals' ? '#eab308' : 'transparent',
+                color: assetFilter === 'metals' ? '#000' : 'var(--text-muted)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 5,
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <Coins size={13} />
+              Precious Metals ({metalCount})
+            </button>
+          </div>
+
           {lastRefreshedDate && (
             <div
               style={{
@@ -281,69 +392,30 @@ export const CurrencyMatrixView: React.FC<CurrencyMatrixViewProps> = ({
             id="refresh-matrix-btn"
             onClick={() => loadData(true)}
             disabled={isRefreshing}
-            title="Recalculate fundamental cross-currency strength matrix"
+            title="Recalculate fundamental cross-asset relative strength matrix"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
-              padding: '9px 18px',
-              borderRadius: 8,
-              border: justRefreshed
-                ? '1px solid rgba(16, 185, 129, 0.45)'
-                : isRefreshing
-                ? '1px solid rgba(56, 189, 248, 0.55)'
-                : isLightMode
-                ? '1px solid rgba(2, 132, 199, 0.35)'
-                : '1px solid rgba(56, 189, 248, 0.3)',
-              background: justRefreshed
-                ? 'rgba(16, 185, 129, 0.16)'
-                : isRefreshing
-                ? 'rgba(56, 189, 248, 0.2)'
-                : isLightMode
-                ? 'rgba(2, 132, 199, 0.08)'
-                : 'rgba(56, 189, 248, 0.1)',
-              color: justRefreshed
-                ? '#10b981'
-                : isRefreshing
-                ? (isLightMode ? '#0284c7' : '#38bdf8')
-                : (isLightMode ? '#0284c7' : '#38bdf8'),
-              fontSize: '0.84rem',
-              fontWeight: 700,
-              letterSpacing: '0.01em',
+              padding: '7px 14px',
+              borderRadius: 6,
+              background: 'var(--surface-2)',
+              border: '1px solid var(--border-subtle)',
+              color: 'var(--text-primary)',
               cursor: isRefreshing ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: justRefreshed
-                ? '0 0 16px rgba(16, 185, 129, 0.25)'
-                : isRefreshing
-                ? '0 0 16px rgba(56, 189, 248, 0.25)'
-                : 'none',
+              fontWeight: 700,
+              fontSize: '0.78rem',
+              boxShadow: 'var(--shadow-sm)',
+              transition: 'all 0.15s ease',
             }}
           >
-            {justRefreshed ? (
-              <>
-                <CheckCircle2 size={16} style={{ flexShrink: 0, color: '#10b981' }} />
-                <span>Matrix Refreshed!</span>
-              </>
-            ) : isRefreshing ? (
-              <>
-                <RefreshCw
-                  size={16}
-                  className="animate-spin"
-                  style={{ flexShrink: 0 }}
-                />
-                <span>Recalculating Matrix...</span>
-              </>
-            ) : (
-              <>
-                <RefreshCw size={16} style={{ flexShrink: 0 }} />
-                <span>Refresh Matrix</span>
-              </>
-            )}
+            <RefreshCw size={14} className={isRefreshing ? 'animate-spin' : ''} />
+            <span>{isRefreshing ? 'Recalculating...' : 'Refresh Matrix'}</span>
           </button>
         </div>
       </div>
 
-      {/* Ranked Currencies Cards */}
+      {/* Ranked Assets Cards */}
       <div
         style={{
           display: 'grid',
@@ -351,74 +423,101 @@ export const CurrencyMatrixView: React.FC<CurrencyMatrixViewProps> = ({
           gap: 12,
         }}
       >
-        {matrix.map((c) => (
-          <div
-            key={c.currency}
-            style={{
-              background: 'var(--surface-1)',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: 'var(--radius-md)',
-              padding: '12px 14px',
-              borderTop:
-                c.rank <= 3
-                  ? `3px solid ${isLightMode ? '#059669' : '#10b981'}`
-                  : c.rank >= 9
-                  ? `3px solid ${isLightMode ? '#dc2626' : '#f43f5e'}`
-                  : `3px solid ${isLightMode ? '#cbd5e1' : 'var(--border-strong)'}`,
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span
-                className="mono"
-                style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)' }}
-              >
-                {c.currency}
-              </span>
-              <span
-                style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  color: isLightMode ? '#334155' : 'var(--text-muted)',
-                  background: isLightMode ? '#e2e8f0' : 'var(--surface-3)',
-                  padding: '2px 6px',
-                  borderRadius: 4,
-                }}
-              >
-                #{c.rank}
-              </span>
-            </div>
-            <div style={{ fontSize: '0.75rem', color: isLightMode ? '#475569' : 'var(--text-muted)', marginTop: 2 }}>
-              {c.name}
-            </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 8 }}>
-              <span
-                className="mono"
-                style={{
-                  fontSize: '1.25rem',
-                  fontWeight: 800,
-                  color:
-                    c.absolute_score >= 0
-                      ? isLightMode ? '#059669' : '#10b981'
-                      : isLightMode ? '#dc2626' : '#f43f5e',
-                }}
-              >
-                {c.absolute_score > 0 ? `+${c.absolute_score.toFixed(1)}` : c.absolute_score.toFixed(1)}
-              </span>
-            </div>
+        {displayMatrix.map((c, idx) => {
+          const metalBadge = getMetalBadge(c.currency);
+          const isItemMetal = isMetal(c);
+
+          let topBorder = `3px solid ${isLightMode ? '#cbd5e1' : 'var(--border-strong)'}`;
+          if (c.currency === 'XAU') topBorder = '3px solid #eab308';
+          else if (c.currency === 'XAG') topBorder = '3px solid #94a3b8';
+          else if (c.currency === 'XPT') topBorder = '3px solid #38bdf8';
+          else if (c.currency === 'COPPER') topBorder = '3px solid #f97316';
+          else if (c.rank <= 3) topBorder = `3px solid ${isLightMode ? '#059669' : '#10b981'}`;
+          else if (c.rank >= 9) topBorder = `3px solid ${isLightMode ? '#dc2626' : '#f43f5e'}`;
+
+          return (
             <div
+              key={c.currency}
               style={{
-                fontSize: '0.75rem',
-                color: isLightMode ? '#475569' : 'var(--text-dim)',
-                marginTop: 6,
-                display: 'flex',
-                justifyContent: 'space-between',
+                background: 'var(--surface-1)',
+                border: '1px solid var(--border-subtle)',
+                borderRadius: 'var(--radius-md)',
+                padding: '12px 14px',
+                borderTop: topBorder,
+                boxShadow: 'var(--shadow-sm)',
               }}
             >
-              <span>{c.policy_stance}</span>
-              <span>{c.growth_stance}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span
+                    className="mono"
+                    style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)' }}
+                  >
+                    {c.currency}
+                  </span>
+                  {metalBadge && (
+                    <span
+                      style={{
+                        fontSize: '0.62rem',
+                        fontWeight: 800,
+                        padding: '1px 5px',
+                        borderRadius: 3,
+                        background: metalBadge.bg,
+                        color: metalBadge.color,
+                        border: `1px solid ${metalBadge.border}`,
+                      }}
+                    >
+                      {metalBadge.label}
+                    </span>
+                  )}
+                </div>
+                <span
+                  style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    color: isLightMode ? '#334155' : 'var(--text-muted)',
+                    background: isLightMode ? '#e2e8f0' : 'var(--surface-3)',
+                    padding: '2px 6px',
+                    borderRadius: 4,
+                  }}
+                >
+                  #{assetFilter === 'all' ? c.rank : idx + 1}
+                </span>
+              </div>
+              <div style={{ fontSize: '0.75rem', color: isLightMode ? '#475569' : 'var(--text-muted)', marginTop: 2 }}>
+                {c.name}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 8 }}>
+                <span
+                  className="mono"
+                  style={{
+                    fontSize: '1.25rem',
+                    fontWeight: 800,
+                    color:
+                      c.absolute_score >= 0
+                        ? isLightMode ? '#059669' : '#10b981'
+                        : isLightMode ? '#dc2626' : '#f43f5e',
+                  }}
+                >
+                  {c.absolute_score > 0 ? `+${c.absolute_score.toFixed(1)}` : c.absolute_score.toFixed(1)}
+                </span>
+              </div>
+              <div
+                style={{
+                  fontSize: '0.75rem',
+                  color: isLightMode ? '#475569' : 'var(--text-dim)',
+                  marginTop: 6,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  gap: 4,
+                }}
+              >
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.policy_stance}</span>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.growth_stance}</span>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Cross-Comparison Matrix Table */}
@@ -449,12 +548,12 @@ export const CurrencyMatrixView: React.FC<CurrencyMatrixViewProps> = ({
             }}
           />
         )}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <h3 style={{ fontSize: '0.92rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-            Pair Relative Macro Scores (Row Base − Column Quote)
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
+          <h3 style={{ fontSize: '0.92rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+            Pair Relative Macro Scores (Row Base ? Column Quote)
           </h3>
           <span className="matrix-legend-text" style={{ fontSize: '0.75rem', fontWeight: 600 }}>
-            Green = Base Currency Strength (Bullish Cross) • Red = Quote Currency Strength
+            Green = Base Asset Strength (Bullish Cross) ? Red = Quote Asset Strength ? Click cell to launch Macro Battle
           </span>
         </div>
 
@@ -474,7 +573,7 @@ export const CurrencyMatrixView: React.FC<CurrencyMatrixViewProps> = ({
               >
                 BASE \ QUOTE
               </th>
-              {currencies.map((curr) => (
+              {displayCurrencies.map((curr) => (
                 <th
                   key={curr}
                   className="mono matrix-th-quote"
@@ -490,7 +589,7 @@ export const CurrencyMatrixView: React.FC<CurrencyMatrixViewProps> = ({
             </tr>
           </thead>
           <tbody>
-            {matrix.map((row) => (
+            {displayMatrix.map((row) => (
               <tr key={row.currency} style={{ borderBottom: isLightMode ? '1px solid #e2e8f0' : '1px solid var(--border-subtle)' }}>
                 <td
                   style={{
@@ -503,7 +602,7 @@ export const CurrencyMatrixView: React.FC<CurrencyMatrixViewProps> = ({
                 >
                   {row.currency}
                 </td>
-                {currencies.map((col) => {
+                {displayCurrencies.map((col) => {
                   if (row.currency === col) {
                     return (
                       <td
@@ -514,7 +613,7 @@ export const CurrencyMatrixView: React.FC<CurrencyMatrixViewProps> = ({
                           fontWeight: 700,
                         }}
                       >
-                        —
+                        ?
                       </td>
                     );
                   }
@@ -540,8 +639,12 @@ export const CurrencyMatrixView: React.FC<CurrencyMatrixViewProps> = ({
                       onMouseEnter={(e) => handleMouseEnterCell(e, row, col, score)}
                       onMouseLeave={() => setHoveredCell(null)}
                       onClick={() => {
-                        if (onOpenMacroBattle) onOpenMacroBattle(row.currency, col);
-                        else if (onSelectPairAsset) onSelectPairAsset(`${row.currency}${col}`);
+                        if (onOpenMacroBattle) {
+                          onOpenMacroBattle(row.currency, col);
+                        } else if (onSelectPairAsset) {
+                          const pairSym = row.currency === 'COPPER' && col === 'USD' ? 'HG' : `${row.currency}${col}`;
+                          onSelectPairAsset(pairSym);
+                        }
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3 }}>

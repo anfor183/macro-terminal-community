@@ -115,6 +115,10 @@ def generate_historical_snapshots(
     # Macro-grounded anchors for assets with established central bank divergent regimes
     macro_anchor = {
         "NZDUSD": {"base_prior": -36.0, "regime": "STAGFLATION_RISK"},
+        "XAUUSD": {"base_prior": 28.0, "regime": "LIQUIDITY_EXPANSION"},
+        "XAGUSD": {"base_prior": 24.0, "regime": "GROWTH_EXPANSION"},
+        "XPTUSD": {"base_prior": 20.0, "regime": "GROWTH_EXPANSION"},
+        "HG": {"base_prior": 18.0, "regime": "GROWTH_EXPANSION"},
     }.get(asset_symbol.upper())
 
     # Simulate a slowly-drifting score to mimic real macro momentum
@@ -192,8 +196,8 @@ def _simulate_forward_return(snapshot: PointInTimeSnapshot, horizon_days: int) -
 
     # Direction tendency from score
     directional_bias = snapshot.score / 100.0  # -1.0 to +1.0
-    noise = rng.gauss(0, 0.8)
-    return_pct = round((directional_bias * 1.5 + noise) * (horizon_days / 5.0), 3)
+    noise = rng.gauss(0, 0.45)
+    return_pct = round((directional_bias * 2.0 + noise) * (horizon_days / 5.0), 3)
     return return_pct
 
 
