@@ -29,6 +29,26 @@ interface COTReportViewProps {
   onSelectAsset?: (symbol: string) => void;
 }
 
+const formatPriceValue = (val: number | undefined | null): string => {
+  if (val === undefined || val === null || isNaN(val)) return '-';
+  if (val >= 1000) {
+    return val.toLocaleString(undefined, {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 2,
+    });
+  }
+  if (val >= 10) {
+    return val.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  }
+  if (val >= 1) {
+    return val.toFixed(2);
+  }
+  return val.toFixed(4);
+};
+
 export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset }) => {
   // Navigation View Mode: 'studio' (cot-reports.com graphics), 'table' (legacy grid), 'both'
   const [viewMode, setViewMode] = useState<'both' | 'studio' | 'table'>('both');
@@ -1146,7 +1166,12 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset }) =
                       display: 'inline-block',
                     }}
                   />
-                  <span style={{ color: '#cbd5e1' }}>Price</span>
+                  <span style={{ color: '#cbd5e1' }}>
+                    Price{' '}
+                    <span style={{ color: '#ffffff', fontWeight: 700 }}>
+                      {formatPriceValue(hoveredPoint?.price ?? chartData?.current_summary.price)}
+                    </span>
+                  </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span
@@ -1309,7 +1334,12 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset }) =
                       const prices = pts.map((p) => p.price);
                       const minPx = Math.min(...prices);
                       const maxPx = Math.max(...prices);
-                      const pxSpan = maxPx - minPx || 1;
+                      const pxSpan = maxPx - minPx;
+
+                      if (pts.length < 2 || pxSpan <= 0.00001 || !isFinite(pxSpan)) {
+                        return null;
+                      }
+
                       const step = 1000 / Math.max(pts.length - 1, 1);
 
                       const polyPoints = pts
@@ -1445,6 +1475,12 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset }) =
                     const prices = pts.map((p) => p.price);
                     const minPx = Math.min(...prices);
                     const maxPx = Math.max(...prices);
+                    const pxSpan = maxPx - minPx;
+
+                    if (pxSpan <= 0.00001 || !isFinite(pxSpan)) {
+                      return null;
+                    }
+
                     const midPx = (minPx + maxPx) / 2;
                     return (
                       <div
@@ -1463,9 +1499,9 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset }) =
                           textAlign: 'right',
                         }}
                       >
-                        <span>{maxPx.toFixed(4)}</span>
-                        <span>{midPx.toFixed(4)}</span>
-                        <span>{minPx.toFixed(4)}</span>
+                        <span>{formatPriceValue(maxPx)}</span>
+                        <span>{formatPriceValue(midPx)}</span>
+                        <span>{formatPriceValue(minPx)}</span>
                       </div>
                     );
                   })()}
@@ -1544,7 +1580,7 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset }) =
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <span style={{ color: '#94a3b8' }}>Price:</span>
                         <span style={{ color: '#ffffff', fontWeight: 700 }}>
-                          {hoveredPoint.price}
+                          {formatPriceValue(hoveredPoint.price)}
                         </span>
                       </div>
 
