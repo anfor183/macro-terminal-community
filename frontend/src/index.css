@@ -632,3 +632,150 @@ body.theme-light .matrix-legend-text,
   border-color: rgba(220, 38, 38, 0.28) !important;
 }
 
+
+
+/* ==========================================================================
+   SYSTEM SENSITIVITY & UNIVERSAL LIGHT/DARK THEME HARMONY
+   Enables automatic adaptation to computer / phone dark or light theme
+   while ensuring high-contrast legibility across all sections.
+   ========================================================================== */
+
+/* Pre-hydration System Theme Detection Fallback */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]),
+  html:not([data-theme="dark"]),
+  body:not(.theme-dark) {
+    --bg-main: #f1f5f9;
+    --bg-void: #e2e8f0;
+    --bg-base: #f8fafc;
+    --bg-sidebar: #ffffff;
+    --bg-card: #ffffff;
+    --bg-card-hover: #f1f5f9;
+
+    --surface-1: #ffffff;
+    --surface-2: #f8fafc;
+    --surface-3: #edf2f7;
+    --surface-elevated: #ffffff;
+    --bg-surface-1: #ffffff;
+    --bg-surface-2: #f8fafc;
+    --bg-surface-3: #edf2f7;
+    --bg-glass: rgba(255, 255, 255, 0.92);
+    --bg-hover: rgba(226, 232, 240, 0.7);
+
+    --border-subtle: rgba(0, 0, 0, 0.08);
+    --border-active: rgba(0, 0, 0, 0.16);
+    --border-strong: rgba(0, 0, 0, 0.25);
+    --border-focus: rgba(2, 132, 199, 0.5);
+
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-muted: #475569;
+    --text-dim: #64748b;
+
+    --color-bullish-strong: #064e3b;
+    --color-bullish: #047857;
+    --color-bullish-mild: #059669;
+    --color-bullish-bg: rgba(5, 150, 105, 0.12);
+    --color-bullish-border: rgba(5, 150, 105, 0.35);
+
+    --color-neutral: #475569;
+    --color-neutral-bg: rgba(100, 116, 139, 0.1);
+    --color-neutral-border: rgba(100, 116, 139, 0.28);
+
+    --color-bearish-mild: #be123c;
+    --color-bearish: #9f1239;
+    --color-bearish-strong: #881337;
+    --color-bearish-bg: rgba(190, 18, 60, 0.1);
+    --color-bearish-border: rgba(190, 18, 60, 0.32);
+
+    --accent-cyan: #0284c7;
+    --accent-cyan-glow: rgba(2, 132, 199, 0.2);
+    --accent-blue: #1d4ed8;
+    --accent-gold: #b45309;
+    --accent-gold-bg: rgba(217, 119, 6, 0.12);
+    --accent-purple: #7c3aed;
+    --accent-primary: #7c3aed;
+    --accent-primary-hover: #6d28d9;
+
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 12px 32px -4px rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* Light Theme Component Polish Across All Sections */
+[data-theme="light"],
+html[data-theme="light"],
+body.theme-light {
+  color-scheme: light;
+}
+
+[data-theme="dark"],
+html[data-theme="dark"],
+body.theme-dark {
+  color-scheme: dark;
+}
+
+/* Inputs & Form Controls in Light Mode */
+[data-theme="light"] input,
+[data-theme="light"] select,
+[data-theme="light"] textarea {
+  background-color: var(--surface-1);
+  color: var(--text-primary);
+  border-color: var(--border-active);
+}
+
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: var(--text-dim);
+}
+
+[data-theme="light"] option {
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
+/* Tables in Light Mode */
+[data-theme="light"] table th {
+  background-color: var(--surface-2);
+  color: var(--text-muted);
+  border-bottom-color: var(--border-active);
+}
+
+[data-theme="light"] table tr:hover td {
+  background-color: rgba(241, 245, 249, 0.85);
+}
+
+/* Card & Glass Overrides for Light Mode */
+[data-theme="light"] div[style*="rgba(255,255,255,0.04)"],
+[data-theme="light"] div[style*="rgba(255, 255, 255, 0.04)"],
+[data-theme="light"] div[style*="rgba(255,255,255,0.03)"],
+[data-theme="light"] div[style*="rgba(255, 255, 255, 0.03)"],
+[data-theme="light"] div[style*="rgba(255,255,255,0.05)"],
+[data-theme="light"] div[style*="rgba(255, 255, 255, 0.05)"] {
+  background: var(--surface-1) !important;
+  border-color: var(--border-subtle) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] div[style*="rgba(255,255,255,0.07)"],
+[data-theme="light"] div[style*="rgba(255, 255, 255, 0.07)"],
+[data-theme="light"] div[style*="rgba(255,255,255,0.1)"],
+[data-theme="light"] div[style*="rgba(255, 255, 255, 0.1)"] {
+  border-color: var(--border-subtle) !important;
+}
+
+/* Modals & Popovers in Light Mode */
+[data-theme="light"] div[style*="0 12px 32px rgba(0, 0, 0"],
+[data-theme="light"] div[style*="0 12px 32px rgba(0,0,0"] {
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.15) !important;
+  border-color: var(--border-active) !important;
+}
+
+/* Scrollbars in Light Mode */
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.28);
+}

@@ -31,6 +31,7 @@ interface HeaderProps {
   onSelectAsset: (symbol: string) => void;
   onOpenCommandPalette?: () => void;
   theme?: 'dark' | 'light';
+  themeMode?: 'auto' | 'dark' | 'light';
   onToggleTheme?: () => void;
   density?: 'compact' | 'standard' | 'comfortable';
   onCycleDensity?: () => void;
@@ -45,6 +46,7 @@ export const Header: React.FC<HeaderProps> = ({
   onSelectAsset,
   onOpenCommandPalette,
   theme: propTheme = 'dark',
+  themeMode: propThemeMode = 'auto',
   onToggleTheme,
   density: propDensity = 'standard',
   onCycleDensity,
@@ -754,30 +756,43 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </div>
 
-          {/* Theme Toggle (Dark / Light) */}
+          {/* Theme Toggle (Dark / Light / Auto) */}
           <button
             onClick={toggleTheme}
-            title={activeTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            title={
+              propThemeMode === 'auto'
+                ? `Theme: Auto (${activeTheme === 'dark' ? 'Dark' : 'Light'} - Matches computer/phone) ? Click to cycle`
+                : activeTheme === 'dark'
+                ? 'Theme: Dark (Manual) ? Click for Light'
+                : 'Theme: Light (Manual) ? Click for Auto'
+            }
             style={{
               height: 26,
-              background: 'transparent',
-              border: 'none',
+              background: propThemeMode === 'auto' ? 'rgba(6, 182, 212, 0.12)' : 'transparent',
+              border: propThemeMode === 'auto' ? '1px solid rgba(6, 182, 212, 0.28)' : 'none',
               borderRadius: 4,
-              padding: '0 7px',
-              color: 'var(--text-secondary)',
+              padding: '0 8px',
+              color: propThemeMode === 'auto' ? 'var(--accent-cyan)' : 'var(--text-secondary)',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
+              gap: 5,
               justifyContent: 'center',
+              fontSize: '0.68rem',
+              fontWeight: 800,
+              transition: 'all 0.15s ease',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.color = 'var(--text-primary)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.color = 'var(--text-secondary)';
+              e.currentTarget.style.color = propThemeMode === 'auto' ? 'var(--accent-cyan)' : 'var(--text-secondary)';
             }}
           >
             {activeTheme === 'dark' ? <Sun size={13} /> : <Moon size={13} />}
+            {propThemeMode === 'auto' && (
+              <span style={{ fontSize: '0.62rem', letterSpacing: '0.05em' }}>AUTO</span>
+            )}
           </button>
 
           {/* Export PDF */}

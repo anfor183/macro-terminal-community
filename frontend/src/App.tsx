@@ -4,6 +4,7 @@ import { Sidebar, ViewTab } from './components/Sidebar';
 import { DashboardView } from './components/DashboardView';
 import { AssetTable } from './components/AssetTable';
 import { CurrencyMatrixView } from './components/CurrencyMatrixView';
+import { COTReportView } from './components/COTReportView';
 import { ForexRankingsView } from './components/ForexRankingsView';
 import { GoldTerminalView, OilTerminalView } from './components/SpecializedDashboards';
 import { CalendarView } from './components/CalendarView';
@@ -29,7 +30,7 @@ export function App() {
     if (typeof window !== 'undefined') {
       const hash = window.location.hash.replace('#', '') as ViewTab;
       const validTabs: ViewTab[] = [
-        'dashboard', 'battle', 'watchlist', 'forex', 'matrix', 'gold', 'oil',
+        'dashboard', 'battle', 'watchlist', 'forex', 'matrix', 'cot_report', 'gold', 'oil',
         'indices', 'ai_copilot', 'calendar', 'news', 'what_changed', 'backtest',
         'regime_scanner', 'validation', 'integrity', 'health'
       ];
@@ -57,16 +58,68 @@ export function App() {
   });
   const [loading, setLoading] = useState<boolean>(true);
 
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+  // System Theme Sensitivity: Detects computer or phone dark / light theme automatically
+  const getSystemTheme = (): 'dark' | 'light' => {
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return 'dark';
+  };
+
+  const [themeMode, setThemeMode] = useState<'auto' | 'dark' | 'light'>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const themeParam = params.get('theme');
+      if (themeParam === 'light' || themeParam === 'dark' || themeParam === 'auto') {
+        return themeParam as 'auto' | 'dark' | 'light';
+      }
+      const savedMode = localStorage.getItem('terminal-theme-mode');
+      if (savedMode === 'light' || savedMode === 'dark' || savedMode === 'auto') {
+        return savedMode as 'auto' | 'dark' | 'light';
+      }
+      const legacySaved = localStorage.getItem('terminal-theme');
+      if (legacySaved === 'light' || legacySaved === 'dark') {
+        return legacySaved as 'dark' | 'light';
+      }
+    }
+    return 'auto'; // Default: Automatically sensitive to device system theme!
+  });
+
+  const [activeTheme, setActiveTheme] = useState<'dark' | 'light'>(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const themeParam = params.get('theme');
       if (themeParam === 'light' || themeParam === 'dark') return themeParam;
-      const saved = localStorage.getItem('terminal-theme');
-      if (saved === 'light' || saved === 'dark') return saved;
+      const savedMode = localStorage.getItem('terminal-theme-mode');
+      if (savedMode === 'light' || savedMode === 'dark') return savedMode;
+      if (savedMode === 'auto') return getSystemTheme();
+      const legacySaved = localStorage.getItem('terminal-theme');
+      if (legacySaved === 'light' || legacySaved === 'dark') return legacySaved;
+      return getSystemTheme();
     }
     return 'dark';
   });
+
+  // Listen dynamically to OS / Phone theme changes (instant response without reload)
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+    const handleSystemChange = (e: MediaQueryListEvent) => {
+      if (themeMode === 'auto') {
+        const next = e.matches ? 'dark' : 'light';
+        setActiveTheme(next);
+      }
+    };
+
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', handleSystemChange);
+      return () => mediaQuery.removeEventListener('change', handleSystemChange);
+    } else if ((mediaQuery as any).addListener) {
+      (mediaQuery as any).addListener(handleSystemChange);
+      return () => (mediaQuery as any).removeListener(handleSystemChange);
+    }
+  }, [themeMode]);
 
   const [density, setDensity] = useState<'compact' | 'standard' | 'comfortable'>(() => {
     const saved = localStorage.getItem('terminal-density');
@@ -98,27 +151,33 @@ export function App() {
   };
 
   const handleToggleTheme = () => {
-    setTheme((prev) => {
-      const next = prev === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next);
-      document.documentElement.className = `theme-${next}`;
-      document.body.setAttribute('data-theme', next);
-      document.body.className = `theme-${next} density-${density}`;
-      localStorage.setItem('terminal-theme', next);
-      return next;
+    setThemeMode((prev) => {
+      let nextMode: 'auto' | 'dark' | 'light';
+      if (prev === 'auto') {
+        nextMode = activeTheme === 'dark' ? 'light' : 'dark';
+      } else if (prev === 'dark') {
+        nextMode = 'light';
+      } else {
+        nextMode = 'auto'; // Return to device auto sync!
+      }
+      return nextMode;
     });
   };
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    document.documentElement.className = `theme-${theme}`;
+    const current = themeMode === 'auto' ? getSystemTheme() : themeMode;
+    setActiveTheme(current);
+    document.documentElement.setAttribute('data-theme', current);
+    document.documentElement.setAttribute('data-theme-mode', themeMode);
+    document.documentElement.className = `theme-${current}`;
     document.documentElement.setAttribute('data-density', density);
-    document.body.setAttribute('data-theme', theme);
+    document.body.setAttribute('data-theme', current);
     document.body.setAttribute('data-density', density);
-    document.body.className = `theme-${theme} density-${density}`;
-    localStorage.setItem('terminal-theme', theme);
+    document.body.className = `theme-${current} density-${density}`;
+    localStorage.setItem('terminal-theme-mode', themeMode);
+    localStorage.setItem('terminal-theme', current);
     localStorage.setItem('terminal-density', density);
-  }, [theme, density]);
+  }, [themeMode, density]);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.location.hash.replace('#', '') !== activeTab) {
@@ -187,7 +246,8 @@ export function App() {
         onOpenSimulation={() => setIsSimulationOpen(true)}
         onSelectAsset={(sym) => setSelectedAsset(sym)}
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
-        theme={theme}
+        theme={activeTheme}
+        themeMode={themeMode}
         onToggleTheme={handleToggleTheme}
         density={density}
         onCycleDensity={() =>
@@ -262,11 +322,13 @@ export function App() {
             <ForexRankingsView onSelectAsset={setSelectedAsset} />
           ) : activeTab === 'matrix' ? (
             <CurrencyMatrixView
-              theme={theme}
+              theme={activeTheme}
               onSelectPairAsset={setSelectedAsset}
               onOpenMacroBattle={handleOpenMacroBattle}
               onRefresh={() => loadAllData(false)}
             />
+          ) : activeTab === 'cot_report' ? (
+            <COTReportView theme={activeTheme} onSelectAsset={setSelectedAsset} />
           ) : activeTab === 'gold' ? (
             <GoldTerminalView />
           ) : activeTab === 'oil' ? (
@@ -343,7 +405,7 @@ export function App() {
           setIsSimulationOpen(true);
           setIsCommandPaletteOpen(false);
         }}
-        theme={theme}
+        theme={activeTheme}
         onToggleTheme={handleToggleTheme}
         density={density}
         onChangeDensity={(newDensity) => setDensity(newDensity)}
