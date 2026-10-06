@@ -78,7 +78,7 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
   }, [propIsLight]);
 
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc'); // asc = oldest to newest (like cot-reports.com)
-  const [heatmapMode, setHeatmapMode] = useState<'vibrant' | 'subtle'>('vibrant');
+  const [heatmapMode, setHeatmapMode] = useState<'ultra' | 'vibrant' | 'subtle'>('ultra'); // Defaults to strongest institutional punch
 
   const rows: COTWeeklyBreakdownRow[] = useMemo(() => {
     if (!data?.reports) return [];
@@ -157,30 +157,39 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
     };
   }, [rows]);
 
-  // Heatmap intensity modifier
-  const intensity = heatmapMode === 'vibrant' ? 1.0 : 0.6;
+  // Sub-linear power curve (gamma = 0.48) to boost typical moves
+  // so normal weekly swings have vivid, punchy reactions without being squashed by peak outliers
+  const boostRatio = (raw: number) => {
+    const clamped = Math.max(0, Math.min(1, isNaN(raw) ? 0 : raw));
+    return Math.pow(clamped, 0.48);
+  };
+
+  // Heatmap intensity multiplier
+  const intensity = heatmapMode === 'ultra' ? 1.25 : heatmapMode === 'vibrant' ? 1.0 : 0.55;
 
   // 1. Contracts Magnitude Heatmap (Longs - Emerald Green gradient)
   const getLongContractsHeatmap = (val: number, range?: { min: number; max: number }) => {
     if (!range || range.max === range.min) return { color: isLight ? '#0f172a' : '#f8fafc' };
-    const ratio = Math.max(0, Math.min(1, (val - range.min) / (range.max - range.min)));
-    const alpha = (0.05 + ratio * 0.22) * intensity;
+    const rawRatio = (val - range.min) / (range.max - range.min);
+    const boosted = boostRatio(rawRatio);
+    const alpha = Math.min(0.65, (0.10 + boosted * 0.45) * intensity);
     return {
-      backgroundColor: isLight ? `rgba(16, 185, 129, ${alpha})` : `rgba(16, 185, 129, ${alpha * 1.1})`,
-      color: isLight ? '#0f172a' : '#f8fafc',
-      fontWeight: 600,
+      backgroundColor: isLight ? `rgba(16, 185, 129, ${alpha})` : `rgba(16, 185, 129, ${alpha * 1.15})`,
+      color: isLight ? (alpha > 0.45 ? '#064e3b' : '#0f172a') : '#f8fafc',
+      fontWeight: 700,
     };
   };
 
   // 2. Contracts Magnitude Heatmap (Shorts - Coral/Ruby gradient)
   const getShortContractsHeatmap = (val: number, range?: { min: number; max: number }) => {
     if (!range || range.max === range.min) return { color: isLight ? '#0f172a' : '#f8fafc' };
-    const ratio = Math.max(0, Math.min(1, (val - range.min) / (range.max - range.min)));
-    const alpha = (0.05 + ratio * 0.22) * intensity;
+    const rawRatio = (val - range.min) / (range.max - range.min);
+    const boosted = boostRatio(rawRatio);
+    const alpha = Math.min(0.65, (0.10 + boosted * 0.45) * intensity);
     return {
-      backgroundColor: isLight ? `rgba(244, 63, 94, ${alpha})` : `rgba(244, 63, 94, ${alpha * 1.1})`,
-      color: isLight ? '#0f172a' : '#f8fafc',
-      fontWeight: 600,
+      backgroundColor: isLight ? `rgba(244, 63, 94, ${alpha})` : `rgba(244, 63, 94, ${alpha * 1.15})`,
+      color: isLight ? (alpha > 0.45 ? '#7f1d1d' : '#0f172a') : '#f8fafc',
+      fontWeight: 700,
     };
   };
 
@@ -190,20 +199,21 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
       return { color: isLight ? '#64748b' : '#94a3b8' };
     }
     const maxVal = maxAbs || 1;
-    const ratio = Math.max(0.12, Math.min(1, Math.abs(val) / maxVal));
-    const alpha = (0.10 + ratio * 0.38) * intensity;
+    const rawRatio = Math.abs(val) / maxVal;
+    const boosted = boostRatio(rawRatio);
+    const alpha = Math.min(0.85, (0.18 + boosted * 0.58) * intensity);
 
     if (val > 0) {
       return {
         backgroundColor: isLight ? `rgba(34, 197, 94, ${alpha})` : `rgba(34, 197, 94, ${alpha * 0.95})`,
-        color: isLight ? '#14532d' : '#86efac',
-        fontWeight: 700,
+        color: isLight ? (alpha > 0.45 ? '#052e16' : '#14532d') : (alpha > 0.45 ? '#ffffff' : '#86efac'),
+        fontWeight: 800,
       };
     }
     return {
       backgroundColor: isLight ? `rgba(239, 68, 68, ${alpha})` : `rgba(239, 68, 68, ${alpha * 0.95})`,
-      color: isLight ? '#7f1d1d' : '#fca5a5',
-      fontWeight: 700,
+      color: isLight ? (alpha > 0.45 ? '#450a0a' : '#7f1d1d') : (alpha > 0.45 ? '#ffffff' : '#fca5a5'),
+      fontWeight: 800,
     };
   };
 
@@ -213,57 +223,60 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
       return { color: isLight ? '#64748b' : '#94a3b8' };
     }
     const maxVal = maxAbs || 1;
-    const ratio = Math.max(0.12, Math.min(1, Math.abs(val) / maxVal));
-    const alpha = (0.10 + ratio * 0.38) * intensity;
+    const rawRatio = Math.abs(val) / maxVal;
+    const boosted = boostRatio(rawRatio);
+    const alpha = Math.min(0.85, (0.18 + boosted * 0.58) * intensity);
 
     // Positive shorts addition = Bearish (Red)
     if (val > 0) {
       return {
         backgroundColor: isLight ? `rgba(239, 68, 68, ${alpha})` : `rgba(239, 68, 68, ${alpha * 0.95})`,
-        color: isLight ? '#7f1d1d' : '#fca5a5',
-        fontWeight: 700,
+        color: isLight ? (alpha > 0.45 ? '#450a0a' : '#7f1d1d') : (alpha > 0.45 ? '#ffffff' : '#fca5a5'),
+        fontWeight: 800,
       };
     }
     // Negative shorts reduction (covering) = Bullish (Green)
     return {
       backgroundColor: isLight ? `rgba(34, 197, 94, ${alpha})` : `rgba(34, 197, 94, ${alpha * 0.95})`,
-      color: isLight ? '#14532d' : '#86efac',
-      fontWeight: 700,
+      color: isLight ? (alpha > 0.45 ? '#052e16' : '#14532d') : (alpha > 0.45 ? '#ffffff' : '#86efac'),
+      fontWeight: 800,
     };
   };
 
   // 5. Net Positions (Full Bi-directional Divergent Heatmap: Positive = Green Net Long, Negative = Red Net Short)
   const getNetPositionsHeatmap = (net: number, maxAbs?: number) => {
     if (!net || net === 0) {
-      return { color: isLight ? '#64748b' : '#94a3b8', fontWeight: 700 };
+      return { color: isLight ? '#64748b' : '#94a3b8', fontWeight: 800 };
     }
     const maxVal = maxAbs || 1;
-    const ratio = Math.max(0.14, Math.min(1, Math.abs(net) / maxVal));
-    const alpha = (0.12 + ratio * 0.40) * intensity;
+    const rawRatio = Math.abs(net) / maxVal;
+    const boosted = boostRatio(rawRatio);
+    const alpha = Math.min(0.88, (0.22 + boosted * 0.60) * intensity);
 
     if (net > 0) {
       return {
         backgroundColor: isLight ? `rgba(16, 185, 129, ${alpha})` : `rgba(16, 185, 129, ${alpha * 0.95})`,
-        color: isLight ? '#064e3b' : '#6ee7b7',
-        fontWeight: 800,
+        color: isLight ? (alpha > 0.45 ? '#022c22' : '#064e3b') : (alpha > 0.45 ? '#ffffff' : '#6ee7b7'),
+        fontWeight: 900,
       };
     }
     return {
       backgroundColor: isLight ? `rgba(239, 68, 68, ${alpha})` : `rgba(239, 68, 68, ${alpha * 0.95})`,
-      color: isLight ? '#7f1d1d' : '#fca5a5',
-      fontWeight: 800,
+      color: isLight ? (alpha > 0.45 ? '#450a0a' : '#7f1d1d') : (alpha > 0.45 ? '#ffffff' : '#fca5a5'),
+      fontWeight: 900,
     };
   };
 
   // 6. Spreads Contracts Heatmap (Purple/Violet gradient)
   const getSpreadContractsHeatmap = (val: number, range?: { min: number; max: number }) => {
     if (!range || range.max === range.min) return { color: isLight ? '#0f172a' : '#f8fafc' };
-    const ratio = Math.max(0, Math.min(1, (val - range.min) / (range.max - range.min)));
-    const alpha = (0.05 + ratio * 0.22) * intensity;
+    const rawRatio = (val - range.min) / (range.max - range.min);
+    const boosted = boostRatio(rawRatio);
+    const alpha = Math.min(0.65, (0.10 + boosted * 0.45) * intensity);
     return {
-      backgroundColor: isLight ? `rgba(147, 51, 234, ${alpha})` : `rgba(147, 51, 234, ${alpha * 1.1})`,
-      color: isLight ? '#581c87' : '#e9d5ff',
-      fontWeight: 600,
+      backgroundColor: isLight ? `rgba(147, 51, 234, ${alpha})` : `rgba(147, 51, 234, ${alpha * 1.15})`,
+      color: isLight ? (alpha > 0.45 ? '#3b0764' : '#581c87') : '#f8fafc',
+      fontWeight: 700,
     };
   };
 
@@ -271,12 +284,13 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
   const getSpreadPctHeatmap = (pct: number, range?: { min: number; max: number }) => {
     const span = range && range.max > range.min ? range.max - range.min : 30;
     const min = range ? range.min : 0;
-    const ratio = Math.max(0, Math.min(1, (pct - min) / (span || 1)));
-    const alpha = (0.10 + ratio * 0.38) * intensity;
+    const rawRatio = (pct - min) / (span || 1);
+    const boosted = boostRatio(rawRatio);
+    const alpha = Math.min(0.80, (0.16 + boosted * 0.58) * intensity);
     return {
       backgroundColor: isLight ? `rgba(99, 102, 241, ${alpha})` : `rgba(99, 102, 241, ${alpha * 0.95})`,
-      color: isLight ? '#312e81' : '#c7d2fe',
-      fontWeight: 700,
+      color: isLight ? (alpha > 0.45 ? '#1e1b4b' : '#312e81') : (alpha > 0.45 ? '#ffffff' : '#c7d2fe'),
+      fontWeight: 800,
     };
   };
 
@@ -284,12 +298,13 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
   const getLongPctHeatmap = (pct: number, range?: { min: number; max: number }) => {
     const span = range && range.max > range.min ? range.max - range.min : 50;
     const min = range ? range.min : 0;
-    const ratio = Math.max(0, Math.min(1, (pct - min) / (span || 1)));
-    const alpha = (0.10 + ratio * 0.40) * intensity;
+    const rawRatio = (pct - min) / (span || 1);
+    const boosted = boostRatio(rawRatio);
+    const alpha = Math.min(0.85, (0.18 + boosted * 0.60) * intensity);
     return {
       backgroundColor: isLight ? `rgba(16, 185, 129, ${alpha})` : `rgba(16, 185, 129, ${alpha * 0.95})`,
-      color: isLight ? '#064e3b' : '#6ee7b7',
-      fontWeight: 700,
+      color: isLight ? (alpha > 0.45 ? '#022c22' : '#064e3b') : (alpha > 0.45 ? '#ffffff' : '#6ee7b7'),
+      fontWeight: 800,
     };
   };
 
@@ -297,12 +312,13 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
   const getShortPctHeatmap = (pct: number, range?: { min: number; max: number }) => {
     const span = range && range.max > range.min ? range.max - range.min : 50;
     const min = range ? range.min : 0;
-    const ratio = Math.max(0, Math.min(1, (pct - min) / (span || 1)));
-    const alpha = (0.10 + ratio * 0.40) * intensity;
+    const rawRatio = (pct - min) / (span || 1);
+    const boosted = boostRatio(rawRatio);
+    const alpha = Math.min(0.85, (0.18 + boosted * 0.60) * intensity);
     return {
       backgroundColor: isLight ? `rgba(239, 68, 68, ${alpha})` : `rgba(239, 68, 68, ${alpha * 0.95})`,
-      color: isLight ? '#7f1d1d' : '#fca5a5',
-      fontWeight: 700,
+      color: isLight ? (alpha > 0.45 ? '#450a0a' : '#7f1d1d') : (alpha > 0.45 ? '#ffffff' : '#fca5a5'),
+      fontWeight: 800,
     };
   };
 
@@ -310,26 +326,28 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
   const getOIHeatmap = (oi: number, range?: { min: number; max: number }) => {
     const span = range && range.max > range.min ? range.max - range.min : 1;
     const min = range ? range.min : 0;
-    const ratio = Math.max(0, Math.min(1, (oi - min) / (span || 1)));
-    const alpha = (0.08 + ratio * 0.38) * intensity;
+    const rawRatio = (oi - min) / (span || 1);
+    const boosted = boostRatio(rawRatio);
+    const alpha = Math.min(0.78, (0.14 + boosted * 0.54) * intensity);
     return {
       backgroundColor: isLight ? `rgba(2, 132, 199, ${alpha})` : `rgba(2, 132, 199, ${alpha * 0.95})`,
-      color: isLight ? '#075985' : '#bae6fd',
-      fontWeight: 700,
+      color: isLight ? (alpha > 0.45 ? '#082f49' : '#075985') : (alpha > 0.45 ? '#ffffff' : '#bae6fd'),
+      fontWeight: 800,
     };
   };
 
-  // 11. Price Heatmap (Subtle warm gold/amber gradient)
+  // 11. Price Heatmap (Warm Gold/Amber gradient)
   const getPriceHeatmap = (price: number | undefined | null, range?: { min: number; max: number }) => {
     if (price === undefined || price === null || !range || range.max === range.min) {
-      return { color: isLight ? '#0f172a' : '#f8fafc', fontWeight: 700 };
+      return { color: isLight ? '#0f172a' : '#f8fafc', fontWeight: 800 };
     }
-    const ratio = Math.max(0, Math.min(1, (price - range.min) / (range.max - range.min)));
-    const alpha = (0.04 + ratio * 0.20) * intensity;
+    const rawRatio = (price - range.min) / (range.max - range.min);
+    const boosted = boostRatio(rawRatio);
+    const alpha = Math.min(0.55, (0.08 + boosted * 0.38) * intensity);
     return {
-      backgroundColor: isLight ? `rgba(245, 158, 11, ${alpha})` : `rgba(245, 158, 11, ${alpha * 0.85})`,
-      color: isLight ? '#0f172a' : '#f8fafc',
-      fontWeight: 700,
+      backgroundColor: isLight ? `rgba(245, 158, 11, ${alpha})` : `rgba(245, 158, 11, ${alpha * 0.90})`,
+      color: isLight ? (alpha > 0.35 ? '#451a03' : '#0f172a') : '#f8fafc',
+      fontWeight: 800,
     };
   };
 
@@ -371,6 +389,12 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
   };
 
   const timeframes = ['YTD', '3M', '6M', '1Y', '2Y', '3Y', '5Y', '10Y'];
+
+  const cycleHeatmapMode = () => {
+    if (heatmapMode === 'ultra') setHeatmapMode('vibrant');
+    else if (heatmapMode === 'vibrant') setHeatmapMode('subtle');
+    else setHeatmapMode('ultra');
+  };
 
   return (
     <div
@@ -445,32 +469,38 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
           {/* Heatmap Mode Selector */}
           <button
-            onClick={() => setHeatmapMode(heatmapMode === 'vibrant' ? 'subtle' : 'vibrant')}
-            title="Toggle between vibrant institutional heatmap and subtle pastel shading"
+            onClick={cycleHeatmapMode}
+            title="Toggle between Ultra, Vibrant, and Subtle heatmap reactions"
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: 6,
-              background: heatmapMode === 'vibrant'
+              background: heatmapMode === 'ultra'
+                ? isLight ? '#f0fdf4' : '#052e16'
+                : heatmapMode === 'vibrant'
                 ? isLight ? '#ecfdf5' : '#064e3b'
                 : isLight ? 'var(--surface-2)' : '#0f172a',
-              border: heatmapMode === 'vibrant'
+              border: heatmapMode === 'ultra'
+                ? isLight ? '1.5px solid #15803d' : '1.5px solid #22c55e'
+                : heatmapMode === 'vibrant'
                 ? isLight ? '1px solid #10b981' : '1px solid #059669'
                 : isLight ? '1px solid var(--border-subtle)' : '1px solid rgba(51, 65, 85, 0.7)',
-              color: heatmapMode === 'vibrant'
+              color: heatmapMode === 'ultra'
+                ? isLight ? '#14532d' : '#86efac'
+                : heatmapMode === 'vibrant'
                 ? isLight ? '#065f46' : '#6ee7b7'
                 : isLight ? 'var(--text-primary)' : '#e2e8f0',
-              padding: '6px 12px',
+              padding: '6px 14px',
               borderRadius: 6,
               fontSize: '0.74rem',
-              fontWeight: 700,
+              fontWeight: 800,
               cursor: 'pointer',
               boxShadow: isLight ? 'var(--shadow-sm)' : 'none',
               transition: 'all 0.15s ease',
             }}
           >
             <Palette size={13} />
-            <span>Heatmap: {heatmapMode === 'vibrant' ? 'Vibrant' : 'Subtle'}</span>
+            <span>Heatmap: {heatmapMode === 'ultra' ? 'Ultra (Strongest)' : heatmapMode === 'vibrant' ? 'Vibrant' : 'Subtle'}</span>
           </button>
 
           {/* Sort Chronological Direction */}
