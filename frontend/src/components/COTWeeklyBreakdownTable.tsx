@@ -397,6 +397,121 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
     };
   };
 
+  // Helper to format compact number (e.g. 14,356 -> 14.4K, 850 -> 850)
+  const formatCompactK = (val: number): string => {
+    const abs = Math.abs(val);
+    const sign = val > 0 ? '+' : val < 0 ? '-' : '';
+    if (abs >= 1000000) {
+      return `${sign}${(abs / 1000000).toFixed(1)}M`;
+    }
+    if (abs >= 1000) {
+      return `${sign}${(abs / 1000).toFixed(1)}K`;
+    }
+    return `${sign}${abs}`;
+  };
+
+  // Helper to render special Up / Down arrow symbol badge in Net Positions
+  const renderNetPositionContent = (
+    net: number,
+    chgLong: number,
+    chgShort: number,
+    groupName: string = 'Speculators'
+  ) => {
+    // Exact weekly net change = change in longs - change in shorts
+    const deltaNet = (chgLong || 0) - (chgShort || 0);
+
+    let actionLabel = '';
+    let arrow = '▬';
+    let isUp = false;
+    let isDown = false;
+
+    if (deltaNet > 0) {
+      isUp = true;
+      arrow = '▲';
+      if (net > 0) {
+        actionLabel = `Added +${Math.abs(deltaNet).toLocaleString()} Net Long contracts (Accumulation)`;
+      } else if (net < 0) {
+        actionLabel = `Reduced -${Math.abs(deltaNet).toLocaleString()} Net Short contracts (Short Covering)`;
+      } else {
+        actionLabel = `Flipped to Neutral / Net Buying (+${Math.abs(deltaNet).toLocaleString()})`;
+      }
+    } else if (deltaNet < 0) {
+      isDown = true;
+      arrow = '▼';
+      if (net < 0) {
+        actionLabel = `Added +${Math.abs(deltaNet).toLocaleString()} Net Short contracts (Short Building)`;
+      } else if (net > 0) {
+        actionLabel = `Reduced -${Math.abs(deltaNet).toLocaleString()} Net Long contracts (Long Liquidation)`;
+      } else {
+        actionLabel = `Flipped to Neutral / Net Selling (-${Math.abs(deltaNet).toLocaleString()})`;
+      }
+    } else {
+      actionLabel = 'No change in net positioning this week';
+    }
+
+    const badgeBg = isUp
+      ? isLight ? 'rgba(5, 150, 105, 0.18)' : 'rgba(16, 185, 129, 0.28)'
+      : isDown
+      ? isLight ? 'rgba(220, 38, 38, 0.18)' : 'rgba(239, 68, 68, 0.28)'
+      : isLight ? 'rgba(100, 116, 139, 0.15)' : 'rgba(148, 163, 184, 0.18)';
+
+    const badgeColor = isUp
+      ? isLight ? '#065f46' : '#86efac'
+      : isDown
+      ? isLight ? '#7f1d1d' : '#fca5a5'
+      : isLight ? '#475569' : '#cbd5e1';
+
+    const badgeBorder = isUp
+      ? isLight ? '1px solid rgba(5, 150, 105, 0.35)' : '1px solid rgba(134, 239, 172, 0.4)'
+      : isDown
+      ? isLight ? '1px solid rgba(220, 38, 38, 0.35)' : '1px solid rgba(252, 165, 165, 0.4)'
+      : isLight ? '1px solid rgba(100, 116, 139, 0.25)' : '1px solid rgba(203, 213, 225, 0.25)';
+
+    const tooltipText = `${groupName} Weekly Shift: ${arrow} ${actionLabel} (Net: ${formatNumber(net)}, Weekly Delta: ${formatSigned(deltaNet)})`;
+
+    return (
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 6,
+          width: '100%',
+        }}
+        title={tooltipText}
+      >
+        <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 800 }}>
+          {formatNumber(net)}
+        </span>
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 2,
+            padding: '1px 5px',
+            borderRadius: 4,
+            fontSize: '0.62rem',
+            fontWeight: 900,
+            lineHeight: 1.2,
+            background: badgeBg,
+            color: badgeColor,
+            border: badgeBorder,
+            userSelect: 'none',
+            whiteSpace: 'nowrap',
+            boxShadow: isLight ? '0 1px 2px rgba(0,0,0,0.06)' : '0 1px 3px rgba(0,0,0,0.3)',
+          }}
+        >
+          <span>{arrow}</span>
+          {deltaNet !== 0 && (
+            <span style={{ fontSize: '0.58rem', fontWeight: 800 }}>
+              {formatCompactK(deltaNet)}
+            </span>
+          )}
+        </span>
+      </div>
+    );
+  };
+
   // Distinct category boundary divider styles
   const categoryDividers = {
     date: isLight ? '3px solid #cbd5e1' : '3px solid rgba(255, 255, 255, 0.22)',
@@ -918,7 +1033,7 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                 <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>SHORTS</th>
                 <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>CHANGE LONGS</th>
                 <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>CHANGE SHORTS</th>
-                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#fecaca' : '#5b1212', color: isLight ? '#7f1d1d' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', fontWeight: 900, position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>NET POSITIONS</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', minWidth: 125, background: isLight ? '#fecaca' : '#5b1212', color: isLight ? '#7f1d1d' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', fontWeight: 900, position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>NET POSITIONS</th>
                 <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>SPREADS</th>
                 <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>%OI SPREADS</th>
                 <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>%OI LONGS</th>
@@ -929,7 +1044,7 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                 <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#eff6ff' : '#1d4ed8', color: isLight ? '#1e3a8a' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>SHORTS</th>
                 <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#eff6ff' : '#1d4ed8', color: isLight ? '#1e3a8a' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>CHANGE LONGS</th>
                 <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#eff6ff' : '#1d4ed8', color: isLight ? '#1e3a8a' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>CHANGE SHORTS</th>
-                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#bfdbfe' : '#172554', color: isLight ? '#1e3a8a' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', fontWeight: 900, position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>NET POSITIONS</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', minWidth: 125, background: isLight ? '#bfdbfe' : '#172554', color: isLight ? '#1e3a8a' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', fontWeight: 900, position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>NET POSITIONS</th>
                 <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#eff6ff' : '#1d4ed8', color: isLight ? '#1e3a8a' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>%OI LONGS</th>
                 <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#eff6ff' : '#1d4ed8', color: isLight ? '#1e3a8a' : '#ffffff', borderRight: categoryDividers.comm, borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>%OI SHORTS</th>
 
@@ -938,7 +1053,7 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                 <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#115e59' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>SHORTS</th>
                 <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#115e59' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>CHANGE LONGS</th>
                 <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#115e59' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>CHANGE SHORTS</th>
-                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#99f6e4' : '#042f2e', color: isLight ? '#115e59' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', fontWeight: 900, position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>NET POSITIONS</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', minWidth: 125, background: isLight ? '#99f6e4' : '#042f2e', color: isLight ? '#115e59' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', fontWeight: 900, position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>NET POSITIONS</th>
                 <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#115e59' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>%OI LONGS</th>
                 <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#115e59' : '#ffffff', borderRight: categoryDividers.nonrept, borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>%OI SHORTS</th>
 
@@ -1023,8 +1138,8 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                       <td style={{ ...cellBaseStyle, ...getChangeShortsHeatmap(r.change_noncomm_short, stats?.change_noncomm_short) }}>
                         {formatSigned(r.change_noncomm_short)}
                       </td>
-                      <td style={{ ...cellBaseStyle, ...getNetPositionsHeatmap(r.noncomm_net, stats?.noncomm_net) }}>
-                        {formatNumber(r.noncomm_net)}
+                      <td style={{ ...cellBaseStyle, minWidth: 125, ...getNetPositionsHeatmap(r.noncomm_net, stats?.noncomm_net) }}>
+                        {renderNetPositionContent(r.noncomm_net, r.change_noncomm_long, r.change_noncomm_short, 'Non-Commercial (Speculators)')}
                       </td>
                       <td style={{ ...cellBaseStyle, ...getSpreadContractsHeatmap(r.noncomm_spreading, stats?.noncomm_spreading) }}>
                         {formatNumber(r.noncomm_spreading)}
@@ -1058,8 +1173,8 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                       <td style={{ ...cellBaseStyle, ...getChangeShortsHeatmap(r.change_comm_short, stats?.change_comm_short) }}>
                         {formatSigned(r.change_comm_short)}
                       </td>
-                      <td style={{ ...cellBaseStyle, ...getNetPositionsHeatmap(r.comm_net, stats?.comm_net) }}>
-                        {formatNumber(r.comm_net)}
+                      <td style={{ ...cellBaseStyle, minWidth: 125, ...getNetPositionsHeatmap(r.comm_net, stats?.comm_net) }}>
+                        {renderNetPositionContent(r.comm_net, r.change_comm_long, r.change_comm_short, 'Commercial (Hedgers)')}
                       </td>
                       <td style={{ ...cellBaseStyle, ...getLongPctHeatmap(r.pct_oi_comm_long, stats?.pct_oi_comm_long) }}>
                         {formatPercent(r.pct_oi_comm_long)}
@@ -1087,8 +1202,8 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                       <td style={{ ...cellBaseStyle, ...getChangeShortsHeatmap(r.change_nonrept_short, stats?.change_nonrept_short) }}>
                         {formatSigned(r.change_nonrept_short)}
                       </td>
-                      <td style={{ ...cellBaseStyle, ...getNetPositionsHeatmap(r.nonrept_net, stats?.nonrept_net) }}>
-                        {formatNumber(r.nonrept_net)}
+                      <td style={{ ...cellBaseStyle, minWidth: 125, ...getNetPositionsHeatmap(r.nonrept_net, stats?.nonrept_net) }}>
+                        {renderNetPositionContent(r.nonrept_net, r.change_nonrept_long, r.change_nonrept_short, 'Non-Reportable (Small Traders)')}
                       </td>
                       <td style={{ ...cellBaseStyle, ...getLongPctHeatmap(r.pct_oi_nonrept_long, stats?.pct_oi_nonrept_long) }}>
                         {formatPercent(r.pct_oi_nonrept_long)}
