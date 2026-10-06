@@ -10,9 +10,19 @@
     <script>
       (function() {
         try {
+          var mode = localStorage.getItem('terminal-theme-mode');
           var saved = localStorage.getItem('terminal-theme');
-          var theme = saved === 'light' ? 'light' : 'dark';
+          var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var theme;
+          if (mode === 'light' || (!mode && saved === 'light')) {
+            theme = 'light';
+          } else if (mode === 'dark' || (!mode && saved === 'dark')) {
+            theme = 'dark';
+          } else {
+            theme = systemDark ? 'dark' : 'light';
+          }
           document.documentElement.setAttribute('data-theme', theme);
+          document.documentElement.setAttribute('data-theme-mode', mode || 'auto');
           document.documentElement.className = 'theme-' + theme;
         } catch(e) {}
       })();
