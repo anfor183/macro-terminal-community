@@ -34,6 +34,11 @@ const formatPrice = (val: number | undefined | null): string => {
   return val.toFixed(4);
 };
 
+// Exact header heights in pixels to guarantee 0px gap and 0px data overlap
+const TIER1_HEIGHT = 30;
+const TIER2_HEIGHT = 28;
+const TOTAL_HEADER_HEIGHT = TIER1_HEIGHT + TIER2_HEIGHT;
+
 export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = ({
   data,
   loading,
@@ -695,7 +700,8 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
             style={{
               minWidth: '100%',
               width: 'max-content',
-              borderCollapse: 'collapse',
+              borderCollapse: 'separate',
+              borderSpacing: 0,
               fontSize: '0.72rem',
               textAlign: 'right',
               whiteSpace: 'nowrap',
@@ -705,6 +711,7 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
             <thead>
               <tr
                 style={{
+                  height: TIER1_HEIGHT,
                   fontSize: '0.7rem',
                   fontWeight: 900,
                   letterSpacing: '0.04em',
@@ -715,7 +722,9 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                   rowSpan={2}
                   style={{
                     textAlign: 'left',
-                    padding: '10px 14px',
+                    padding: '0 14px',
+                    height: TOTAL_HEADER_HEIGHT,
+                    verticalAlign: 'middle',
                     background: isLight ? '#f1f5f9' : '#080d1a',
                     color: isLight ? '#0f172a' : '#ffffff',
                     borderRight: categoryDividers.date,
@@ -726,6 +735,7 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                     zIndex: 35,
                     minWidth: 105,
                     fontWeight: 900,
+                    boxSizing: 'border-box',
                   }}
                 >
                   DATE
@@ -736,7 +746,9 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                   colSpan={9}
                   style={{
                     textAlign: 'center',
-                    padding: '8px 10px',
+                    padding: '0 10px',
+                    height: TIER1_HEIGHT,
+                    verticalAlign: 'middle',
                     background: isLight ? '#fee2e2' : '#7f1d1d',
                     color: isLight ? '#7f1d1d' : '#ffffff',
                     borderRight: categoryDividers.noncomm,
@@ -745,6 +757,7 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                     position: 'sticky',
                     top: 0,
                     zIndex: 20,
+                    boxSizing: 'border-box',
                   }}
                 >
                   NON-COMMERCIAL (LARGE SPECULATORS)
@@ -755,7 +768,9 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                   colSpan={7}
                   style={{
                     textAlign: 'center',
-                    padding: '8px 10px',
+                    padding: '0 10px',
+                    height: TIER1_HEIGHT,
+                    verticalAlign: 'middle',
                     background: isLight ? '#dbeafe' : '#1e3a8a',
                     color: isLight ? '#1e3a8a' : '#ffffff',
                     borderRight: categoryDividers.comm,
@@ -764,6 +779,7 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                     position: 'sticky',
                     top: 0,
                     zIndex: 20,
+                    boxSizing: 'border-box',
                   }}
                 >
                   COMMERCIAL (HEDGERS)
@@ -774,7 +790,9 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                   colSpan={7}
                   style={{
                     textAlign: 'center',
-                    padding: '8px 10px',
+                    padding: '0 10px',
+                    height: TIER1_HEIGHT,
+                    verticalAlign: 'middle',
                     background: isLight ? '#ccfbf1' : '#134e4a',
                     color: isLight ? '#0f766e' : '#ffffff',
                     borderRight: categoryDividers.nonrept,
@@ -783,6 +801,7 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                     position: 'sticky',
                     top: 0,
                     zIndex: 20,
+                    boxSizing: 'border-box',
                   }}
                 >
                   NON-REPORTABLE (SMALL SPECULATORS)
@@ -793,7 +812,9 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                   colSpan={2}
                   style={{
                     textAlign: 'center',
-                    padding: '8px 10px',
+                    padding: '0 10px',
+                    height: TIER1_HEIGHT,
+                    verticalAlign: 'middle',
                     background: isLight ? '#e0f2fe' : '#075985',
                     color: isLight ? '#0369a1' : '#ffffff',
                     borderBottom: isLight ? '1px solid #7dd3fc' : '1px solid rgba(255, 255, 255, 0.18)',
@@ -801,52 +822,53 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                     position: 'sticky',
                     top: 0,
                     zIndex: 20,
+                    boxSizing: 'border-box',
                   }}
                 >
                   OPEN INTEREST
                 </th>
               </tr>
 
-              {/* Header Tier 2 (Sub-Columns with sticky top: 34px and razor-sharp contrast) */}
+              {/* Header Tier 2 (Sub-Columns with exact sticky top offset matching TIER1_HEIGHT) */}
               <tr
                 style={{
+                  height: TIER2_HEIGHT,
                   fontSize: '0.66rem',
                   fontWeight: 800,
-                  borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)',
                 }}
               >
                 {/* Non-Commercial sub-columns */}
-                <th style={{ padding: '6px 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>LONGS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>SHORTS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>CHANGE LONGS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>CHANGE SHORTS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#fecaca' : '#5b1212', color: isLight ? '#7f1d1d' : '#ffffff', fontWeight: 900, position: 'sticky', top: 34, zIndex: 20 }}>NET POSITIONS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>SPREADS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>%OI SPREADS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>%OI LONGS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', borderRight: categoryDividers.noncomm, position: 'sticky', top: 34, zIndex: 20 }}>%OI SHORTS</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>LONGS</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>SHORTS</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>CHANGE LONGS</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>CHANGE SHORTS</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#fecaca' : '#5b1212', color: isLight ? '#7f1d1d' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', fontWeight: 900, position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>NET POSITIONS</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>SPREADS</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>%OI SPREADS</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>%OI LONGS</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', borderRight: categoryDividers.noncomm, borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>%OI SHORTS</th>
 
                 {/* Commercial sub-columns */}
-                <th style={{ padding: '6px 8px', background: isLight ? '#eff6ff' : '#1d4ed8', color: isLight ? '#1e3a8a' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>LONGS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#eff6ff' : '#1d4ed8', color: isLight ? '#1e3a8a' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>SHORTS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#eff6ff' : '#1d4ed8', color: isLight ? '#1e3a8a' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>CHANGE LONGS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#eff6ff' : '#1d4ed8', color: isLight ? '#1e3a8a' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>CHANGE SHORTS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#bfdbfe' : '#172554', color: isLight ? '#1e3a8a' : '#ffffff', fontWeight: 900, position: 'sticky', top: 34, zIndex: 20 }}>NET POSITIONS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#eff6ff' : '#1d4ed8', color: isLight ? '#1e3a8a' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>%OI LONGS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#eff6ff' : '#1d4ed8', color: isLight ? '#1e3a8a' : '#ffffff', borderRight: categoryDividers.comm, position: 'sticky', top: 34, zIndex: 20 }}>%OI SHORTS</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#eff6ff' : '#1d4ed8', color: isLight ? '#1e3a8a' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>LONGS</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#eff6ff' : '#1d4ed8', color: isLight ? '#1e3a8a' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>SHORTS</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#eff6ff' : '#1d4ed8', color: isLight ? '#1e3a8a' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>CHANGE LONGS</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#eff6ff' : '#1d4ed8', color: isLight ? '#1e3a8a' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>CHANGE SHORTS</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#bfdbfe' : '#172554', color: isLight ? '#1e3a8a' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', fontWeight: 900, position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>NET POSITIONS</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#eff6ff' : '#1d4ed8', color: isLight ? '#1e3a8a' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>%OI LONGS</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#eff6ff' : '#1d4ed8', color: isLight ? '#1e3a8a' : '#ffffff', borderRight: categoryDividers.comm, borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>%OI SHORTS</th>
 
                 {/* Non-Reportable sub-columns */}
-                <th style={{ padding: '6px 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#115e59' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>LONGS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#115e59' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>SHORTS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#115e59' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>CHANGE LONGS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#115e59' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>CHANGE SHORTS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#99f6e4' : '#042f2e', color: isLight ? '#115e59' : '#ffffff', fontWeight: 900, position: 'sticky', top: 34, zIndex: 20 }}>NET POSITIONS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#115e59' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>%OI LONGS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#115e59' : '#ffffff', borderRight: categoryDividers.nonrept, position: 'sticky', top: 34, zIndex: 20 }}>%OI SHORTS</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#115e59' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>LONGS</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#115e59' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>SHORTS</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#115e59' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>CHANGE LONGS</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#115e59' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>CHANGE SHORTS</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#99f6e4' : '#042f2e', color: isLight ? '#115e59' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', fontWeight: 900, position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>NET POSITIONS</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#115e59' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>%OI LONGS</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#115e59' : '#ffffff', borderRight: categoryDividers.nonrept, borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>%OI SHORTS</th>
 
                 {/* Open Interest sub-columns */}
-                <th style={{ padding: '6px 8px', background: isLight ? '#f0f9ff' : '#0284c7', color: isLight ? '#075985' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>TOTAL</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#f0f9ff' : '#0284c7', color: isLight ? '#075985' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>PRICE</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#f0f9ff' : '#0284c7', color: isLight ? '#075985' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>TOTAL</th>
+                <th style={{ height: TIER2_HEIGHT, verticalAlign: 'middle', boxSizing: 'border-box', padding: '0 8px', background: isLight ? '#f0f9ff' : '#0284c7', color: isLight ? '#075985' : '#ffffff', borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)', position: 'sticky', top: TIER1_HEIGHT, zIndex: 20 }}>PRICE</th>
               </tr>
             </thead>
 
@@ -871,12 +893,20 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                     ? isLight ? '#ffffff' : '#070b13'
                     : isLight ? '#f8fafc' : '#0b1120';
 
+                  const cellBaseStyle: React.CSSProperties = {
+                    padding: '8px 8px',
+                    verticalAlign: 'middle',
+                    lineHeight: '1.4',
+                    boxSizing: 'border-box',
+                    borderBottom: isLight ? '1px solid #e2e8f0' : '1px solid rgba(255, 255, 255, 0.05)',
+                    borderRight: isLight ? '1px solid #f1f5f9' : '1px solid rgba(255, 255, 255, 0.03)',
+                  };
+
                   return (
                     <tr
                       key={r.date_iso}
                       style={{
                         backgroundColor: rowBg,
-                        borderBottom: isLight ? '1px solid #e2e8f0' : '1px solid rgba(255, 255, 255, 0.05)',
                         transition: 'background-color 0.1s ease',
                       }}
                       onMouseEnter={(e) => {
@@ -889,8 +919,9 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                       {/* Date Column (Sticky Left) */}
                       <td
                         style={{
+                          ...cellBaseStyle,
                           textAlign: 'left',
-                          padding: '7px 12px',
+                          padding: '8px 12px',
                           fontWeight: 700,
                           color: isLight ? '#0f172a' : '#f8fafc',
                           borderRight: categoryDividers.date,
@@ -904,33 +935,33 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                       </td>
 
                       {/* ── Non-Commercial (Large Speculators) ── */}
-                      <td style={{ padding: '7px 8px', ...getLongContractsHeatmap(r.noncomm_long, stats?.noncomm_long) }}>
+                      <td style={{ ...cellBaseStyle, ...getLongContractsHeatmap(r.noncomm_long, stats?.noncomm_long) }}>
                         {formatNumber(r.noncomm_long)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getShortContractsHeatmap(r.noncomm_short, stats?.noncomm_short) }}>
+                      <td style={{ ...cellBaseStyle, ...getShortContractsHeatmap(r.noncomm_short, stats?.noncomm_short) }}>
                         {formatNumber(r.noncomm_short)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getChangeLongsHeatmap(r.change_noncomm_long, stats?.change_noncomm_long_abs) }}>
+                      <td style={{ ...cellBaseStyle, ...getChangeLongsHeatmap(r.change_noncomm_long, stats?.change_noncomm_long_abs) }}>
                         {formatSigned(r.change_noncomm_long)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getChangeShortsHeatmap(r.change_noncomm_short, stats?.change_noncomm_short_abs) }}>
+                      <td style={{ ...cellBaseStyle, ...getChangeShortsHeatmap(r.change_noncomm_short, stats?.change_noncomm_short_abs) }}>
                         {formatSigned(r.change_noncomm_short)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getNetPositionsHeatmap(r.noncomm_net, stats?.noncomm_net_abs) }}>
+                      <td style={{ ...cellBaseStyle, ...getNetPositionsHeatmap(r.noncomm_net, stats?.noncomm_net_abs) }}>
                         {formatNumber(r.noncomm_net)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getSpreadContractsHeatmap(r.noncomm_spreading, stats?.noncomm_spreading) }}>
+                      <td style={{ ...cellBaseStyle, ...getSpreadContractsHeatmap(r.noncomm_spreading, stats?.noncomm_spreading) }}>
                         {formatNumber(r.noncomm_spreading)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getSpreadPctHeatmap(r.pct_oi_noncomm_spreading, stats?.pct_oi_noncomm_spreading) }}>
+                      <td style={{ ...cellBaseStyle, ...getSpreadPctHeatmap(r.pct_oi_noncomm_spreading, stats?.pct_oi_noncomm_spreading) }}>
                         {formatPercent(r.pct_oi_noncomm_spreading)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getLongPctHeatmap(r.pct_oi_noncomm_long, stats?.pct_oi_noncomm_long) }}>
+                      <td style={{ ...cellBaseStyle, ...getLongPctHeatmap(r.pct_oi_noncomm_long, stats?.pct_oi_noncomm_long) }}>
                         {formatPercent(r.pct_oi_noncomm_long)}
                       </td>
                       <td
                         style={{
-                          padding: '7px 8px',
+                          ...cellBaseStyle,
                           borderRight: categoryDividers.noncomm,
                           ...getShortPctHeatmap(r.pct_oi_noncomm_short, stats?.pct_oi_noncomm_short),
                         }}
@@ -939,27 +970,27 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                       </td>
 
                       {/* ── Commercial (Hedgers) ── */}
-                      <td style={{ padding: '7px 8px', ...getLongContractsHeatmap(r.comm_long, stats?.comm_long) }}>
+                      <td style={{ ...cellBaseStyle, ...getLongContractsHeatmap(r.comm_long, stats?.comm_long) }}>
                         {formatNumber(r.comm_long)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getShortContractsHeatmap(r.comm_short, stats?.comm_short) }}>
+                      <td style={{ ...cellBaseStyle, ...getShortContractsHeatmap(r.comm_short, stats?.comm_short) }}>
                         {formatNumber(r.comm_short)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getChangeLongsHeatmap(r.change_comm_long, stats?.change_comm_long_abs) }}>
+                      <td style={{ ...cellBaseStyle, ...getChangeLongsHeatmap(r.change_comm_long, stats?.change_comm_long_abs) }}>
                         {formatSigned(r.change_comm_long)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getChangeShortsHeatmap(r.change_comm_short, stats?.change_comm_short_abs) }}>
+                      <td style={{ ...cellBaseStyle, ...getChangeShortsHeatmap(r.change_comm_short, stats?.change_comm_short_abs) }}>
                         {formatSigned(r.change_comm_short)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getNetPositionsHeatmap(r.comm_net, stats?.comm_net_abs) }}>
+                      <td style={{ ...cellBaseStyle, ...getNetPositionsHeatmap(r.comm_net, stats?.comm_net_abs) }}>
                         {formatNumber(r.comm_net)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getLongPctHeatmap(r.pct_oi_comm_long, stats?.pct_oi_comm_long) }}>
+                      <td style={{ ...cellBaseStyle, ...getLongPctHeatmap(r.pct_oi_comm_long, stats?.pct_oi_comm_long) }}>
                         {formatPercent(r.pct_oi_comm_long)}
                       </td>
                       <td
                         style={{
-                          padding: '7px 8px',
+                          ...cellBaseStyle,
                           borderRight: categoryDividers.comm,
                           ...getShortPctHeatmap(r.pct_oi_comm_short, stats?.pct_oi_comm_short),
                         }}
@@ -968,27 +999,27 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                       </td>
 
                       {/* ── Non-Reportable (Small Speculators) ── */}
-                      <td style={{ padding: '7px 8px', ...getLongContractsHeatmap(r.nonrept_long, stats?.nonrept_long) }}>
+                      <td style={{ ...cellBaseStyle, ...getLongContractsHeatmap(r.nonrept_long, stats?.nonrept_long) }}>
                         {formatNumber(r.nonrept_long)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getShortContractsHeatmap(r.nonrept_short, stats?.nonrept_short) }}>
+                      <td style={{ ...cellBaseStyle, ...getShortContractsHeatmap(r.nonrept_short, stats?.nonrept_short) }}>
                         {formatNumber(r.nonrept_short)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getChangeLongsHeatmap(r.change_nonrept_long, stats?.change_nonrept_long_abs) }}>
+                      <td style={{ ...cellBaseStyle, ...getChangeLongsHeatmap(r.change_nonrept_long, stats?.change_nonrept_long_abs) }}>
                         {formatSigned(r.change_nonrept_long)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getChangeShortsHeatmap(r.change_nonrept_short, stats?.change_nonrept_short_abs) }}>
+                      <td style={{ ...cellBaseStyle, ...getChangeShortsHeatmap(r.change_nonrept_short, stats?.change_nonrept_short_abs) }}>
                         {formatSigned(r.change_nonrept_short)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getNetPositionsHeatmap(r.nonrept_net, stats?.nonrept_net_abs) }}>
+                      <td style={{ ...cellBaseStyle, ...getNetPositionsHeatmap(r.nonrept_net, stats?.nonrept_net_abs) }}>
                         {formatNumber(r.nonrept_net)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getLongPctHeatmap(r.pct_oi_nonrept_long, stats?.pct_oi_nonrept_long) }}>
+                      <td style={{ ...cellBaseStyle, ...getLongPctHeatmap(r.pct_oi_nonrept_long, stats?.pct_oi_nonrept_long) }}>
                         {formatPercent(r.pct_oi_nonrept_long)}
                       </td>
                       <td
                         style={{
-                          padding: '7px 8px',
+                          ...cellBaseStyle,
                           borderRight: categoryDividers.nonrept,
                           ...getShortPctHeatmap(r.pct_oi_nonrept_short, stats?.pct_oi_nonrept_short),
                         }}
@@ -997,10 +1028,10 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                       </td>
 
                       {/* ── Open Interest & Price ── */}
-                      <td style={{ padding: '7px 8px', ...getOIHeatmap(r.open_interest, stats?.open_interest) }}>
+                      <td style={{ ...cellBaseStyle, ...getOIHeatmap(r.open_interest, stats?.open_interest) }}>
                         {formatNumber(r.open_interest)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getPriceHeatmap(r.price, stats?.price) }}>
+                      <td style={{ ...cellBaseStyle, ...getPriceHeatmap(r.price, stats?.price) }}>
                         {formatPrice(r.price)}
                       </td>
                     </tr>
