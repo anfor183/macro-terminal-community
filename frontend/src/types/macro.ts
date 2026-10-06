@@ -810,3 +810,132 @@ export interface HistoricalSignalsResponse {
   };
   generated_at: string;
 }
+
+// ?? CFTC Legacy Commitments of Traders (COT) Net Positions Types ??
+export interface COTReportCell {
+  date: string;
+  value: number;
+  formatted: string;
+  is_52w_high: boolean;
+  is_52w_low: boolean;
+  prior_was_positive: boolean;
+  prior_was_negative: boolean;
+  sign_flipped: boolean;
+}
+
+export interface COTReportRow {
+  id: string;
+  commodity: string;
+  symbol: string;
+  category: string;
+  is_pair: boolean;
+  is_inverted: boolean;
+  high_52w: number;
+  high_52w_formatted: string;
+  low_52w: number;
+  low_52w_formatted: string;
+  weekly_change: number;
+  weekly_change_formatted: string;
+  cells: COTReportCell[];
+}
+
+export interface LegacyCOTReportResponse {
+  title: string;
+  subtitle: string;
+  dates: string[];
+  current_trader_group: string;
+  category: string;
+  available_categories: string[];
+  trader_groups: Array<{ id: string; label: string }>;
+  total_commodities: number;
+  rows: COTReportRow[];
+  next_release_dates?: Array<{ date: string; release: string }>;
+  next_release_info?: {
+    next_cutoff_date: string;
+    next_release_date: string;
+    frequency: string;
+  };
+  timestamp: string;
+}
+
+export interface LegacyCOTChartHistory {
+  commodity: string;
+  symbol: string;
+  category: string;
+  high_52w: number;
+  low_52w: number;
+  history: Array<{
+    date: string;
+    non_commercial_net: number;
+    commercial_net: number;
+    open_interest: number;
+  }>;
+}
+
+// ?? cot-reports.com COT Index Charting Types ??
+export interface COTMarketInfo {
+  symbol: string;
+  ticker: string;
+  name: string;
+  full_name: string;
+  exchange: string;
+  cftc_code: string;
+  category: string;
+  subcategory: string;
+  contract_units?: string;
+  color?: string;
+}
+
+export interface COTCategoryItem {
+  name: string;
+  color?: string;
+  subcategories: Array<{
+    name: string;
+    markets: COTMarketInfo[];
+  }>;
+}
+
+export interface COTIndexChartPoint {
+  date: string;
+  date_short: string;
+  date_iso: string;
+  cot_index: number;
+  price: number;
+  net: number;
+  open_interest: number;
+  zone_label: string;
+  is_extreme_long: boolean;
+  is_extreme_short: boolean;
+}
+
+export interface COTIndexChartResponse {
+  market: COTMarketInfo;
+  categories?: COTCategoryItem[];
+  parameters: {
+    timeframe: string;
+    trader_group: string;
+    periods: number;
+  };
+  current_summary: {
+    date: string;
+    cot_index: number;
+    price: number;
+    net: number;
+    net_formatted: string;
+    zone_label: string;
+    weekly_change: number;
+  };
+  legend: {
+    series: Array<{ id: string; name: string; value?: number; area?: boolean }>;
+    zones: Array<{ id: string; label: string; color: string }>;
+  };
+  history: COTIndexChartPoint[];
+  status_footer: string;
+}
+
+export interface COTIndexMarketsResponse {
+  markets: COTMarketInfo[];
+  popular: string[];
+  categories?: COTCategoryItem[];
+}
+

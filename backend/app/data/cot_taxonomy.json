@@ -1,0 +1,2902 @@
+[
+  {
+    "name": "Currencies & Forex",
+    "color": "#FFFF1D",
+    "subcategories": [
+      {
+        "name": "Major Currencies & Indices",
+        "markets": [
+          {
+            "name": "EURO FX",
+            "cftcCode": "099741",
+            "ticker": "6E",
+            "contractUnits": "EUR 125,000",
+            "exchange": "CME"
+          },
+          {
+            "name": "BRITISH POUND",
+            "cftcCode": "096742",
+            "ticker": "6B",
+            "contractUnits": "GBP 62,500",
+            "exchange": "CME"
+          },
+          {
+            "name": "JAPANESE YEN",
+            "cftcCode": "097741",
+            "ticker": "6J",
+            "contractUnits": "JPY 12,500,000",
+            "exchange": "CME"
+          },
+          {
+            "name": "SWISS FRANC",
+            "cftcCode": "092741",
+            "ticker": "6S",
+            "contractUnits": "CHF 125,000",
+            "exchange": "CME"
+          },
+          {
+            "name": "CANADIAN DOLLAR",
+            "cftcCode": "090741",
+            "ticker": "6C",
+            "contractUnits": "CAD 100,000",
+            "exchange": "CME"
+          },
+          {
+            "name": "AUSTRALIAN DOLLAR",
+            "cftcCode": "232741",
+            "ticker": "6A",
+            "contractUnits": "AUD 100,000",
+            "exchange": "CME"
+          },
+          {
+            "name": "NEW ZEALAND DOLLAR",
+            "cftcCode": "112741",
+            "ticker": "6N",
+            "contractUnits": "NZD 100,000",
+            "exchange": "CME"
+          },
+          {
+            "name": "US DOLLAR INDEX",
+            "cftcCode": "098662",
+            "ticker": "DX",
+            "contractUnits": "USD Index x 1,000",
+            "exchange": "ICE"
+          }
+        ]
+      },
+      {
+        "name": "Minor & Emerging Currencies",
+        "markets": [
+          {
+            "name": "MEXICAN PESO",
+            "cftcCode": "095741",
+            "ticker": "6M",
+            "contractUnits": "MXN 500,000",
+            "exchange": "CME"
+          },
+          {
+            "name": "BRAZILIAN REAL",
+            "cftcCode": "102741",
+            "ticker": "6L",
+            "contractUnits": "BRL 100,000",
+            "exchange": "CME"
+          },
+          {
+            "name": "SOUTH AFRICAN RAND",
+            "cftcCode": "122741",
+            "ticker": "6Z",
+            "contractUnits": "ZAR 500,000",
+            "exchange": "CME"
+          },
+          {
+            "name": "RUSSIAN RUBLE",
+            "cftcCode": "089741",
+            "ticker": "6R",
+            "contractUnits": "RUB 2,500,000",
+            "exchange": "CME"
+          },
+          {
+            "name": "CHINESE RENMINBI (CNH)",
+            "cftcCode": "082744",
+            "ticker": "6Y",
+            "contractUnits": "CNH 1,000,000",
+            "exchange": "CME"
+          },
+          {
+            "name": "EUR/NORWEGIAN KRONE",
+            "cftcCode": "799661",
+            "ticker": "ENK",
+            "contractUnits": "EUR/NOK cross",
+            "exchange": "NYCE"
+          },
+          {
+            "name": "EUR/SWEDISH KRONA",
+            "cftcCode": "399661",
+            "ticker": "ESK",
+            "contractUnits": "EUR/SEK cross",
+            "exchange": "NYCE"
+          }
+        ]
+      },
+      {
+        "name": "Forex Crosses",
+        "markets": [
+          {
+            "name": "EUR/GBP CROSS",
+            "cftcCode": "299741",
+            "ticker": "RP",
+            "contractUnits": "EUR/GBP",
+            "exchange": "CME"
+          },
+          {
+            "name": "EUR/JPY CROSS",
+            "cftcCode": "399741",
+            "ticker": "RY",
+            "contractUnits": "EUR/JPY",
+            "exchange": "CME"
+          },
+          {
+            "name": "EUR/CHF CROSS",
+            "cftcCode": "499661",
+            "ticker": "RF",
+            "contractUnits": "EUR/CHF",
+            "exchange": "NYCE"
+          },
+          {
+            "name": "AUD/JPY CROSS",
+            "cftcCode": "332661",
+            "ticker": "A7",
+            "contractUnits": "AUD/JPY",
+            "exchange": "NYCE"
+          },
+          {
+            "name": "AUD/NZD CROSS",
+            "cftcCode": "432661",
+            "ticker": "AN",
+            "contractUnits": "AUD/NZD",
+            "exchange": "NYCE"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Stock Indices & Equities",
+    "color": "#00FFFF",
+    "subcategories": [
+      {
+        "name": "US Large Cap Indices",
+        "markets": [
+          {
+            "name": "E-MINI S&P 500",
+            "cftcCode": "13874A",
+            "ticker": "ES",
+            "contractUnits": "$50 x S&P 500",
+            "exchange": "CME"
+          },
+          {
+            "name": "E-MINI NASDAQ 100",
+            "cftcCode": "20974+",
+            "ticker": "20974+",
+            "contractUnits": "$20 x Nasdaq 100",
+            "exchange": "CME"
+          },
+          {
+            "name": "E-MINI DOW JONES ($5)",
+            "cftcCode": "124603",
+            "ticker": "YM",
+            "contractUnits": "$5 x DJIA",
+            "exchange": "CBOT"
+          },
+          {
+            "name": "MICRO E-MINI S&P 500",
+            "cftcCode": "13874U",
+            "ticker": "MES",
+            "contractUnits": "$5 x S&P 500",
+            "exchange": "CME"
+          },
+          {
+            "name": "MICRO E-MINI NASDAQ 100",
+            "cftcCode": "209747",
+            "ticker": "MNQ",
+            "contractUnits": "$2 x Nasdaq 100",
+            "exchange": "CME"
+          },
+          {
+            "name": "S&P 500 (FULL)",
+            "cftcCode": "138741",
+            "ticker": "SP",
+            "contractUnits": "$250 x S&P 500",
+            "exchange": "CME"
+          },
+          {
+            "name": "DJIA CONSOLIDATED",
+            "cftcCode": "12460+",
+            "ticker": "12460+",
+            "contractUnits": "$5 X DJIA INDEX",
+            "exchange": "CBOT"
+          },
+          {
+            "name": "MICRO E-MINI DJIA (X$0.5)",
+            "cftcCode": "124608",
+            "ticker": "124608",
+            "contractUnits": "$0.5 X DJIA INDEX",
+            "exchange": "CBOT"
+          },
+          {
+            "name": "S&P 500 CONSOLIDATED",
+            "cftcCode": "13874+",
+            "ticker": "13874+",
+            "contractUnits": "S&P 500 INDEX X $50.00",
+            "exchange": "CME"
+          },
+          {
+            "name": "ADJUSTED INT RATE S&P 500 TOTL",
+            "cftcCode": "13874W",
+            "ticker": "13874W",
+            "contractUnits": "S&P 500 TOTAL RETURN INDEX x $25",
+            "exchange": "CME"
+          },
+          {
+            "name": "NASDAQ MINI",
+            "cftcCode": "209742",
+            "ticker": "NQ",
+            "contractUnits": "NASDAQ 100 STOCK INDEX X $20",
+            "exchange": "CME"
+          },
+          {
+            "name": "RUSSELL E-MINI",
+            "cftcCode": "239742",
+            "ticker": "RTY",
+            "contractUnits": "RUSSEL 2000 INDEX X $50",
+            "exchange": "CME"
+          }
+        ]
+      },
+      {
+        "name": "US Mid & Small Cap Indices",
+        "markets": [
+          {
+            "name": "E-MINI RUSSELL 2000",
+            "cftcCode": "23977A",
+            "ticker": "23977A",
+            "contractUnits": "$50 x Russell 2000",
+            "exchange": "CME"
+          },
+          {
+            "name": "E-MINI S&P MIDCAP 400",
+            "cftcCode": "33874A",
+            "ticker": "EMD",
+            "contractUnits": "$100 x S&P MidCap 400",
+            "exchange": "CME"
+          },
+          {
+            "name": "MICRO E-MINI RUSSELL 2000",
+            "cftcCode": "239747",
+            "ticker": "M2K",
+            "contractUnits": "$5 x Russell 2000",
+            "exchange": "CME"
+          },
+          {
+            "name": "EMINI RUSSELL 1000 VALUE INDEX",
+            "cftcCode": "239744",
+            "ticker": "239744",
+            "contractUnits": "RUSSELL 1000 VALUE INDEX x $50",
+            "exchange": "CME"
+          }
+        ]
+      },
+      {
+        "name": "US Sector Indices",
+        "markets": [
+          {
+            "name": "E-MINI S&P TECHNOLOGY",
+            "cftcCode": "13874I",
+            "ticker": "XAK",
+            "contractUnits": "$250 x S&P Tech",
+            "exchange": "CME"
+          },
+          {
+            "name": "E-MINI S&P FINANCIAL",
+            "cftcCode": "13874C",
+            "ticker": "XAF",
+            "contractUnits": "$250 x S&P Financial",
+            "exchange": "CME"
+          },
+          {
+            "name": "E-MINI S&P ENERGY",
+            "cftcCode": "138749",
+            "ticker": "XAE",
+            "contractUnits": "$250 x S&P Energy",
+            "exchange": "CME"
+          },
+          {
+            "name": "DOW JONES U.S. REAL ESTATE IDX",
+            "cftcCode": "124606",
+            "ticker": "124606",
+            "contractUnits": "$100 X DJ US REAL ESTATE INDEX",
+            "exchange": "CBOT"
+          },
+          {
+            "name": "E-MINI S&P CONSU STAPLES INDEX",
+            "cftcCode": "138748",
+            "ticker": "138748",
+            "contractUnits": "$100 x S&P Select Sector Consumer Stapl",
+            "exchange": "CME"
+          },
+          {
+            "name": "E-MINI S&P HEALTH CARE INDEX",
+            "cftcCode": "13874E",
+            "ticker": "13874E",
+            "contractUnits": "$100 x S&P Select Sector Health Care In",
+            "exchange": "CME"
+          },
+          {
+            "name": "E-MINI S&P INDUSTRIAL INDEX",
+            "cftcCode": "13874F",
+            "ticker": "13874F",
+            "contractUnits": "$100 x S&P Select Sector Industrial Ind",
+            "exchange": "CME"
+          },
+          {
+            "name": "E-MINI S&P UTILITIES INDEX",
+            "cftcCode": "13874J",
+            "ticker": "13874J",
+            "contractUnits": "$100 x S&P Select Sector Utilities Inde",
+            "exchange": "CME"
+          },
+          {
+            "name": "E-MINI S&P COMMUNICATION INDEX",
+            "cftcCode": "13874P",
+            "ticker": "13874P",
+            "contractUnits": "$250 x S&P Select Sector Communication",
+            "exchange": "CME"
+          }
+        ]
+      },
+      {
+        "name": "Dividend Indices",
+        "markets": [
+          {
+            "name": "S&P 500 ANNUAL DIVIDEND INDEX",
+            "cftcCode": "43874A",
+            "ticker": "43874A",
+            "contractUnits": "S&P 500 ANNUAL DIVIDEND INDEX X $250",
+            "exchange": "CME"
+          },
+          {
+            "name": "S&P 500 QUARTERLY DIVIDEND IND",
+            "cftcCode": "43874Q",
+            "ticker": "43874Q",
+            "contractUnits": "S&P 500 QUARTERLY DIVIDEND INDEX X $100",
+            "exchange": "CME"
+          }
+        ]
+      },
+      {
+        "name": "International Indices",
+        "markets": [
+          {
+            "name": "NIKKEI 225 (USD)",
+            "cftcCode": "240741",
+            "ticker": "NKD",
+            "contractUnits": "$5 x Nikkei 225",
+            "exchange": "CME"
+          },
+          {
+            "name": "NIKKEI 225 (YEN)",
+            "cftcCode": "240743",
+            "ticker": "NIY",
+            "contractUnits": "500 x Nikkei 225",
+            "exchange": "CME"
+          },
+          {
+            "name": "MSCI EAFE",
+            "cftcCode": "244041",
+            "ticker": "MFS",
+            "contractUnits": "$50 x MSCI EAFE",
+            "exchange": "ICE"
+          },
+          {
+            "name": "MSCI EMERGING MARKETS",
+            "cftcCode": "244042",
+            "ticker": "MME",
+            "contractUnits": "$50 x MSCI EM",
+            "exchange": "ICE"
+          }
+        ]
+      },
+      {
+        "name": "Volatility",
+        "markets": [
+          {
+            "name": "VIX FUTURES",
+            "cftcCode": "1170E1",
+            "ticker": "VX",
+            "contractUnits": "$1,000 x VIX",
+            "exchange": "CBOE"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Energy",
+    "color": "#FF914D",
+    "subcategories": [
+      {
+        "name": "Oil & Refined Products",
+        "markets": [
+          {
+            "name": "WTI CRUDE OIL",
+            "cftcCode": "067651",
+            "ticker": "CL",
+            "contractUnits": "1,000 barrels",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "BRENT CRUDE OIL",
+            "cftcCode": "06765T",
+            "ticker": "BZ",
+            "contractUnits": "1,000 barrels",
+            "exchange": "ICE"
+          },
+          {
+            "name": "NY HARBOR ULSD",
+            "cftcCode": "022651",
+            "ticker": "HO",
+            "contractUnits": "42,000 gallons",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "RBOB GASOLINE",
+            "cftcCode": "111659",
+            "ticker": "RB",
+            "contractUnits": "42,000 gallons",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "USGC HSFO (PLATTS)",
+            "cftcCode": "02141B",
+            "ticker": "02141B",
+            "contractUnits": "1000 barrels",
+            "exchange": "ICE"
+          },
+          {
+            "name": "FUEL OIL-3% USGC/3.5% FOB RDAM",
+            "cftcCode": "02141C",
+            "ticker": "02141C",
+            "contractUnits": "1000 barrels",
+            "exchange": "ICE"
+          },
+          {
+            "name": "USGC HSFO-PLATTS/BRENT 1ST LN",
+            "cftcCode": "02141R",
+            "ticker": "02141R",
+            "contractUnits": "1000 Barrels",
+            "exchange": "ICE"
+          },
+          {
+            "name": "MT BELV NAT GASOLINE OPIS",
+            "cftcCode": "06665R",
+            "ticker": "06665R",
+            "contractUnits": "42,000 GALLONS",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "CRUDE OIL, LIGHT SWEET-WTI",
+            "cftcCode": "067411",
+            "ticker": "067411",
+            "contractUnits": "1,000 BARRELS",
+            "exchange": "ICE"
+          },
+          {
+            "name": "WTI CRUDE OIL 1ST LINE",
+            "cftcCode": "06741Q",
+            "ticker": "06741Q",
+            "contractUnits": "1000 US barrels per lot",
+            "exchange": "ICE"
+          },
+          {
+            "name": "CONDENSATE DIF-TMX C5 1A INDEX",
+            "cftcCode": "06743A",
+            "ticker": "06743A",
+            "contractUnits": "1000 BARRELS",
+            "exchange": "ICE"
+          },
+          {
+            "name": "WTI CRUDE OIL - FINANCIAL",
+            "cftcCode": "06765A",
+            "ticker": "06765A",
+            "contractUnits": "1,000 BARRELS",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "WTI  HOUSTON ARGUS/WTI TR MO",
+            "cftcCode": "0676A5",
+            "ticker": "0676A5",
+            "contractUnits": "1,000 BARRELS",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "WTI MIDLAND ARGUS VS WTI TRADE",
+            "cftcCode": "067A71",
+            "ticker": "067A71",
+            "contractUnits": "1,000 BARRELS",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "GASOLINE CRK-RBOB/BRENT 1ST",
+            "cftcCode": "111415",
+            "ticker": "111415",
+            "contractUnits": "1000 Barrels",
+            "exchange": "ICE"
+          },
+          {
+            "name": "GULF COAST CBOB GAS A2 PL RBOB",
+            "cftcCode": "111A34",
+            "ticker": "111A34",
+            "contractUnits": "42,000 GALLONS",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "MARINE .5% FOB USGC/BRENT 1ST",
+            "cftcCode": "865392",
+            "ticker": "865392",
+            "contractUnits": "1,000 Barrels",
+            "exchange": "ICE"
+          }
+        ]
+      },
+      {
+        "name": "Oil Spreads & Cracks",
+        "markets": [
+          {
+            "name": "UP DOWN GC ULSD VS HO SPR",
+            "cftcCode": "022A13",
+            "ticker": "022A13",
+            "contractUnits": "42,000 GALLONS",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "CRUDE DIFF-WCS HOUSTON/WTI 1ST",
+            "cftcCode": "06739C",
+            "ticker": "06739C",
+            "contractUnits": "1000 Barrels",
+            "exchange": "ICE"
+          },
+          {
+            "name": "CRUDE DIFF-TMX WCS 1A INDEX",
+            "cftcCode": "06742G",
+            "ticker": "06742G",
+            "contractUnits": "1000 BARRELS",
+            "exchange": "ICE"
+          },
+          {
+            "name": "CRUDE DIFF-TMX SW 1A INDEX",
+            "cftcCode": "06742T",
+            "ticker": "06742T",
+            "contractUnits": "1000 BARRELS",
+            "exchange": "ICE"
+          },
+          {
+            "name": "WTI-BRENT CALENDAR",
+            "cftcCode": "06765L",
+            "ticker": "06765L",
+            "contractUnits": "1,000 BARRELS",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "WTI  HOUSTON ARGUS/WTI BALMO",
+            "cftcCode": "0676A6",
+            "ticker": "0676A6",
+            "contractUnits": "1,000 BARRELS",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "GULF JET NY HEAT OIL SPR",
+            "cftcCode": "86465A",
+            "ticker": "86465A",
+            "contractUnits": "42,000 GALLONS",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "JET UP-DOWN BALMO",
+            "cftcCode": "86465K",
+            "ticker": "86465K",
+            "contractUnits": "42,000 GALLONS",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "GULF # 6 FUEL OIL CRACK",
+            "cftcCode": "86565A",
+            "ticker": "86565A",
+            "contractUnits": "1,000 BARRELS",
+            "exchange": "NYMEX"
+          }
+        ]
+      },
+      {
+        "name": "Natural Gas",
+        "markets": [
+          {
+            "name": "NATURAL GAS",
+            "cftcCode": "023651",
+            "ticker": "NG",
+            "contractUnits": "10,000 mmBtu",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "HENRY HUB NATURAL GAS",
+            "cftcCode": "03565B",
+            "ticker": "HH",
+            "contractUnits": "10,000 mmBtu",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "DUTCH TTF GAS",
+            "cftcCode": "023B98",
+            "ticker": "TTF",
+            "contractUnits": "10,000 mmBtu",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "NAT GAS ICE LD1",
+            "cftcCode": "023391",
+            "ticker": "023391",
+            "contractUnits": "2500 MMBtus",
+            "exchange": "ICE"
+          },
+          {
+            "name": "NAT GAS ICE PEN",
+            "cftcCode": "023392",
+            "ticker": "023392",
+            "contractUnits": "2500 mmbtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "DOMINION - SOUTH POINT",
+            "cftcCode": "0233A2",
+            "ticker": "0233A2",
+            "contractUnits": "2500 mmbtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "NAT GAS LD1 FOR GDD -TEXOK",
+            "cftcCode": "0233AT",
+            "ticker": "0233AT",
+            "contractUnits": "2500 mmbtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "SONAT - TIER 1 POOL (ZONE 0)",
+            "cftcCode": "0233C1",
+            "ticker": "0233C1",
+            "contractUnits": "2500 mmbtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "TRANSCO STATION 85-ZONE 4 BASI",
+            "cftcCode": "0233CW",
+            "ticker": "0233CW",
+            "contractUnits": "2500 mm btu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "HENRY HUB LAST DAY FIN",
+            "cftcCode": "023A55",
+            "ticker": "023A55",
+            "contractUnits": "10,000 MMBTU'S",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "HENRY HUB PENULTIMATE FIN",
+            "cftcCode": "023A56",
+            "ticker": "023A56",
+            "contractUnits": "10,000 MMBTU'S",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "HENRY HUB PENULTIMATE NAT GAS",
+            "cftcCode": "03565C",
+            "ticker": "03565C",
+            "contractUnits": "2,500  MMBTU'S",
+            "exchange": "NYMEX"
+          }
+        ]
+      },
+      {
+        "name": "Natural Gas Basis & Swaps",
+        "markets": [
+          {
+            "name": "SOCAL BORDER FIN BASIS",
+            "cftcCode": "023393",
+            "ticker": "023393",
+            "contractUnits": "2,500  MMBTU'S",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PG&E CITYGATE FIN BASIS",
+            "cftcCode": "023394",
+            "ticker": "023394",
+            "contractUnits": "2,500  MMBTU'S",
+            "exchange": "ICE"
+          },
+          {
+            "name": "NWP ROCKIES FIN BASIS",
+            "cftcCode": "023395",
+            "ticker": "023395",
+            "contractUnits": "2,500  MMBTU'S",
+            "exchange": "ICE"
+          },
+          {
+            "name": "AECO FIN BASIS",
+            "cftcCode": "023396",
+            "ticker": "023396",
+            "contractUnits": "2,500  MMBTU'S",
+            "exchange": "ICE"
+          },
+          {
+            "name": "CHICAGO FIN BASIS",
+            "cftcCode": "023397",
+            "ticker": "023397",
+            "contractUnits": "2,500  MMBTU'S",
+            "exchange": "ICE"
+          },
+          {
+            "name": "HSC FIN BASIS",
+            "cftcCode": "023398",
+            "ticker": "023398",
+            "contractUnits": "2,500  MMBTU'S",
+            "exchange": "ICE"
+          },
+          {
+            "name": "WAHA FIN BASIS",
+            "cftcCode": "023399",
+            "ticker": "023399",
+            "contractUnits": "2,500  MMBTU'S",
+            "exchange": "ICE"
+          },
+          {
+            "name": "ALGONQUIN CITYGATES BASIS",
+            "cftcCode": "02339E",
+            "ticker": "02339E",
+            "contractUnits": "2500 mmbtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "CG-MAINLINE FINANCIAL INDEX",
+            "cftcCode": "02339P",
+            "ticker": "02339P",
+            "contractUnits": "Any multiple of 2,500 MMBtus",
+            "exchange": "ICE"
+          },
+          {
+            "name": "CHICAGO CITYGATE (INDEX)",
+            "cftcCode": "02339Q",
+            "ticker": "02339Q",
+            "contractUnits": "2500 mmbtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "CIG ROCKIES FINANCIAL INDEX",
+            "cftcCode": "02339S",
+            "ticker": "02339S",
+            "contractUnits": "2,500 MMBtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "CIG ROCKIES BASIS",
+            "cftcCode": "02339U",
+            "ticker": "02339U",
+            "contractUnits": "2500 mmbtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "TCO BASIS",
+            "cftcCode": "02339W",
+            "ticker": "02339W",
+            "contractUnits": "2500 mm btu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "CG MAINLINE BASIS",
+            "cftcCode": "02339Y",
+            "ticker": "02339Y",
+            "contractUnits": "2500 mmbtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "DOMINION - SOUTH POINT (BASIS)",
+            "cftcCode": "0233A3",
+            "ticker": "0233A3",
+            "contractUnits": "2500 mmbtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "EP SAN JUAN BASIS",
+            "cftcCode": "0233A8",
+            "ticker": "0233A8",
+            "contractUnits": "2500 mmbtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "HENRY HUB BASIS",
+            "cftcCode": "0233AG",
+            "ticker": "0233AG",
+            "contractUnits": "2500 mmbtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "HENRY HUB INDEX",
+            "cftcCode": "0233AH",
+            "ticker": "0233AH",
+            "contractUnits": "2500 mmbtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "HOUSTON SHIP CHANNEL (INDEX)",
+            "cftcCode": "0233AM",
+            "ticker": "0233AM",
+            "contractUnits": "2500 mmbtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "MICHCON FINANCIAL INDEX",
+            "cftcCode": "0233AN",
+            "ticker": "0233AN",
+            "contractUnits": "MMBTU",
+            "exchange": "ICE"
+          },
+          {
+            "name": "MICHCON BASIS",
+            "cftcCode": "0233AQ",
+            "ticker": "0233AQ",
+            "contractUnits": "2500 mmbtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "NGPL MIDCONT BASIS",
+            "cftcCode": "0233AY",
+            "ticker": "0233AY",
+            "contractUnits": "2500 mmbtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "NGPL TXOK BASIS",
+            "cftcCode": "0233B1",
+            "ticker": "0233B1",
+            "contractUnits": "2500 mmbtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "NNG VENTURA BASIS",
+            "cftcCode": "0233BB",
+            "ticker": "0233BB",
+            "contractUnits": "2500 mmbtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "NWP ROCKIES INDEX",
+            "cftcCode": "0233BD",
+            "ticker": "0233BD",
+            "contractUnits": "2500 mmbtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "MALIN (BASIS)",
+            "cftcCode": "0233BH",
+            "ticker": "0233BH",
+            "contractUnits": "2500 mmbtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PANHANDLE BASIS",
+            "cftcCode": "0233BL",
+            "ticker": "0233BL",
+            "contractUnits": "2500 mmbtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "SOCAL (INDEX)",
+            "cftcCode": "0233BW",
+            "ticker": "0233BW",
+            "contractUnits": "2500 mmbtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "TETCO WLA BASIS",
+            "cftcCode": "0233CC",
+            "ticker": "0233CC",
+            "contractUnits": "mmbtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "TETCO M3 INDEX",
+            "cftcCode": "0233CG",
+            "ticker": "0233CG",
+            "contractUnits": "2500 mmbtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "TETCO M3 BASIS",
+            "cftcCode": "0233CH",
+            "ticker": "0233CH",
+            "contractUnits": "2500 mm btu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "TGT ZONE 1 BASIS",
+            "cftcCode": "0233CM",
+            "ticker": "0233CM",
+            "contractUnits": "2500 MMBtus",
+            "exchange": "ICE"
+          },
+          {
+            "name": "TRANSCO STN 85 MONTHLY INDEX",
+            "cftcCode": "0233CS",
+            "ticker": "0233CS",
+            "contractUnits": "mmbtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "TRANSCO ZONE 6 BASIS",
+            "cftcCode": "0233CU",
+            "ticker": "0233CU",
+            "contractUnits": "mmbtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "TRANSCO ZONE 6 MONTHLY INDEX",
+            "cftcCode": "0233CV",
+            "ticker": "0233CV",
+            "contractUnits": "mmbtu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "WAHA INDEX",
+            "cftcCode": "0233D4",
+            "ticker": "0233D4",
+            "contractUnits": "2500 mm btu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "TETCO M2 BASIS (RECEIPTS)",
+            "cftcCode": "0233DR",
+            "ticker": "0233DR",
+            "contractUnits": "2500 MM Btus",
+            "exchange": "ICE"
+          },
+          {
+            "name": "TRANSCO LEIDY BASIS",
+            "cftcCode": "0233DT",
+            "ticker": "0233DT",
+            "contractUnits": "2500 mm btu",
+            "exchange": "ICE"
+          },
+          {
+            "name": "TETCO M2 INDEX (RECEIPTS)",
+            "cftcCode": "0233DW",
+            "ticker": "0233DW",
+            "contractUnits": "2500 MM Btus",
+            "exchange": "ICE"
+          },
+          {
+            "name": "REX ZONE 3 BASIS",
+            "cftcCode": "0233EB",
+            "ticker": "0233EB",
+            "contractUnits": "2500 MMBtus",
+            "exchange": "ICE"
+          },
+          {
+            "name": "REX ZONE 3 INDEX",
+            "cftcCode": "0233ED",
+            "ticker": "0233ED",
+            "contractUnits": "2500 MMBtus",
+            "exchange": "ICE"
+          },
+          {
+            "name": "TRANSCO ZONE 5 SOUTH BASIS",
+            "cftcCode": "0233FJ",
+            "ticker": "0233FJ",
+            "contractUnits": "2500 MMBtus",
+            "exchange": "ICE"
+          }
+        ]
+      },
+      {
+        "name": "NGLs & Petrochemicals",
+        "markets": [
+          {
+            "name": "PROPANE ARGUS CIF ARA MINI",
+            "cftcCode": "066391",
+            "ticker": "066391",
+            "contractUnits": "100 metric tonnes",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PROPANE ARGUS FAR EAST MINI",
+            "cftcCode": "066393",
+            "ticker": "066393",
+            "contractUnits": "100  metric tonnes",
+            "exchange": "ICE"
+          },
+          {
+            "name": "BUTANE,OPIS MT B, NONTET FIX",
+            "cftcCode": "066397",
+            "ticker": "066397",
+            "contractUnits": "42000 gallons(1000 barrels",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PROPANE ARGUS SAUDI CP MINI",
+            "cftcCode": "06639H",
+            "ticker": "06639H",
+            "contractUnits": "100 Metric  Tonnes",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PROPANE,OPIS MT B TET/AFEI",
+            "cftcCode": "06639W",
+            "ticker": "06639W",
+            "contractUnits": "1000 Metric Tonnes",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PROPANE,OPIS MT BELV TET BALMO",
+            "cftcCode": "06639Z",
+            "ticker": "06639Z",
+            "contractUnits": "42000 gallons(1000 barrels",
+            "exchange": "ICE"
+          },
+          {
+            "name": "ARGUS CIF ARA LG FINL PROPANE",
+            "cftcCode": "066411",
+            "ticker": "066411",
+            "contractUnits": "1000 metric tonnes",
+            "exchange": "ICE"
+          },
+          {
+            "name": "ARGUS FAR EAST PROPANE",
+            "cftcCode": "066413",
+            "ticker": "066413",
+            "contractUnits": "1000  metric tonnes",
+            "exchange": "ICE"
+          },
+          {
+            "name": "ETHANE, MT. BELV-ENTERPRISE",
+            "cftcCode": "066416",
+            "ticker": "066416",
+            "contractUnits": "42000 gallons(1000 barrels",
+            "exchange": "ICE"
+          },
+          {
+            "name": "ISOBUTANE OPIS MT BELV NONTET",
+            "cftcCode": "066418",
+            "ticker": "066418",
+            "contractUnits": "42000 gallons(1000 barrels",
+            "exchange": "ICE"
+          },
+          {
+            "name": "NAT GASLNE OPIS MT B NONTET FP",
+            "cftcCode": "06641A",
+            "ticker": "06641A",
+            "contractUnits": "42000 gallons(1000 barrels",
+            "exchange": "ICE"
+          },
+          {
+            "name": "BUTANE OPIS MT BELV NONTET FP",
+            "cftcCode": "06641D",
+            "ticker": "06641D",
+            "contractUnits": "42000 gallons(1000 barrels",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PROPANE OPIS CONWAY INWELL FP",
+            "cftcCode": "06641E",
+            "ticker": "06641E",
+            "contractUnits": "42000 gallons(1000 barrels",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PROPANE OPIS MT BELV NONTET FP",
+            "cftcCode": "06641F",
+            "ticker": "06641F",
+            "contractUnits": "42000 gallons(1000 barrels",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PROPANE OPIS MT BELVIEU TET FP",
+            "cftcCode": "06641G",
+            "ticker": "06641G",
+            "contractUnits": "42000 gallons(1000 barrels",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PROPANE ARGUS SAUDI CP FP",
+            "cftcCode": "06641H",
+            "ticker": "06641H",
+            "contractUnits": "1000 Metric  Tonnes",
+            "exchange": "ICE"
+          },
+          {
+            "name": "ARGUS PROPANE FAR EAST INDEX",
+            "cftcCode": "06665B",
+            "ticker": "06665B",
+            "contractUnits": "1,000 METRIC TONS",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "PROPANE NON-LDH MT BEL",
+            "cftcCode": "06665G",
+            "ticker": "06665G",
+            "contractUnits": "42,000 GALLONS",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "PROPANE",
+            "cftcCode": "06665O",
+            "ticker": "06665O",
+            "contractUnits": "42,000 GALLONS",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "MT BELVIEU ETHANE OPIS",
+            "cftcCode": "06665P",
+            "ticker": "06665P",
+            "contractUnits": "42,000 GALLONS",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "MT BELV NORM BUTANE OPIS",
+            "cftcCode": "06665Q",
+            "ticker": "06665Q",
+            "contractUnits": "42,000 GALLONS",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "CONWAY PROPANE (OPIS)",
+            "cftcCode": "06665T",
+            "ticker": "06665T",
+            "contractUnits": "42,000 GALLONS",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "MONT BELVIEU ETHYLENE FIN",
+            "cftcCode": "405652",
+            "ticker": "405652",
+            "contractUnits": "100,000 POUNDS",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "PGP PROPYLENE (PCW) CAL",
+            "cftcCode": "406651",
+            "ticker": "406651",
+            "contractUnits": "100,000 POUNDS",
+            "exchange": "NYMEX"
+          }
+        ]
+      },
+      {
+        "name": "Coal & Emissions",
+        "markets": [
+          {
+            "name": "COAL (API 2 CIF)",
+            "cftcCode": "024656",
+            "ticker": "MTF",
+            "contractUnits": "1,000 tonnes",
+            "exchange": "NYMEX"
+          }
+        ]
+      },
+      {
+        "name": "Ethanol & Biofuels",
+        "markets": [
+          {
+            "name": "ETHANOL",
+            "cftcCode": "025651",
+            "ticker": "EH",
+            "contractUnits": "29,000 gallons",
+            "exchange": "CBOT"
+          },
+          {
+            "name": "ETHANOL T2 FOB INCL DUTY",
+            "cftcCode": "025608",
+            "ticker": "025608",
+            "contractUnits": "100 CUBIC METERS",
+            "exchange": "NYMEX"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Metals",
+    "color": "#FF6161",
+    "subcategories": [
+      {
+        "name": "Precious Metals",
+        "markets": [
+          {
+            "name": "GOLD",
+            "cftcCode": "088691",
+            "ticker": "GC",
+            "contractUnits": "100 troy ounces",
+            "exchange": "COMEX"
+          },
+          {
+            "name": "SILVER",
+            "cftcCode": "084691",
+            "ticker": "SI",
+            "contractUnits": "5,000 troy ounces",
+            "exchange": "COMEX"
+          },
+          {
+            "name": "PLATINUM",
+            "cftcCode": "076651",
+            "ticker": "PL",
+            "contractUnits": "50 troy ounces",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "PALLADIUM",
+            "cftcCode": "075651",
+            "ticker": "PA",
+            "contractUnits": "100 troy ounces",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "MICRO GOLD",
+            "cftcCode": "088695",
+            "ticker": "MGC",
+            "contractUnits": "10 troy ounces",
+            "exchange": "COMEX"
+          },
+          {
+            "name": "MICRO SILVER",
+            "cftcCode": "084694",
+            "ticker": "SIL",
+            "contractUnits": "1,000 troy ounces",
+            "exchange": "COMEX"
+          }
+        ]
+      },
+      {
+        "name": "Industrial Metals",
+        "markets": [
+          {
+            "name": "COPPER",
+            "cftcCode": "085692",
+            "ticker": "HG",
+            "contractUnits": "25,000 lbs",
+            "exchange": "COMEX"
+          },
+          {
+            "name": "ALUMINUM",
+            "cftcCode": "191651",
+            "ticker": "ALI",
+            "contractUnits": "44,000 lbs",
+            "exchange": "COMEX"
+          },
+          {
+            "name": "STEEL (HRC)",
+            "cftcCode": "192651",
+            "ticker": "HRC",
+            "contractUnits": "20 short tons",
+            "exchange": "NYMEX"
+          },
+          {
+            "name": "LITHIUM HYDROXIDE",
+            "cftcCode": "189691",
+            "ticker": "LTH",
+            "contractUnits": "1 metric tonne LiOH",
+            "exchange": "COMEX"
+          },
+          {
+            "name": "COBALT",
+            "cftcCode": "188691",
+            "ticker": "188691",
+            "contractUnits": "2,204.62 pounds (1 Metric Ton",
+            "exchange": "COMEX"
+          },
+          {
+            "name": "ALUMINUM MWP",
+            "cftcCode": "191693",
+            "ticker": "191693",
+            "contractUnits": "55,116 US Pounds-25 MT",
+            "exchange": "COMEX"
+          },
+          {
+            "name": "ALUMINIUM EURO PREM DUTY-PAID",
+            "cftcCode": "191696",
+            "ticker": "191696",
+            "contractUnits": "25 METRIC TONS",
+            "exchange": "COMEX"
+          },
+          {
+            "name": "ALUM EUR UNPAID",
+            "cftcCode": "191694",
+            "ticker": "191694",
+            "contractUnits": "25 METRIC TONS",
+            "exchange": "COMEX"
+          },
+          {
+            "name": "NORTH EURO HOT-ROLL COIL STEEL",
+            "cftcCode": "192691",
+            "ticker": "192691",
+            "contractUnits": "20 Metric Tons",
+            "exchange": "COMEX"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Agriculture & Food",
+    "color": "#D9E1F2",
+    "subcategories": [
+      {
+        "name": "Grains",
+        "markets": [
+          {
+            "name": "CORN",
+            "cftcCode": "002602",
+            "ticker": "ZC",
+            "contractUnits": "5,000 bushels",
+            "exchange": "CBOT"
+          },
+          {
+            "name": "WHEAT (CHICAGO)",
+            "cftcCode": "001602",
+            "ticker": "ZW",
+            "contractUnits": "5,000 bushels",
+            "exchange": "CBOT"
+          },
+          {
+            "name": "WHEAT (KC HRW)",
+            "cftcCode": "001612",
+            "ticker": "KE",
+            "contractUnits": "5,000 bushels",
+            "exchange": "KCBT"
+          },
+          {
+            "name": "WHEAT (SPRING)",
+            "cftcCode": "001626",
+            "ticker": "MWE",
+            "contractUnits": "5,000 bushels",
+            "exchange": "MGEX"
+          },
+          {
+            "name": "OATS",
+            "cftcCode": "004603",
+            "ticker": "ZO",
+            "contractUnits": "5,000 bushels",
+            "exchange": "CBOT"
+          },
+          {
+            "name": "ROUGH RICE",
+            "cftcCode": "039601",
+            "ticker": "ZR",
+            "contractUnits": "2,000 cwt",
+            "exchange": "CBOT"
+          }
+        ]
+      },
+      {
+        "name": "Oilseeds & Edible Oils",
+        "markets": [
+          {
+            "name": "SOYBEANS",
+            "cftcCode": "005602",
+            "ticker": "ZS",
+            "contractUnits": "5,000 bushels",
+            "exchange": "CBOT"
+          },
+          {
+            "name": "SOYBEAN OIL",
+            "cftcCode": "007601",
+            "ticker": "ZL",
+            "contractUnits": "60,000 lbs",
+            "exchange": "CBOT"
+          },
+          {
+            "name": "SOYBEAN MEAL",
+            "cftcCode": "026603",
+            "ticker": "ZM",
+            "contractUnits": "100 short tons",
+            "exchange": "CBOT"
+          },
+          {
+            "name": "CANOLA",
+            "cftcCode": "135731",
+            "ticker": "RS",
+            "contractUnits": "20 tonnes",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PALM OIL",
+            "cftcCode": "037021",
+            "ticker": "CPO",
+            "contractUnits": "25 tonnes",
+            "exchange": "CME"
+          }
+        ]
+      },
+      {
+        "name": "Livestock",
+        "markets": [
+          {
+            "name": "LIVE CATTLE",
+            "cftcCode": "057642",
+            "ticker": "LE",
+            "contractUnits": "40,000 lbs",
+            "exchange": "CME"
+          },
+          {
+            "name": "FEEDER CATTLE",
+            "cftcCode": "061641",
+            "ticker": "GF",
+            "contractUnits": "50,000 lbs",
+            "exchange": "CME"
+          },
+          {
+            "name": "LEAN HOGS",
+            "cftcCode": "054642",
+            "ticker": "HE",
+            "contractUnits": "40,000 lbs",
+            "exchange": "CME"
+          }
+        ]
+      },
+      {
+        "name": "Dairy",
+        "markets": [
+          {
+            "name": "CLASS III MILK",
+            "cftcCode": "052641",
+            "ticker": "DC",
+            "contractUnits": "200,000 lbs",
+            "exchange": "CME"
+          },
+          {
+            "name": "BUTTER (CASH SETTLED)",
+            "cftcCode": "050642",
+            "ticker": "CB",
+            "contractUnits": "20,000 lbs",
+            "exchange": "CME"
+          },
+          {
+            "name": "CHEESE (CASH SETTLED)",
+            "cftcCode": "063642",
+            "ticker": "CSC",
+            "contractUnits": "20,000 lbs",
+            "exchange": "CME"
+          },
+          {
+            "name": "NONFAT DRY MILK",
+            "cftcCode": "052642",
+            "ticker": "GNF",
+            "contractUnits": "44,000 lbs",
+            "exchange": "CME"
+          },
+          {
+            "name": "CME MILK IV",
+            "cftcCode": "052644",
+            "ticker": "052644",
+            "contractUnits": "200,000 POUNDS",
+            "exchange": "CME"
+          }
+        ]
+      },
+      {
+        "name": "Soft Commodities",
+        "markets": [
+          {
+            "name": "COFFEE (ARABICA)",
+            "cftcCode": "083731",
+            "ticker": "KC",
+            "contractUnits": "37,500 lbs",
+            "exchange": "ICE"
+          },
+          {
+            "name": "COCOA",
+            "cftcCode": "073732",
+            "ticker": "CC",
+            "contractUnits": "10 tonnes",
+            "exchange": "ICE"
+          },
+          {
+            "name": "SUGAR NO. 11",
+            "cftcCode": "080732",
+            "ticker": "SB",
+            "contractUnits": "112,000 lbs",
+            "exchange": "ICE"
+          },
+          {
+            "name": "COTTON NO. 2",
+            "cftcCode": "033661",
+            "ticker": "CT",
+            "contractUnits": "50,000 lbs",
+            "exchange": "ICE"
+          },
+          {
+            "name": "FROZEN OJ",
+            "cftcCode": "040701",
+            "ticker": "OJ",
+            "contractUnits": "15,000 lbs",
+            "exchange": "ICE"
+          },
+          {
+            "name": "LUMBER",
+            "cftcCode": "058643",
+            "ticker": "LBS",
+            "contractUnits": "27,500 board feet",
+            "exchange": "CME"
+          },
+          {
+            "name": "LUMBER",
+            "cftcCode": "058644",
+            "ticker": "058644",
+            "contractUnits": "27,500 BOARD FEET",
+            "exchange": "CME"
+          }
+        ]
+      },
+      {
+        "name": "Fertilizers",
+        "markets": [
+          {
+            "name": "UREA (GRANULAR) FOB US GULF",
+            "cftcCode": "251607",
+            "ticker": "251607",
+            "contractUnits": "100 METRIC TONS",
+            "exchange": "CBOT"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Interest Rates & Bonds",
+    "color": "#92D050",
+    "subcategories": [
+      {
+        "name": "US Treasuries",
+        "markets": [
+          {
+            "name": "TREASURY BONDS",
+            "cftcCode": "020601",
+            "ticker": "ZB",
+            "contractUnits": "$100,000 face value",
+            "exchange": "CBOT"
+          },
+          {
+            "name": "ULTRA TREASURY BONDS",
+            "cftcCode": "020604",
+            "ticker": "UB",
+            "contractUnits": "$100,000 face value",
+            "exchange": "CBOT"
+          },
+          {
+            "name": "10-YEAR TREASURY NOTE",
+            "cftcCode": "043602",
+            "ticker": "ZN",
+            "contractUnits": "$100,000 face value",
+            "exchange": "CBOT"
+          },
+          {
+            "name": "ULTRA 10-YEAR T-NOTE",
+            "cftcCode": "043607",
+            "ticker": "TN",
+            "contractUnits": "$100,000 face value",
+            "exchange": "CBOT"
+          },
+          {
+            "name": "5-YEAR TREASURY NOTE",
+            "cftcCode": "044601",
+            "ticker": "ZF",
+            "contractUnits": "$100,000 face value",
+            "exchange": "CBOT"
+          },
+          {
+            "name": "2-YEAR TREASURY NOTE",
+            "cftcCode": "042601",
+            "ticker": "ZT",
+            "contractUnits": "$200,000 face value",
+            "exchange": "CBOT"
+          },
+          {
+            "name": "MICRO 10-YEAR YIELD",
+            "cftcCode": "04360Y",
+            "ticker": "10Y",
+            "contractUnits": "$1,000 x yield",
+            "exchange": "CBOT"
+          }
+        ]
+      },
+      {
+        "name": "Interest Rates & Swaps",
+        "markets": [
+          {
+            "name": "FEDERAL FUNDS (30-DAY)",
+            "cftcCode": "045601",
+            "ticker": "ZQ",
+            "contractUnits": "$5,000,000",
+            "exchange": "CBOT"
+          },
+          {
+            "name": "SOFR (3-MONTH)",
+            "cftcCode": "134741",
+            "ticker": "SR3",
+            "contractUnits": "$1,000,000",
+            "exchange": "CME"
+          },
+          {
+            "name": "EURODOLLAR",
+            "cftcCode": "132741",
+            "ticker": "GE",
+            "contractUnits": "$1,000,000",
+            "exchange": "CME"
+          },
+          {
+            "name": "10-YEAR INT. RATE SWAP",
+            "cftcCode": "246602",
+            "ticker": "SAR",
+            "contractUnits": "$100,000 DV01",
+            "exchange": "CBOT"
+          },
+          {
+            "name": "EURO SHORT TERM RATE",
+            "cftcCode": "047745",
+            "ticker": "047745",
+            "contractUnits": "2,500 X CONTRACT GRADE IMM INDEX",
+            "exchange": "CME"
+          },
+          {
+            "name": "SOFR-1M",
+            "cftcCode": "134742",
+            "ticker": "134742",
+            "contractUnits": "$4,167 x Contract IMM Index",
+            "exchange": "CME"
+          },
+          {
+            "name": "2 YEAR ERIS SOFR SWAP",
+            "cftcCode": "342603",
+            "ticker": "342603",
+            "contractUnits": "100,000 USD notional principal",
+            "exchange": "CBOT"
+          },
+          {
+            "name": "10 YEAR ERIS SOFR SWAP",
+            "cftcCode": "343603",
+            "ticker": "343603",
+            "contractUnits": "100,000 USD notional principal",
+            "exchange": "CBOT"
+          },
+          {
+            "name": "5 YEAR ERIS SOFR SWAP",
+            "cftcCode": "344605",
+            "ticker": "344605",
+            "contractUnits": "100,000 USD notional principal",
+            "exchange": "CBOT"
+          },
+          {
+            "name": "3 YEAR ERIS SOFR SWAP",
+            "cftcCode": "344606",
+            "ticker": "344606",
+            "contractUnits": "100,000 USD notional principal",
+            "exchange": "CBOT"
+          },
+          {
+            "name": "7 YEAR ERIS SOFR SWAP",
+            "cftcCode": "344607",
+            "ticker": "344607",
+            "contractUnits": "100,000 USD notional principal",
+            "exchange": "CBOT"
+          }
+        ]
+      },
+      {
+        "name": "Credit Indices",
+        "markets": [
+          {
+            "name": "BLOOMBERG HY CREDIT FUTURES",
+            "cftcCode": "221605",
+            "ticker": "221605",
+            "contractUnits": "$150 X INDEX",
+            "exchange": "CBOT"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Cryptocurrencies",
+    "color": "#FF914D",
+    "subcategories": [
+      {
+        "name": "Bitcoin & Ethereum",
+        "markets": [
+          {
+            "name": "BITCOIN",
+            "cftcCode": "133741",
+            "ticker": "BTC",
+            "contractUnits": "5 BTC",
+            "exchange": "CME"
+          },
+          {
+            "name": "MICRO BITCOIN",
+            "cftcCode": "133742",
+            "ticker": "MBT",
+            "contractUnits": "0.1 BTC",
+            "exchange": "CME"
+          },
+          {
+            "name": "ETHEREUM",
+            "cftcCode": "146021",
+            "ticker": "ETH",
+            "contractUnits": "50 ETH",
+            "exchange": "CME"
+          },
+          {
+            "name": "MICRO ETHER",
+            "cftcCode": "146022",
+            "ticker": "MET",
+            "contractUnits": "0.1 ETH",
+            "exchange": "CME"
+          }
+        ]
+      },
+      {
+        "name": "Altcoins",
+        "markets": [
+          {
+            "name": "SOLANA",
+            "cftcCode": "177741",
+            "ticker": "SOL",
+            "contractUnits": "500 SOL",
+            "exchange": "CME"
+          },
+          {
+            "name": "XRP",
+            "cftcCode": "176740",
+            "ticker": "XRP",
+            "contractUnits": "500,000 XRP",
+            "exchange": "CME"
+          }
+        ]
+      },
+      {
+        "name": "Coinbase Derivatives",
+        "markets": [
+          {
+            "name": "NANO BITCOIN",
+            "cftcCode": "133LM1",
+            "ticker": "133LM1",
+            "contractUnits": "1/100 X Bitcoin = $300",
+            "exchange": "COINBASE"
+          },
+          {
+            "name": "NANO BITCOIN PERP STYLE",
+            "cftcCode": "133LM4",
+            "ticker": "133LM4",
+            "contractUnits": "1/100 X Bitcoin",
+            "exchange": "COINBASE"
+          },
+          {
+            "name": "BITCOIN CASH PERP STYLE",
+            "cftcCode": "133LM5",
+            "ticker": "133LM5",
+            "contractUnits": "1 Bitcoin",
+            "exchange": "COINBASE"
+          },
+          {
+            "name": "NANO ETHER",
+            "cftcCode": "146LM1",
+            "ticker": "146LM1",
+            "contractUnits": "0.1 Ether or 1/10 X$2,000 = $200",
+            "exchange": "COINBASE"
+          },
+          {
+            "name": "NANO ETHER PERP STYLE",
+            "cftcCode": "146LM3",
+            "ticker": "146LM3",
+            "contractUnits": "1/10 X Ether",
+            "exchange": "COINBASE"
+          },
+          {
+            "name": "LITECOIN PERP STYLE",
+            "cftcCode": "167LM1",
+            "ticker": "167LM1",
+            "contractUnits": "5 Litecoin",
+            "exchange": "COINBASE"
+          },
+          {
+            "name": "DOGECOIN",
+            "cftcCode": "168DC1",
+            "ticker": "168DC1",
+            "contractUnits": "5,000 Dogecoin X $0.12 = Contract $600",
+            "exchange": "COINBASE"
+          },
+          {
+            "name": "DOGECOIN PERP STYLE",
+            "cftcCode": "168LM2",
+            "ticker": "168LM2",
+            "contractUnits": "5,000 Dogecoin",
+            "exchange": "COINBASE"
+          },
+          {
+            "name": "POLKADOT PERP STYLE",
+            "cftcCode": "169LM2",
+            "ticker": "169LM2",
+            "contractUnits": "100 Polkadot",
+            "exchange": "COINBASE"
+          },
+          {
+            "name": "CHAINLINK PERP STYLE",
+            "cftcCode": "170LM2",
+            "ticker": "170LM2",
+            "contractUnits": "50 Chainlink",
+            "exchange": "COINBASE"
+          },
+          {
+            "name": "AVALANCHE",
+            "cftcCode": "171LM1",
+            "ticker": "171LM1",
+            "contractUnits": "10 Avalanche x $30 = $300",
+            "exchange": "COINBASE"
+          },
+          {
+            "name": "AVALANCHE PERP STYLE",
+            "cftcCode": "171LM2",
+            "ticker": "171LM2",
+            "contractUnits": "10 Avalanche",
+            "exchange": "COINBASE"
+          },
+          {
+            "name": "1K SHIB PERP",
+            "cftcCode": "172LM2",
+            "ticker": "172LM2",
+            "contractUnits": "10,000 x 1k Shib Index",
+            "exchange": "COINBASE"
+          },
+          {
+            "name": "CARDONA PERP STYLE",
+            "cftcCode": "174LM2",
+            "ticker": "174LM2",
+            "contractUnits": "1,000 Cardano",
+            "exchange": "COINBASE"
+          },
+          {
+            "name": "NANO XRP",
+            "cftcCode": "176LM1",
+            "ticker": "176LM1",
+            "contractUnits": "500 XRP x $2.00 = $1000",
+            "exchange": "COINBASE"
+          },
+          {
+            "name": "NANO XRP PERP STYLE",
+            "cftcCode": "176LM3",
+            "ticker": "176LM3",
+            "contractUnits": "500 XRP x $2.00 = $1000",
+            "exchange": "COINBASE"
+          },
+          {
+            "name": "NANO SOLANA",
+            "cftcCode": "177LM1",
+            "ticker": "177LM1",
+            "contractUnits": "5 Solana x $250 = $1250",
+            "exchange": "COINBASE"
+          },
+          {
+            "name": "NANO SOLANA PERP STYLE",
+            "cftcCode": "177LM3",
+            "ticker": "177LM3",
+            "contractUnits": "5 Solana x $180 = $900",
+            "exchange": "COINBASE"
+          },
+          {
+            "name": "SUI PERP STYLE",
+            "cftcCode": "180LM3",
+            "ticker": "180LM3",
+            "contractUnits": "500 x SUI",
+            "exchange": "COINBASE"
+          },
+          {
+            "name": "HEDERA PERP STYLE",
+            "cftcCode": "180LM4",
+            "ticker": "180LM4",
+            "contractUnits": "5000 Hedera",
+            "exchange": "COINBASE"
+          },
+          {
+            "name": "ONDO PERP STYLE",
+            "cftcCode": "180LM8",
+            "ticker": "180LM8",
+            "contractUnits": "1,000 ONDO",
+            "exchange": "COINBASE"
+          },
+          {
+            "name": "ZCASH PERP STYLE",
+            "cftcCode": "180LMB",
+            "ticker": "180LMB",
+            "contractUnits": "1 Zcash",
+            "exchange": "COINBASE"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Carbon Credits & Green Energy",
+    "color": "#66FF66",
+    "subcategories": [
+      {
+        "name": "Carbon Credits (Compliance)",
+        "markets": [
+          {
+            "name": "CALIFORNIA CARBON ALLOWANCE",
+            "cftcCode": "0063EL",
+            "ticker": "CCA",
+            "contractUnits": "1,000 tonnes CO2",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "RGGI CARBON ALLOWANCE",
+            "cftcCode": "0063EM",
+            "ticker": "RGI",
+            "contractUnits": "1,000 tonnes CO2",
+            "exchange": "ICE"
+          },
+          {
+            "name": "CALIF LOW CARBON FSC-OPIS",
+            "cftcCode": "0063CU",
+            "ticker": "0063CU",
+            "contractUnits": "100 LCFS Credits- each of 1 MT",
+            "exchange": "ICE"
+          },
+          {
+            "name": "CALIF CARBON CURRENT AUCTION",
+            "cftcCode": "0063DB",
+            "ticker": "0063DB",
+            "contractUnits": "1,000 California carbon allowances",
+            "exchange": "ICE"
+          },
+          {
+            "name": "WASHINGTON CARBON ALL V2026",
+            "cftcCode": "0063EA",
+            "ticker": "0063EA",
+            "contractUnits": "1,000 Washington carbon allowances",
+            "exchange": "ICE"
+          },
+          {
+            "name": "CALIF CARBON ALL VINTAGE 2026",
+            "cftcCode": "0063EE",
+            "ticker": "0063EE",
+            "contractUnits": "1,000 California carbon allowances",
+            "exchange": "ICE"
+          },
+          {
+            "name": "CALIF CARBON ALL VINTAGE 2027",
+            "cftcCode": "0063EI",
+            "ticker": "0063EI",
+            "contractUnits": "1,000 California carbon allowances",
+            "exchange": "ICE"
+          }
+        ]
+      },
+      {
+        "name": "Biofuel Credits (RINs & LCFS)",
+        "markets": [
+          {
+            "name": "D6 RINS OPIS CURRENT YEAR",
+            "cftcCode": "0063CW",
+            "ticker": "0063CW",
+            "contractUnits": "50,000 RINs",
+            "exchange": "ICE"
+          },
+          {
+            "name": "D4 BIODIESEL RINS OPIS CURR YR",
+            "cftcCode": "0063DG",
+            "ticker": "0063DG",
+            "contractUnits": "50,000 RINs",
+            "exchange": "ICE"
+          }
+        ]
+      },
+      {
+        "name": "Renewable Energy Certificates",
+        "markets": [
+          {
+            "name": "NJ SREC",
+            "cftcCode": "0063CC",
+            "ticker": "SREC",
+            "contractUnits": "1 SREC",
+            "exchange": "ICE"
+          },
+          {
+            "name": "NEPOOL REC",
+            "cftcCode": "0063DQ",
+            "ticker": "NREC",
+            "contractUnits": "1 REC",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PJM TRI-RECS CLASS 1",
+            "cftcCode": "0063CH",
+            "ticker": "0063CH",
+            "contractUnits": "100 MWh of renewable energy certificate",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PA SOLAR ALTER ENERGY CREDIT",
+            "cftcCode": "0063DA",
+            "ticker": "0063DA",
+            "contractUnits": "10 PA SRECs",
+            "exchange": "ICE"
+          },
+          {
+            "name": "CT RECS CLASS 1",
+            "cftcCode": "0063DK",
+            "ticker": "0063DK",
+            "contractUnits": "100 MWh of Class 1 Renewable Energy Cer",
+            "exchange": "ICE"
+          },
+          {
+            "name": "MASS COMPLIANCE RECS CLASS 1",
+            "cftcCode": "0063DL",
+            "ticker": "0063DL",
+            "contractUnits": "100 MWh of Class 1 Renewable Energy Cert",
+            "exchange": "ICE"
+          },
+          {
+            "name": "MARYLAND COMPLIANCE REC TIER1",
+            "cftcCode": "0063DM",
+            "ticker": "0063DM",
+            "contractUnits": "100 Tier 1 RECs",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PA COMPLIANCE AECS TIER1",
+            "cftcCode": "0063DT",
+            "ticker": "0063DT",
+            "contractUnits": "100 AECs",
+            "exchange": "ICE"
+          },
+          {
+            "name": "TX REC CRS V26 BACK HALF",
+            "cftcCode": "006NHT",
+            "ticker": "006NHT",
+            "contractUnits": "1000 Texas RECs",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "TX REC CRS V27 BACK HALF",
+            "cftcCode": "006NHU",
+            "ticker": "006NHU",
+            "contractUnits": "1000 Texas RECs",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "TX REC CRS V28 BACK HALF",
+            "cftcCode": "006NHV",
+            "ticker": "006NHV",
+            "contractUnits": "1000 Texas RECs",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "TX REC CRS V29 BACK HALF",
+            "cftcCode": "006NHW",
+            "ticker": "006NHW",
+            "contractUnits": "1000 Texas RECs",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "TX REC CRS V30 BACK HALF",
+            "cftcCode": "006NHX",
+            "ticker": "006NHX",
+            "contractUnits": "1,000 MWh representing 1,000 Texas RECs",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "TX REC CRS V26 FRONT HALF",
+            "cftcCode": "006NHY",
+            "ticker": "006NHY",
+            "contractUnits": "1000 Texas RECs",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "TX REC CRS V27 FRONT HALF",
+            "cftcCode": "006NHZ",
+            "ticker": "006NHZ",
+            "contractUnits": "1000 Texas RECs",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "TX REC CRS V28 FRONT HALF",
+            "cftcCode": "006NJ1",
+            "ticker": "006NJ1",
+            "contractUnits": "1000 Texas RECs",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "TX REC CRS V29 FRONT HALF",
+            "cftcCode": "006NJ2",
+            "ticker": "006NJ2",
+            "contractUnits": "1000 Texas RECs",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "TX REC CRS V30 FRONT HALF",
+            "cftcCode": "006NJ3",
+            "ticker": "006NJ3",
+            "contractUnits": "1000 Texas RECs",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "TX REC CRS V31 BACK HALF",
+            "cftcCode": "006NKH",
+            "ticker": "006NKH",
+            "contractUnits": "1000 Texas RECs",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "TX REC CRS V31 FRONT HALF",
+            "cftcCode": "006NKJ",
+            "ticker": "006NKJ",
+            "contractUnits": "1000 Texas RECs",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "NEW JERSEY RECS CLASS 2 V2026",
+            "cftcCode": "006NLD",
+            "ticker": "006NLD",
+            "contractUnits": "100 MWh representing 100 NJ Class 2 RECs",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PENNSYLVANIA AEC TIER 2-V2026",
+            "cftcCode": "006NLV",
+            "ticker": "006NLV",
+            "contractUnits": "100 MWh = 100 Tier 2  AECs",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "NEW JERSEY RECS CLASS 2 V2027",
+            "cftcCode": "006NMM",
+            "ticker": "006NMM",
+            "contractUnits": "100 MWh representing 100 NJ Class 2 REC",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PENNSYLVANIA AEC TIER 2-V2027",
+            "cftcCode": "006NMT",
+            "ticker": "006NMT",
+            "contractUnits": "100 MWh = 100 Tier 2  AECs",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PENNSYLVANIA AEC TIER 2-V2028",
+            "cftcCode": "006NMX",
+            "ticker": "006NMX",
+            "contractUnits": "100 MWh = 100 Tier 2  AECs",
+            "exchange": "NODAL"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Electricity & Power",
+    "color": "#9BC2E6",
+    "subcategories": [
+      {
+        "name": "US Power Markets",
+        "markets": [
+          {
+            "name": "PJM WESTERN HUB",
+            "cftcCode": "0643DC",
+            "ticker": "PJM",
+            "contractUnits": "40 MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "CAISO SP15",
+            "cftcCode": "064395",
+            "ticker": "SP15",
+            "contractUnits": "40 MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "ERCOT NORTH",
+            "cftcCode": "0643A5",
+            "ticker": "ERN",
+            "contractUnits": "40 MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "ISO NEW ENGLAND",
+            "cftcCode": "0643BG",
+            "ticker": "ISNE",
+            "contractUnits": "40 MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "MID-C DAY-AHEAD PEAK",
+            "cftcCode": "064391",
+            "ticker": "064391",
+            "contractUnits": "about 400 MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "MID-C DAY-AHEAD OFF-PEAK",
+            "cftcCode": "064392",
+            "ticker": "064392",
+            "contractUnits": "about 352 MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PJM WESTERN HUB RT OFF",
+            "cftcCode": "064394",
+            "ticker": "064394",
+            "contractUnits": "about 352 MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "CAISO SP-15 DA OFF-PK FIXED",
+            "cftcCode": "064396",
+            "ticker": "064396",
+            "contractUnits": "about 352 MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PJM AEP DAYTON RT OFF-PK FIXED",
+            "cftcCode": "06439A",
+            "ticker": "06439A",
+            "contractUnits": "about 352 MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PJM AEP DAYTON RT PEAK FIXED",
+            "cftcCode": "06439B",
+            "ticker": "06439B",
+            "contractUnits": "800 MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PJM AEP DAYTON HUB DA OFF-PK",
+            "cftcCode": "06439C",
+            "ticker": "06439C",
+            "contractUnits": "about 352 MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "AEP DAYTON HUB DA PEAK DAILY",
+            "cftcCode": "06439E",
+            "ticker": "06439E",
+            "contractUnits": "about 16 MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PJM AEP DAYTON DA PEAK",
+            "cftcCode": "06439F",
+            "ticker": "06439F",
+            "contractUnits": "about 352 MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "MISO INDIANA  OFF-PEAK",
+            "cftcCode": "06439K",
+            "ticker": "06439K",
+            "contractUnits": "about 352 MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "MISO IN. REAL-TIME OFF-PEAK",
+            "cftcCode": "06439L",
+            "ticker": "06439L",
+            "contractUnits": "about 352 MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "ERCOT HOUSTON 345KV RT PK FIX",
+            "cftcCode": "06439N",
+            "ticker": "06439N",
+            "contractUnits": "about 352 MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "ERCOT HOUSTON 345KV RT OFF FIX",
+            "cftcCode": "06439Q",
+            "ticker": "06439Q",
+            "contractUnits": "about 352 MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "ERCOT NORTH 345KV RT PK FIX",
+            "cftcCode": "06439R",
+            "ticker": "06439R",
+            "contractUnits": "1 Mw per Peak Hour",
+            "exchange": "ICE"
+          },
+          {
+            "name": "ERCOT SOUTH 345 KV RT PEAK FIX",
+            "cftcCode": "06439S",
+            "ticker": "06439S",
+            "contractUnits": "1 Mw per Peak Hour",
+            "exchange": "ICE"
+          },
+          {
+            "name": "ERCOT-SOUTH MONTHLY OFFPEAK",
+            "cftcCode": "06439U",
+            "ticker": "06439U",
+            "contractUnits": "1 MW per off-peak hour",
+            "exchange": "ICE"
+          },
+          {
+            "name": "ERCOT WEST 345KV RT PEAK",
+            "cftcCode": "06439V",
+            "ticker": "06439V",
+            "contractUnits": "1 MW per peak hour",
+            "exchange": "ICE"
+          },
+          {
+            "name": "ERCOT WEST 345K RT OFF-PEAK",
+            "cftcCode": "06439W",
+            "ticker": "06439W",
+            "contractUnits": "1 MW per Off-Peak Hour",
+            "exchange": "ICE"
+          },
+          {
+            "name": "ERCOT NORTH 345K RT OFFPK DLY",
+            "cftcCode": "0643A7",
+            "ticker": "0643A7",
+            "contractUnits": "50MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "ERCOT - NORTH MONTHLY OFF-PEAK",
+            "cftcCode": "0643A8",
+            "ticker": "0643A8",
+            "contractUnits": "1 Mw per Off-Peak Hour",
+            "exchange": "ICE"
+          },
+          {
+            "name": "MISO IN. DAY-AHEAD PEAK",
+            "cftcCode": "0643AZ",
+            "ticker": "0643AZ",
+            "contractUnits": "1 MW per peak hour",
+            "exchange": "ICE"
+          },
+          {
+            "name": "MISO INDIANA HUB RT PEAK",
+            "cftcCode": "0643B3",
+            "ticker": "0643B3",
+            "contractUnits": "800 MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PJM N. IL HUB DA OFF-PK",
+            "cftcCode": "0643BC",
+            "ticker": "0643BC",
+            "contractUnits": "1 MW per off-peak hour",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PJM N. IL HUB DA PEAK",
+            "cftcCode": "0643BE",
+            "ticker": "0643BE",
+            "contractUnits": "1 MW per peak hour",
+            "exchange": "ICE"
+          },
+          {
+            "name": "ISO NE MASS HUB DA OFF-PK FIXD",
+            "cftcCode": "0643BF",
+            "ticker": "0643BF",
+            "contractUnits": "1 MW per Hour for about 368 Hours",
+            "exchange": "ICE"
+          },
+          {
+            "name": "CAISO NP-15 PEAK",
+            "cftcCode": "0643BM",
+            "ticker": "0643BM",
+            "contractUnits": "400MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "CAISO NP-15 DA OFF-PK FIXED",
+            "cftcCode": "0643BR",
+            "ticker": "0643BR",
+            "contractUnits": "1 MW per Hour for about 386 Hours",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PJM NI HUB RT OFF-PK FIXED",
+            "cftcCode": "0643BS",
+            "ticker": "0643BS",
+            "contractUnits": "1 MW per Hour for about 386 Hours",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PJM N. IL HUB RT PEAK",
+            "cftcCode": "0643BT",
+            "ticker": "0643BT",
+            "contractUnits": "800 MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "NYISO ZONE J DA PEAK",
+            "cftcCode": "0643BW",
+            "ticker": "0643BW",
+            "contractUnits": "800MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "NYISO ZONE J DA OFF-PK FIXED",
+            "cftcCode": "0643BX",
+            "ticker": "0643BX",
+            "contractUnits": "1 MW for about 368 Hours",
+            "exchange": "ICE"
+          },
+          {
+            "name": "NYISO ZONE A DA PEAK",
+            "cftcCode": "0643BY",
+            "ticker": "0643BY",
+            "contractUnits": "800MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "NYISO ZONE A DA OFF-PK FIX PR",
+            "cftcCode": "0643BZ",
+            "ticker": "0643BZ",
+            "contractUnits": "1MW for about 368 Hours",
+            "exchange": "ICE"
+          },
+          {
+            "name": "NYISO ZONE G DA PEAK",
+            "cftcCode": "0643C3",
+            "ticker": "0643C3",
+            "contractUnits": "800MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "NYISO ZONE G DA OFF-PK",
+            "cftcCode": "0643C4",
+            "ticker": "0643C4",
+            "contractUnits": "1MW for about 368 Hours",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PALO VERDE DA PEAK",
+            "cftcCode": "0643CB",
+            "ticker": "0643CB",
+            "contractUnits": "400MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PALO VERDE DA OFF-PK FIXED PR",
+            "cftcCode": "0643CC",
+            "ticker": "0643CC",
+            "contractUnits": "1 MW for about 368 Hours",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PJM PPL ZONE DA OFF-PEAK FIXED",
+            "cftcCode": "0643D7",
+            "ticker": "0643D7",
+            "contractUnits": "1 MW",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PJM PPL ZONE DA PEAK",
+            "cftcCode": "0643D8",
+            "ticker": "0643D8",
+            "contractUnits": "1 MW",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PJM WESTERN HUB DA OFF-PK",
+            "cftcCode": "0643DB",
+            "ticker": "0643DB",
+            "contractUnits": "1 MW per off-peak hour",
+            "exchange": "ICE"
+          },
+          {
+            "name": "PJM WESTERN HUB RT PEAK MINI",
+            "cftcCode": "0643DF",
+            "ticker": "0643DF",
+            "contractUnits": "1 MW per peak hour",
+            "exchange": "ICE"
+          },
+          {
+            "name": "CAISO SP-15 PEAK 0900-1600 HE",
+            "cftcCode": "0643HS",
+            "ticker": "0643HS",
+            "contractUnits": "368 MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "ERCOT N 345KV REAL T PK DALY M",
+            "cftcCode": "0643IB",
+            "ticker": "0643IB",
+            "contractUnits": "240 MW = 15 Hours X 16 MWh",
+            "exchange": "ICE"
+          },
+          {
+            "name": "ERCOT N 345KV REAL T PK 2X16",
+            "cftcCode": "0643ID",
+            "ticker": "0643ID",
+            "contractUnits": "1MW for about 352 Hours",
+            "exchange": "ICE"
+          },
+          {
+            "name": "ERCOT NORTH 345KV HUB RT 7X8",
+            "cftcCode": "0643IK",
+            "ticker": "0643IK",
+            "contractUnits": "1MW for about 352 Hours",
+            "exchange": "ICE"
+          },
+          {
+            "name": "ISONE.H.INTERNAL_HUB_MO_ON_DAP",
+            "cftcCode": "064AAA",
+            "ticker": "064AAA",
+            "contractUnits": "400 MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "ISONE.H.INTERNAL_HB_MO_OFF_DAP",
+            "cftcCode": "064AAB",
+            "ticker": "064AAB",
+            "contractUnits": "400 MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "MISO.INDIANA.HUB_MONTH_ON_DAP",
+            "cftcCode": "064BFI",
+            "ticker": "064BFI",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "NYISO.CENTRL_MONTH_ON_DAP",
+            "cftcCode": "064CTQ",
+            "ticker": "064CTQ",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "NYISO.CENTRL_MONTH_OFF_DAP",
+            "cftcCode": "064CTR",
+            "ticker": "064CTR",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "NYISO.HUD VL_MONTH_ON_DAP",
+            "cftcCode": "064CXO",
+            "ticker": "064CXO",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "NYISO.HUD VL_MONTH_OFF_DAP",
+            "cftcCode": "064CXP",
+            "ticker": "064CXP",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "NYISO.N.Y.C._MONTH_ON_DAP",
+            "cftcCode": "064CZS",
+            "ticker": "064CZS",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "NYISO.N.Y.C._MONTH_OFF_DAP",
+            "cftcCode": "064CZT",
+            "ticker": "064CZT",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "NYISO.WEST_MONTH_ON_DAP",
+            "cftcCode": "064DEU",
+            "ticker": "064DEU",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "NYISO.WEST_MONTH_OFF_DAP",
+            "cftcCode": "064DEV",
+            "ticker": "064DEV",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.AEP_MONTH_ON_DAP",
+            "cftcCode": "064DLQ",
+            "ticker": "064DLQ",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.AEP_MONTH_OFF_DAP",
+            "cftcCode": "064DLR",
+            "ticker": "064DLR",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.AEP-DAYTON HUB_MO_ON_DAP",
+            "cftcCode": "064DLW",
+            "ticker": "064DLW",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.AEP-DAYTON HUB_MO_OFF_DAP",
+            "cftcCode": "064DLX",
+            "ticker": "064DLX",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.APS_MONTH_ON_DAP",
+            "cftcCode": "064DMY",
+            "ticker": "064DMY",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.APS_MONTH_OFF_DAP",
+            "cftcCode": "064DMZ",
+            "ticker": "064DMZ",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.BGE_MONTH_ON_DAP",
+            "cftcCode": "064DPQ",
+            "ticker": "064DPQ",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.BGE_MONTH_OFF_DAP",
+            "cftcCode": "064DPR",
+            "ticker": "064DPR",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.JCPL_MONTH_ON_DAP",
+            "cftcCode": "064EJI",
+            "ticker": "064EJI",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.JCPL_MONTH_OFF_DAP",
+            "cftcCode": "064EJJ",
+            "ticker": "064EJJ",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.METED_MONTH_ON_DAP",
+            "cftcCode": "064EOW",
+            "ticker": "064EOW",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.METED_MONTH_OFF_DAP",
+            "cftcCode": "064EOX",
+            "ticker": "064EOX",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.N ILLINOIS HUB_MO_ON_DAP",
+            "cftcCode": "064ERM",
+            "ticker": "064ERM",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.N ILLINOIS HUB_MO_OFF_DAP",
+            "cftcCode": "064ERN",
+            "ticker": "064ERN",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.PECO_MONTH_ON_DAP",
+            "cftcCode": "064EUY",
+            "ticker": "064EUY",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.PECO_MONTH_OFF_DAP",
+            "cftcCode": "064EUZ",
+            "ticker": "064EUZ",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.PEPCO_MONTH_ON_DAP",
+            "cftcCode": "064EVG",
+            "ticker": "064EVG",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.PEPCO_MONTH_OFF_DAP",
+            "cftcCode": "064EVH",
+            "ticker": "064EVH",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.PPL_MONTH_ON_DAP",
+            "cftcCode": "064EWU",
+            "ticker": "064EWU",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.PPL_MONTH_OFF_DAP",
+            "cftcCode": "064EWV",
+            "ticker": "064EWV",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.PSEG_MONTH_ON_DAP",
+            "cftcCode": "064EXE",
+            "ticker": "064EXE",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.PSEG_MONTH_OFF_DAP",
+            "cftcCode": "064EXF",
+            "ticker": "064EXF",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.WESTERN HUB_MONTH_ON_DAP",
+            "cftcCode": "064FHK",
+            "ticker": "064FHK",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.WESTERN HUB_MONTH_OFF_DAP",
+            "cftcCode": "064FHL",
+            "ticker": "064FHL",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "MISO.INDIANA.HUB_MONTH_OFF_RTP",
+            "cftcCode": "064FJZ",
+            "ticker": "064FJZ",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.AEP-DAYTON HUB_MO_ON_RTP",
+            "cftcCode": "064FKA",
+            "ticker": "064FKA",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.AEP-DAYTON HUB_MO_OFF_RTP",
+            "cftcCode": "064FKB",
+            "ticker": "064FKB",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.N ILLINOIS HUB_MO_ON_RTP",
+            "cftcCode": "064FKC",
+            "ticker": "064FKC",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.N ILLINOIS HUB_MO_OFF_RTP",
+            "cftcCode": "064FKD",
+            "ticker": "064FKD",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.WESTERN HUB_MONTH_ON_RTP",
+            "cftcCode": "064FKE",
+            "ticker": "064FKE",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "PJM.WESTERN HUB_MONTH_OFF_RTP",
+            "cftcCode": "064FKF",
+            "ticker": "064FKF",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "ERCOT.HB_NORTH_MONTH_ON_RTP",
+            "cftcCode": "064FOK",
+            "ticker": "064FOK",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "ERCOT.HB_NORTH_MONTH_OFF_RTP",
+            "cftcCode": "064FOL",
+            "ticker": "064FOL",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "ERCOT.HB_NORTH_MONTH_7X8_RTP",
+            "cftcCode": "064GBD",
+            "ticker": "064GBD",
+            "contractUnits": "Megawatt Hours (MWh",
+            "exchange": "NODAL"
+          },
+          {
+            "name": "ERCOT NORTH 345KV HUB RT 7X16",
+            "cftcCode": "064IBM",
+            "ticker": "064IBM",
+            "contractUnits": "1MW for about 352 Hours",
+            "exchange": "ICE"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Other Markets",
+    "color": "#D0D8E0",
+    "subcategories": [
+      {
+        "name": "Maritime Transport",
+        "markets": [
+          {
+            "name": "CAPESIZE FREIGHT",
+            "cftcCode": "261P05",
+            "ticker": "BCI",
+            "contractUnits": "$500 x BCI",
+            "exchange": "NASDAQ"
+          },
+          {
+            "name": "PANAMAX FREIGHT",
+            "cftcCode": "261P07",
+            "ticker": "BPN",
+            "contractUnits": "$1,000 x BPI",
+            "exchange": "NASDAQ"
+          }
+        ]
+      },
+      {
+        "name": "Bloomberg Indices",
+        "markets": [
+          {
+            "name": "BLOOMBERG COMMODITY INDEX",
+            "cftcCode": "221602",
+            "ticker": "AW",
+            "contractUnits": "$100 x BCOM",
+            "exchange": "CBOT"
+          }
+        ]
+      }
+    ]
+  }
+]
