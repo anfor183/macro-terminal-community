@@ -89,15 +89,15 @@ COMMON_ALIASES: Dict[str, str] = {
 # CFTC Code to Yahoo Finance Benchmark Ticker Mapping
 CFTC_TO_YFINANCE: Dict[str, str] = {
     # Equity Indices
-    "13874A": "^GSPC",   # E-MINI S&P 500
+    "13874A": "ES=F",    # E-MINI S&P 500
     "138741": "^GSPC",   # S&P 500 Consolidated
-    "13874P": "^GSPC",   # MICRO E-MINI S&P 500
-    "20974+": "^IXIC",   # E-MINI NASDAQ 100
-    "209742": "^IXIC",   # MICRO E-MINI NASDAQ 100
-    "124603": "^DJI",    # E-MINI DOW JONES
-    "12460+": "^DJI",    # MICRO E-MINI DOW
-    "239742": "^RUT",    # E-MINI RUSSELL 2000
-    "23974+": "^RUT",    # MICRO E-MINI RUSSELL 2000
+    "13874P": "ES=F",    # MICRO E-MINI S&P 500
+    "20974+": "NQ=F",    # E-MINI NASDAQ 100
+    "209742": "NQ=F",    # MICRO E-MINI NASDAQ 100
+    "124603": "YM=F",    # E-MINI DOW JONES
+    "12460+": "YM=F",    # MICRO E-MINI DOW
+    "239742": "RTY=F",   # E-MINI RUSSELL 2000
+    "23974+": "RTY=F",   # MICRO E-MINI RUSSELL 2000
     "1170E1": "^VIX",    # CBOE VOLATILITY INDEX (VIX)
     "052641": "^N225",   # NIKKEI 225
     "240741": "^GSPTSE", # S&P/TSX 60
@@ -116,16 +116,16 @@ CFTC_TO_YFINANCE: Dict[str, str] = {
     "075651": "PL=F",    # PLATINUM
     "076651": "PA=F",    # PALLADIUM
 
-    # Currencies & FX
-    "097741": "JPY=X",   # JAPANESE YEN
-    "099741": "EURUSD=X",# EURO FX
-    "096742": "GBPUSD=X",# BRITISH POUND
-    "112741": "NZDUSD=X",# NEW ZEALAND DOLLAR
-    "092741": "CHF=X",   # SWISS FRANC
-    "090741": "CAD=X",   # CANADIAN DOLLAR
-    "232741": "AUDUSD=X",# AUSTRALIAN DOLLAR
+    # Currencies & FX (CME FX Futures with standard futures pricing conventions)
+    "097741": "6J=F",    # JAPANESE YEN (matches 0.0064 quoting)
+    "099741": "6E=F",    # EURO FX (1.13 quoting)
+    "096742": "6B=F",    # BRITISH POUND (1.33 quoting)
+    "112741": "6N=F",    # NEW ZEALAND DOLLAR (0.56 quoting)
+    "092741": "6S=F",    # SWISS FRANC (1.21 quoting)
+    "090741": "6C=F",    # CANADIAN DOLLAR (0.70 quoting)
+    "232741": "6A=F",    # AUSTRALIAN DOLLAR (0.69 quoting)
     "098662": "DX-Y.NYB",# U.S. DOLLAR INDEX (DXY)
-    "095741": "MXN=X",   # MEXICAN PESO
+    "095741": "6M=F",    # MEXICAN PESO
     "102741": "BRL=X",   # BRAZILIAN REAL
     "122741": "ZAR=X",   # SOUTH AFRICAN RAND
 
@@ -371,7 +371,7 @@ class COTIndexEngine:
 
     @classmethod
     def _fetch_yfinance_weekly_prices(cls, cftc_code: str, ticker: str) -> Dict[str, float]:
-        """Fetch 5-year weekly closing prices via Yahoo Finance with local JSON caching."""
+        """Fetch 5-year daily & weekly closing prices via Yahoo Finance with local JSON caching."""
         if not ticker:
             return {}
         cache_file = os.path.join(CACHE_DIR, f"yf_{cftc_code}.json")
@@ -381,21 +381,47 @@ class COTIndexEngine:
             try:
                 if now - os.path.getmtime(cache_file) < 86400:
                     with open(cache_file, "r", encoding="utf-8") as f:
-                        return json.load(f)
+                        cached_data = json.load(f)
+                        if cached_data and len(cached_data) > 20:
+                            return cached_data
             except Exception:
                 pass
 
         try:
             import yfinance as yf
             t = yf.Ticker(ticker)
-            df = t.history(period="5y", interval="1wk")
+            # Prioritize daily interval to get exact Tuesday closes
+            df = t.history(period="5y", interval="1d")
+            if df.empty:
+                # Fallback to weekly interval if daily is empty
+                df = t.history(period="5y", interval="1wk")
+            if df.empty:
+                # If futures ticker failed, try corresponding cash benchmark
+                cash_fallback = {
+                    "ES=F": "^GSPC",
+                    "NQ=F": "^IXIC",
+                    "YM=F": "^DJI",
+                    "RTY=F": "^RUT",
+                    "6J=F": "JPY=X",
+                    "6E=F": "EURUSD=X",
+                    "6B=F": "GBPUSD=X",
+                    "6A=F": "AUDUSD=X",
+                    "6C=F": "USDCAD=X",
+                    "6S=F": "USDCHF=X",
+                    "6N=F": "NZDUSD=X",
+                }
+                if ticker in cash_fallback:
+                    t_cash = yf.Ticker(cash_fallback[ticker])
+                    df = t_cash.history(period="5y", interval="1d")
+
             if df.empty:
                 return {}
+
             prices_dict: Dict[str, float] = {}
             for d, row in df.iterrows():
                 try:
                     c = float(row["Close"])
-                    if not math.isnan(c):
+                    if not math.isnan(c) and c > 0:
                         prices_dict[d.strftime("%Y-%m-%d")] = round(c, 4)
                 except Exception:
                     continue
@@ -572,17 +598,25 @@ class COTIndexEngine:
 
         live_data = cls._fetch_cftc_data(cftc_code) if cftc_code else None
 
-        # Resolve price feeds
+        # Resolve price feeds (Multi-tier: Live cot-reports -> Yahoo Finance daily closes -> Interpolation)
         prices_dict: Dict[str, float] = {}
-        if live_data and live_data.get("prices"):
-            prices_dict = {str(k): float(v) for k, v in live_data["prices"].items()}
+        if live_data and live_data.get("prices") and isinstance(live_data.get("prices"), dict):
+            prices_dict = {str(k): float(v) for k, v in live_data["prices"].items() if v is not None}
 
-        if len(prices_dict) < 5 and cftc_code:
-            yf_ticker = CFTC_TO_YFINANCE.get(cftc_code)
-            if yf_ticker:
+        yf_ticker = CFTC_TO_YFINANCE.get(cftc_code) if cftc_code else None
+        if yf_ticker:
+            # If live prices are sparse or missing (e.g. Equity indices return empty [] on cot-reports.com)
+            if len(prices_dict) < 10:
                 yf_prices = cls._fetch_yfinance_weekly_prices(cftc_code, yf_ticker)
                 if yf_prices:
                     prices_dict = yf_prices
+            else:
+                # Supplement any missing dates from Yahoo Finance
+                yf_prices = cls._fetch_yfinance_weekly_prices(cftc_code, yf_ticker)
+                if yf_prices:
+                    for k, v in yf_prices.items():
+                        if k not in prices_dict:
+                            prices_dict[k] = v
 
         base_fallback_px = cls.get_market_base_price(market)
 
@@ -697,10 +731,18 @@ class COTIndexEngine:
             pct_nr_long = round((nr_long / oi * 100), 2) if oi > 0 else 0.0
             pct_nr_short = round((nr_short / oi * 100), 2) if oi > 0 else 0.0
 
-            # Price lookup
+            # Multi-tier price lookup (exact Tuesday match -> +/- 7 days trading day tolerance)
             matched_px = prices_dict.get(r_date)
-            if matched_px is None:
-                matched_px = base_fallback_px
+            if matched_px is None and prices_dict:
+                try:
+                    dt_obj = datetime.strptime(r_date, "%Y-%m-%d")
+                    for offset in [-1, 1, -2, 2, -3, 3, -4, 4, -5, 5, -6, 6, -7, 7]:
+                        test_d = (dt_obj + timedelta(days=offset)).strftime("%Y-%m-%d")
+                        if test_d in prices_dict:
+                            matched_px = prices_dict[test_d]
+                            break
+                except Exception:
+                    pass
 
             reports.append({
                 "date_formatted": date_formatted,
@@ -739,8 +781,27 @@ class COTIndexEngine:
                 # Open Interest & Price
                 "open_interest": oi,
                 "change_open_interest": chg_oi,
-                "price": round(float(matched_px), 4) if matched_px else None,
+                "price": round(float(matched_px), 4) if matched_px is not None else None,
             })
+
+        # Forward fill and backward fill prices across reports to eliminate any missing gaps
+        last_known_px = None
+        for item in reports:
+            if item.get("price") is not None:
+                last_known_px = item["price"]
+            elif last_known_px is not None:
+                item["price"] = last_known_px
+
+        first_known_px = next((item.get("price") for item in reports if item.get("price") is not None), None)
+        if first_known_px is not None:
+            for item in reports:
+                if item.get("price") is None:
+                    item["price"] = first_known_px
+                else:
+                    break
+        else:
+            for item in reports:
+                item["price"] = round(float(base_fallback_px), 4)
 
         if sort == "desc":
             reports.reverse()
@@ -798,15 +859,21 @@ class COTIndexEngine:
 
         # Resolve price feeds:
         prices_dict: Dict[str, float] = {}
-        if live_data and live_data.get("prices"):
-            prices_dict = {str(k): float(v) for k, v in live_data["prices"].items()}
+        if live_data and live_data.get("prices") and isinstance(live_data.get("prices"), dict):
+            prices_dict = {str(k): float(v) for k, v in live_data["prices"].items() if v is not None}
 
-        if len(prices_dict) < 5 and cftc_code:
-            yf_ticker = CFTC_TO_YFINANCE.get(cftc_code)
-            if yf_ticker:
+        yf_ticker = CFTC_TO_YFINANCE.get(cftc_code) if cftc_code else None
+        if yf_ticker:
+            if len(prices_dict) < 10:
                 yf_prices = cls._fetch_yfinance_weekly_prices(cftc_code, yf_ticker)
                 if yf_prices:
                     prices_dict = yf_prices
+            else:
+                yf_prices = cls._fetch_yfinance_weekly_prices(cftc_code, yf_ticker)
+                if yf_prices:
+                    for k, v in yf_prices.items():
+                        if k not in prices_dict:
+                            prices_dict[k] = v
 
         base_fallback_px = cls.get_market_base_price(market)
 
