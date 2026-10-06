@@ -41,14 +41,14 @@ export const MacroBattleView: React.FC<MacroBattleViewProps> = ({
   }, []);
 
   const currencies = [
-    { code: 'USD', name: 'US Dollar', flag: '🇺🇸', defaultScore: 18, yield: 4.25, policy: 'Hawkish Hold', growth: 'Resilient' },
-    { code: 'EUR', name: 'Euro', flag: '🇪🇺', defaultScore: 61, yield: 2.38, policy: 'Gradual Easing', growth: 'Stabilizing' },
-    { code: 'GBP', name: 'British Pound', flag: '🇬🇧', defaultScore: 42, yield: 4.12, policy: 'Cautious Cuts', growth: 'Sluggish' },
-    { code: 'JPY', name: 'Japanese Yen', flag: '🇯🇵', defaultScore: -31, yield: 1.05, policy: 'Normalization Hold', growth: 'Weak Domestic' },
-    { code: 'CAD', name: 'Canadian Dollar', flag: '🇨🇦', defaultScore: 31, yield: 3.25, policy: 'Active Easing', growth: 'Moderate' },
-    { code: 'AUD', name: 'Australian Dollar', flag: '🇦🇺', defaultScore: 18, yield: 4.10, policy: 'Restrictive Hold', growth: 'China Drag' },
-    { code: 'NZD', name: 'New Zealand Dollar', flag: '🇳🇿', defaultScore: 12, yield: 4.50, policy: 'Accelerated Cuts', growth: 'Recessionary' },
-    { code: 'CHF', name: 'Swiss Franc', flag: '🇨🇭', defaultScore: -8, yield: 1.00, policy: 'Accommodative', growth: 'Subdued' },
+    { code: 'USD', name: 'US Dollar', flag: '????', defaultScore: -16.8, yield: 4.25, policy: 'Active Easing (Dovish)', growth: 'Resilient' },
+    { code: 'EUR', name: 'Euro', flag: '????', defaultScore: -1.7, yield: 2.38, policy: 'Gradual Easing', growth: 'Stabilizing' },
+    { code: 'GBP', name: 'British Pound', flag: '????', defaultScore: 6.1, yield: 4.12, policy: 'Cautious Cuts', growth: 'Sluggish' },
+    { code: 'JPY', name: 'Japanese Yen', flag: '????', defaultScore: 5.0, yield: 1.05, policy: 'Normalization (Hawkish)', growth: 'Weak Domestic' },
+    { code: 'CAD', name: 'Canadian Dollar', flag: '????', defaultScore: -21.1, yield: 3.25, policy: 'Active Easing', growth: 'Moderate' },
+    { code: 'AUD', name: 'Australian Dollar', flag: '????', defaultScore: 3.8, yield: 4.10, policy: 'Restrictive Hold', growth: 'China Drag' },
+    { code: 'NZD', name: 'New Zealand Dollar', flag: '????', defaultScore: -17.6, yield: 4.50, policy: 'Accelerated Cuts', growth: 'Recessionary' },
+    { code: 'CHF', name: 'Swiss Franc', flag: '????', defaultScore: -8.8, yield: 1.00, policy: 'Accommodative', growth: 'Subdued' },
   ];
 
   const baseCurr = currencies.find((c) => c.code === baseCode) || currencies[1];
@@ -68,6 +68,19 @@ export const MacroBattleView: React.FC<MacroBattleViewProps> = ({
 
   const isBaseAdvantaged = netScore > 10;
   const isQuoteAdvantaged = netScore < -10;
+
+  const formatPolicy = (stance?: string, fallback: string = 'Neutral') => {
+    if (!stance) return fallback;
+    if (stance.toLowerCase() === 'easing') return 'Active Easing (Dovish)';
+    if (stance.toLowerCase() === 'tightening') return 'Tightening (Hawkish)';
+    if (stance.toLowerCase() === 'paused') return 'Paused / Neutral';
+    return stance;
+  };
+
+  const basePolicy = formatPolicy(baseMatrix?.policy_stance, baseCurr.policy);
+  const baseGrowth = baseMatrix?.growth_stance || baseCurr.growth;
+  const quotePolicy = formatPolicy(quoteMatrix?.policy_stance, quoteCurr.policy);
+  const quoteGrowth = quoteMatrix?.growth_stance || quoteCurr.growth;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -225,7 +238,7 @@ export const MacroBattleView: React.FC<MacroBattleViewProps> = ({
           <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 10 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 6 }}>
               <span style={{ color: 'var(--text-dim)' }}>Policy Stance:</span>
-              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{baseCurr.policy}</span>
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{basePolicy}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 6 }}>
               <span style={{ color: 'var(--text-dim)' }}>10Y Sovereign Yield:</span>
@@ -233,7 +246,7 @@ export const MacroBattleView: React.FC<MacroBattleViewProps> = ({
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
               <span style={{ color: 'var(--text-dim)' }}>Growth Regime:</span>
-              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{baseCurr.growth}</span>
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{baseGrowth}</span>
             </div>
           </div>
         </div>
@@ -401,7 +414,7 @@ export const MacroBattleView: React.FC<MacroBattleViewProps> = ({
           <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 10 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 6 }}>
               <span style={{ color: 'var(--text-dim)' }}>Policy Stance:</span>
-              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{quoteCurr.policy}</span>
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{quotePolicy}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 6 }}>
               <span style={{ color: 'var(--text-dim)' }}>10Y Sovereign Yield:</span>
@@ -409,7 +422,7 @@ export const MacroBattleView: React.FC<MacroBattleViewProps> = ({
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
               <span style={{ color: 'var(--text-dim)' }}>Growth Regime:</span>
-              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{quoteCurr.growth}</span>
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{quoteGrowth}</span>
             </div>
           </div>
         </div>
