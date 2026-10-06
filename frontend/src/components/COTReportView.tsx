@@ -510,11 +510,11 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
           {/* ── Configuration Parameters Card (Matching cot-reports.com) ────────── */}
           <div
             style={{
-              background: 'linear-gradient(180deg, #090e17 0%, #0c1424 100%)',
-              border: '1px solid rgba(30, 58, 138, 0.35)',
+              background: isLight ? 'var(--surface-1)' : 'linear-gradient(180deg, #090e17 0%, #0c1424 100%)',
+              border: isLight ? '1px solid var(--border-subtle)' : '1px solid rgba(30, 58, 138, 0.35)',
               borderRadius: 8,
               padding: '16px 20px',
-              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+              boxShadow: isLight ? '0 1px 3px rgba(0, 0, 0, 0.05)' : '0 8px 24px rgba(0, 0, 0, 0.4)',
               display: 'flex',
               flexDirection: 'column',
               gap: 14,
@@ -526,7 +526,7 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
                 alignItems: 'center',
                 gap: 8,
                 fontSize: '0.8rem',
-                color: '#64748b',
+                color: isLight ? 'var(--text-muted)' : '#64748b',
                 fontWeight: 600,
               }}
             >
@@ -587,9 +587,9 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
                       }
                     }}
                     style={{
-                      background: '#0f172a',
-                      border: '1px solid rgba(51, 65, 85, 0.8)',
-                      color: '#e2e8f0',
+                      background: isLight ? 'var(--surface-2)' : '#0f172a',
+                      border: isLight ? '1px solid var(--border-active)' : '1px solid rgba(51, 65, 85, 0.8)',
+                      color: isLight ? 'var(--text-primary)' : '#e2e8f0',
                       borderRadius: 6,
                       padding: '8px 12px',
                       fontSize: '0.82rem',
@@ -641,9 +641,9 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
                       }
                     }}
                     style={{
-                      background: '#0f172a',
-                      border: '1px solid rgba(51, 65, 85, 0.8)',
-                      color: '#cbd5e1',
+                      background: isLight ? 'var(--surface-2)' : '#0f172a',
+                      border: isLight ? '1px solid var(--border-active)' : '1px solid rgba(51, 65, 85, 0.8)',
+                      color: isLight ? 'var(--text-primary)' : '#cbd5e1',
                       borderRadius: 6,
                       padding: '8px 12px',
                       fontSize: '0.82rem',
@@ -692,9 +692,9 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
                       }
                     }}
                     style={{
-                      background: '#0f172a',
-                      border: '1px solid rgba(51, 65, 85, 0.8)',
-                      color: '#ffffff',
+                      background: isLight ? 'var(--surface-2)' : '#0f172a',
+                      border: isLight ? '1px solid var(--border-active)' : '1px solid rgba(51, 65, 85, 0.8)',
+                      color: isLight ? 'var(--text-primary)' : '#ffffff',
                       borderRadius: 6,
                       padding: '8px 12px',
                       fontSize: '0.82rem',
@@ -716,8 +716,8 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
                       display: 'flex',
                       alignItems: 'center',
                       gap: 8,
-                      background: '#0f172a',
-                      border: '1px solid rgba(51, 65, 85, 0.8)',
+                      background: isLight ? 'var(--surface-2)' : '#0f172a',
+                      border: isLight ? '1px solid var(--border-active)' : '1px solid rgba(51, 65, 85, 0.8)',
                       borderRadius: 6,
                       padding: '7px 12px',
                     }}
@@ -732,7 +732,7 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
                         background: 'transparent',
                         border: 'none',
                         outline: 'none',
-                        color: '#f8fafc',
+                        color: isLight ? 'var(--text-primary)' : '#f8fafc',
                         fontSize: '0.8rem',
                         width: '100%',
                       }}
@@ -763,10 +763,10 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
                 gap: 8,
                 flexWrap: 'wrap',
                 fontSize: '0.78rem',
-                color: '#94a3b8',
+                color: isLight ? 'var(--text-secondary)' : '#94a3b8',
                 fontWeight: 600,
                 paddingTop: 6,
-                borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+                borderTop: isLight ? '1px solid var(--border-subtle)' : '1px solid rgba(255, 255, 255, 0.05)',
               }}
             >
               <span
@@ -777,7 +777,7 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
                   background: '#14b8a6',
                 }}
               />
-              <span style={{ color: '#f1f5f9', fontWeight: 800, letterSpacing: '0.02em' }}>
+              <span style={{ color: isLight ? 'var(--text-primary)' : '#f1f5f9', fontWeight: 800, letterSpacing: '0.02em' }}>
                 {activeMarket.name}
               </span>
               <span
@@ -793,7 +793,7 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
                 {activeMarket.ticker}
               </span>
               <span style={{ color: '#94a3b8' }}>{activeMarket.exchange.toUpperCase()}</span>
-              <span style={{ color: '#cbd5e1', fontWeight: 700 }}>
+              <span style={{ color: isLight ? 'var(--text-primary)' : '#cbd5e1', fontWeight: 700 }}>
                 CFTC: {activeMarket.cftc_code}
               </span>
               {activeMarket.contract_units && (
@@ -839,11 +839,13 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
                     setMarketSearch('');
                   }}
                   style={{
-                    background: active ? '#0d9488' : '#0f172a',
-                    color: active ? '#ffffff' : '#94a3b8',
+                    background: active ? '#0d9488' : isLight ? 'var(--surface-1)' : '#0f172a',
+                    color: active ? '#ffffff' : isLight ? 'var(--text-secondary)' : '#94a3b8',
                     border: active
                       ? '1px solid #14b8a6'
-                      : '1px solid rgba(51, 65, 85, 0.7)',
+                      : isLight
+                      ? '1px solid var(--border-subtle)'
+                      : isLight ? '1px solid var(--border-subtle)' : '1px solid rgba(51, 65, 85, 0.7)',
                     padding: '4px 10px',
                     borderRadius: 4,
                     fontSize: '0.72rem',
@@ -890,8 +892,8 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
           {/* ── Trader Category Selector Bar ───────────────────────────────── */}
           <div
             style={{
-              background: 'linear-gradient(180deg, #090e17 0%, #0c1424 100%)',
-              border: '1px solid rgba(30, 58, 138, 0.35)',
+              background: isLight ? 'var(--surface-1)' : 'linear-gradient(180deg, #090e17 0%, #0c1424 100%)',
+              border: isLight ? '1px solid var(--border-subtle)' : '1px solid rgba(30, 58, 138, 0.35)',
               borderRadius: 8,
               padding: '12px 18px',
               display: 'flex',
@@ -924,13 +926,13 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
                 onClick={() => setTraderCategory('non_commercial')}
                 style={{
                   background:
-                    traderCategory === 'non_commercial' ? '#0d9488' : '#0f172a',
+                    traderCategory === 'non_commercial' ? '#0d9488' : isLight ? 'var(--surface-2)' : '#0f172a',
                   color:
-                    traderCategory === 'non_commercial' ? '#ffffff' : '#94a3b8',
+                    traderCategory === 'non_commercial' ? '#ffffff' : isLight ? 'var(--text-secondary)' : '#94a3b8',
                   border:
                     traderCategory === 'non_commercial'
                       ? '1px solid #14b8a6'
-                      : '1px solid rgba(51, 65, 85, 0.7)',
+                      : isLight ? '1px solid var(--border-subtle)' : '1px solid rgba(51, 65, 85, 0.7)',
                   borderRadius: 20,
                   padding: '6px 16px',
                   fontSize: '0.78rem',
@@ -951,13 +953,13 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
                 onClick={() => setTraderCategory('commercial')}
                 style={{
                   background:
-                    traderCategory === 'commercial' ? '#2563eb' : '#0f172a',
+                    traderCategory === 'commercial' ? '#2563eb' : isLight ? 'var(--surface-2)' : '#0f172a',
                   color:
-                    traderCategory === 'commercial' ? '#ffffff' : '#94a3b8',
+                    traderCategory === 'commercial' ? '#ffffff' : isLight ? 'var(--text-secondary)' : '#94a3b8',
                   border:
                     traderCategory === 'commercial'
                       ? '1px solid #3b82f6'
-                      : '1px solid rgba(51, 65, 85, 0.7)',
+                      : isLight ? '1px solid var(--border-subtle)' : '1px solid rgba(51, 65, 85, 0.7)',
                   borderRadius: 20,
                   padding: '6px 16px',
                   fontSize: '0.78rem',
@@ -978,13 +980,13 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
                 onClick={() => setTraderCategory('non_reportable')}
                 style={{
                   background:
-                    traderCategory === 'non_reportable' ? '#475569' : '#0f172a',
+                    traderCategory === 'non_reportable' ? '#475569' : isLight ? 'var(--surface-2)' : '#0f172a',
                   color:
-                    traderCategory === 'non_reportable' ? '#ffffff' : '#94a3b8',
+                    traderCategory === 'non_reportable' ? '#ffffff' : isLight ? 'var(--text-secondary)' : '#94a3b8',
                   border:
                     traderCategory === 'non_reportable'
                       ? '1px solid #64748b'
-                      : '1px solid rgba(51, 65, 85, 0.7)',
+                      : isLight ? '1px solid var(--border-subtle)' : '1px solid rgba(51, 65, 85, 0.7)',
                   borderRadius: 20,
                   padding: '6px 16px',
                   fontSize: '0.78rem',
@@ -1026,11 +1028,11 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
           {/* ── Main COT Index Chart Card ───────────────────────────────────── */}
           <div
             style={{
-              background: 'linear-gradient(180deg, #070d18 0%, #0a1324 100%)',
-              border: '1px solid rgba(30, 58, 138, 0.4)',
+              background: isLight ? 'var(--surface-1)' : 'linear-gradient(180deg, #070d18 0%, #0a1324 100%)',
+              border: isLight ? '1px solid var(--border-subtle)' : '1px solid rgba(30, 58, 138, 0.4)',
               borderRadius: 8,
               padding: '16px 20px',
-              boxShadow: '0 12px 32px rgba(0, 0, 0, 0.5)',
+              boxShadow: isLight ? '0 1px 3px rgba(0, 0, 0, 0.05)' : '0 12px 32px rgba(0, 0, 0, 0.5)',
               display: 'flex',
               flexDirection: 'column',
               gap: 12,
@@ -1112,10 +1114,10 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
                       onClick={() => setTimeframe(tfCode)}
                       style={{
                         background: active ? '#0d9488' : '#0f172a',
-                        color: active ? '#ffffff' : '#94a3b8',
+                        color: active ? '#ffffff' : isLight ? 'var(--text-secondary)' : '#94a3b8',
                         border: active
                           ? '1px solid #14b8a6'
-                          : '1px solid rgba(51, 65, 85, 0.7)',
+                          : isLight ? '1px solid var(--border-subtle)' : '1px solid rgba(51, 65, 85, 0.7)',
                         padding: '4px 10px',
                         borderRadius: 4,
                         fontSize: '0.72rem',
@@ -1134,7 +1136,7 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
                   title="Export Chart CSV"
                   style={{
                     background: '#0f172a',
-                    border: '1px solid rgba(51, 65, 85, 0.7)',
+                    border: isLight ? '1px solid var(--border-subtle)' : '1px solid rgba(51, 65, 85, 0.7)',
                     color: '#94a3b8',
                     padding: '5px 8px',
                     borderRadius: 4,
@@ -1271,7 +1273,7 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
                     position: 'relative',
                     height: 340,
                     width: '100%',
-                    background: isLight ? '#f8fafc' : '#070c14',
+                    background: isLight ? '#ffffff' : '#070c14',
                     borderRadius: 6,
                     border: isLight ? '1px solid var(--border-subtle)' : '1px solid rgba(255, 255, 255, 0.05)',
                     overflow: 'hidden',
@@ -1288,8 +1290,8 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
                     <defs>
                       {/* Gradient for Open Interest Area */}
                       <linearGradient id="oiGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#1e293b" stopOpacity="0.45" />
-                        <stop offset="100%" stopColor="#0f172a" stopOpacity="0.05" />
+                        <stop offset="0%" stopColor={isLight ? "#94a3b8" : "#1e293b"} stopOpacity={isLight ? 0.22 : 0.45} />
+                        <stop offset="100%" stopColor={isLight ? "#e2e8f0" : "#0f172a"} stopOpacity="0.05" />
                       </linearGradient>
                       {/* Gradient for COT Index Area */}
                       <linearGradient id="cotGradient" x1="0" y1="0" x2="0" y2="1">
@@ -1312,7 +1314,7 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
                       y="0"
                       width="1000"
                       height="68"
-                      fill="rgba(185, 28, 28, 0.18)"
+                      fill={isLight ? "rgba(239, 68, 68, 0.08)" : "rgba(185, 28, 28, 0.18)"}
                     />
                     {/* Bottom Extreme Short Zone (0 - 20) */}
                     <rect
@@ -1320,7 +1322,7 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
                       y="272"
                       width="1000"
                       height="68"
-                      fill="rgba(6, 95, 70, 0.22)"
+                      fill={isLight ? "rgba(16, 185, 129, 0.08)" : "rgba(6, 95, 70, 0.22)"}
                     />
 
                     {/* 2. Grid Horizontal Lines */}
@@ -1537,14 +1539,14 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
                         top: 12,
                         left: '50%',
                         transform: 'translateX(-50%)',
-                        background: 'rgba(15, 23, 42, 0.95)',
-                        border: '1px solid rgba(51, 65, 85, 0.8)',
+                        background: isLight ? 'rgba(255, 255, 255, 0.98)' : 'rgba(15, 23, 42, 0.95)',
+                        border: isLight ? '1px solid var(--border-active)' : '1px solid rgba(51, 65, 85, 0.8)',
                         borderRadius: 6,
                         padding: '6px 14px',
                         display: 'flex',
                         alignItems: 'center',
                         gap: 16,
-                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.6)',
+                        boxShadow: isLight ? '0 8px 24px rgba(0, 0, 0, 0.12)' : '0 8px 24px rgba(0, 0, 0, 0.6)',
                         pointerEvents: 'none',
                         zIndex: 10,
                         fontSize: '0.74rem',
@@ -1552,7 +1554,7 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <Calendar size={13} color="#64748b" />
-                        <span style={{ color: '#f1f5f9', fontWeight: 700 }}>
+                        <span style={{ color: isLight ? 'var(--text-primary)' : '#f1f5f9', fontWeight: 700 }}>
                           {hoveredPoint.date}
                         </span>
                       </div>

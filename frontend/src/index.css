@@ -746,13 +746,13 @@ body.theme-dark {
   background-color: rgba(241, 245, 249, 0.85);
 }
 
-/* Card & Glass Overrides for Light Mode */
-[data-theme="light"] div[style*="rgba(255,255,255,0.04)"],
-[data-theme="light"] div[style*="rgba(255, 255, 255, 0.04)"],
-[data-theme="light"] div[style*="rgba(255,255,255,0.03)"],
-[data-theme="light"] div[style*="rgba(255, 255, 255, 0.03)"],
-[data-theme="light"] div[style*="rgba(255,255,255,0.05)"],
-[data-theme="light"] div[style*="rgba(255, 255, 255, 0.05)"] {
+/* Card & Glass Overrides for Light Mode - scoped strictly to background styles */
+[data-theme="light"] div[style*="background: rgba(255, 255, 255, 0.04)"],
+[data-theme="light"] div[style*="background: rgba(255, 255, 255, 0.03)"],
+[data-theme="light"] div[style*="background: rgba(255, 255, 255, 0.05)"],
+[data-theme="light"] div[style*="background:rgba(255,255,255,0.04)"],
+[data-theme="light"] div[style*="background:rgba(255,255,255,0.03)"],
+[data-theme="light"] div[style*="background:rgba(255,255,255,0.05)"] {
   background: var(--surface-1) !important;
   border-color: var(--border-subtle) !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
