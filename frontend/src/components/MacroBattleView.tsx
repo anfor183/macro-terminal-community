@@ -9,6 +9,7 @@ import {
   Zap,
   ChevronDown,
   Coins,
+  Check,
 } from 'lucide-react';
 import { api } from '../services/api';
 import { CurrencyMatrixItem } from '../types/macro';
@@ -251,12 +252,304 @@ interface MacroBattleViewProps {
 interface AssetClashItem {
   code: string;
   name: string;
+  flagEmoji?: string;
   defaultScore: number;
   yield: number;
   policy: string;
   growth: string;
   group: 'Currencies' | 'Precious Metals';
 }
+
+const AssetDropdown: React.FC<{
+  label: string;
+  selectedCode: string;
+  onSelect: (code: string) => void;
+  disabledCode?: string;
+  items: AssetClashItem[];
+  isLight: boolean;
+}> = ({ label, selectedCode, onSelect, disabledCode, items, isLight }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  const selected = items.find((i) => i.code === selectedCode) || items[0];
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
+
+  const currencies = items.filter((i) => i.group === 'Currencies');
+  const metals = items.filter((i) => i.group === 'Precious Metals');
+
+  return (
+    <div ref={dropdownRef} style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 6 }}>
+      <label style={{ fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 800 }}>{label}:</label>
+
+      {/* Trigger Button */}
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          background: isLight ? '#ffffff' : 'var(--surface-2)',
+          border: isLight
+            ? isOpen ? '1.5px solid #0284c7' : '1px solid var(--border-active)'
+            : isOpen ? '1.5px solid var(--accent-cyan)' : '1px solid var(--border-subtle)',
+          color: 'var(--text-primary)',
+          padding: '6px 12px',
+          borderRadius: 'var(--radius-sm)',
+          cursor: 'pointer',
+          fontFamily: 'JetBrains Mono, monospace',
+          fontSize: '0.8rem',
+          fontWeight: 700,
+          boxShadow: isLight
+            ? 'var(--shadow-sm)'
+            : isOpen ? '0 0 10px rgba(56, 189, 248, 0.25)' : 'none',
+          transition: 'all 0.15s ease',
+        }}
+      >
+        <AssetEmblem code={selected.code} size={20} />
+        <span style={{ fontWeight: 800 }}>{selected.code}</span>
+        <span style={{ color: 'var(--text-muted)', fontWeight: 500, fontSize: '0.76rem' }}>
+          — {selected.name}
+        </span>
+        <ChevronDown
+          size={14}
+          color="var(--text-muted)"
+          style={{
+            transform: isOpen ? 'rotate(180deg)' : 'none',
+            transition: 'transform 0.2s ease',
+            marginLeft: 4,
+          }}
+        />
+      </button>
+
+      {/* Dropdown Menu Overlay */}
+      {isOpen && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 'calc(100% + 6px)',
+            left: 0,
+            zIndex: 100,
+            minWidth: 280,
+            maxHeight: 360,
+            overflowY: 'auto',
+            background: isLight ? '#ffffff' : '#0b1322',
+            border: isLight ? '1px solid #cbd5e1' : '1px solid rgba(56, 189, 248, 0.35)',
+            borderRadius: 'var(--radius-md)',
+            boxShadow: isLight
+              ? '0 12px 28px -4px rgba(0, 0, 0, 0.15), 0 6px 12px -4px rgba(0, 0, 0, 0.1)'
+              : '0 16px 36px -4px rgba(0, 0, 0, 0.65), 0 8px 16px -4px rgba(0, 0, 0, 0.45)',
+            padding: '6px 0',
+            backdropFilter: 'blur(12px)',
+          }}
+        >
+          {/* Section: Global Currencies */}
+          <div
+            style={{
+              padding: '6px 14px 4px',
+              fontSize: '0.68rem',
+              fontWeight: 800,
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase',
+              color: isLight ? '#64748b' : '#38bdf8',
+              borderBottom: isLight ? '1px solid #f1f5f9' : '1px solid rgba(255, 255, 255, 0.06)',
+              marginBottom: 4,
+            }}
+          >
+            Global Currencies
+          </div>
+          {currencies.map((c) => {
+            const isSelected = c.code === selectedCode;
+            const isDisabled = c.code === disabledCode;
+            return (
+              <button
+                key={`opt-${c.code}`}
+                type="button"
+                disabled={isDisabled}
+                onClick={() => {
+                  if (!isDisabled) {
+                    onSelect(c.code);
+                    setIsOpen(false);
+                  }
+                }}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  padding: '7px 14px',
+                  background: isSelected
+                    ? isLight ? 'rgba(2, 132, 199, 0.12)' : 'rgba(56, 189, 248, 0.18)'
+                    : 'transparent',
+                  border: 'none',
+                  borderLeft: isSelected
+                    ? isLight ? '3px solid #0284c7' : '3px solid var(--accent-cyan)'
+                    : '3px solid transparent',
+                  cursor: isDisabled ? 'not-allowed' : 'pointer',
+                  opacity: isDisabled ? 0.35 : 1,
+                  textAlign: 'left',
+                  transition: 'background 0.1s ease',
+                  fontFamily: 'JetBrains Mono, monospace',
+                  boxSizing: 'border-box',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isDisabled && !isSelected) {
+                    e.currentTarget.style.backgroundColor = isLight ? '#f1f5f9' : 'rgba(255, 255, 255, 0.06)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isDisabled && !isSelected) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
+              >
+                <AssetEmblem code={c.code} size={22} />
+                <span
+                  style={{
+                    fontWeight: isSelected ? 800 : 700,
+                    fontSize: '0.84rem',
+                    color: isSelected
+                      ? isLight ? '#0284c7' : 'var(--accent-cyan)'
+                      : 'var(--text-primary)',
+                  }}
+                >
+                  {c.code}
+                </span>
+                <span
+                  style={{
+                    color: isLight ? '#64748b' : '#94a3b8',
+                    fontSize: '0.76rem',
+                    fontWeight: 500,
+                    flex: 1,
+                  }}
+                >
+                  — {c.name}
+                </span>
+                {isSelected && (
+                  <Check size={14} color={isLight ? '#0284c7' : 'var(--accent-cyan)'} />
+                )}
+              </button>
+            );
+          })}
+
+          {/* Section: Precious Metals & Commodities */}
+          <div
+            style={{
+              padding: '8px 14px 4px',
+              fontSize: '0.68rem',
+              fontWeight: 800,
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase',
+              color: isLight ? '#b45309' : '#eab308',
+              borderTop: isLight ? '1px solid #f1f5f9' : '1px solid rgba(255, 255, 255, 0.08)',
+              borderBottom: isLight ? '1px solid #f1f5f9' : '1px solid rgba(255, 255, 255, 0.06)',
+              marginTop: 6,
+              marginBottom: 4,
+            }}
+          >
+            Precious Metals &amp; Commodities
+          </div>
+          {metals.map((c) => {
+            const isSelected = c.code === selectedCode;
+            const isDisabled = c.code === disabledCode;
+            return (
+              <button
+                key={`opt-${c.code}`}
+                type="button"
+                disabled={isDisabled}
+                onClick={() => {
+                  if (!isDisabled) {
+                    onSelect(c.code);
+                    setIsOpen(false);
+                  }
+                }}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  padding: '7px 14px',
+                  background: isSelected
+                    ? isLight ? 'rgba(217, 119, 6, 0.12)' : 'rgba(234, 179, 8, 0.18)'
+                    : 'transparent',
+                  border: 'none',
+                  borderLeft: isSelected
+                    ? isLight ? '3px solid #b45309' : '3px solid #eab308'
+                    : '3px solid transparent',
+                  cursor: isDisabled ? 'not-allowed' : 'pointer',
+                  opacity: isDisabled ? 0.35 : 1,
+                  textAlign: 'left',
+                  transition: 'background 0.1s ease',
+                  fontFamily: 'JetBrains Mono, monospace',
+                  boxSizing: 'border-box',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isDisabled && !isSelected) {
+                    e.currentTarget.style.backgroundColor = isLight ? '#f1f5f9' : 'rgba(255, 255, 255, 0.06)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isDisabled && !isSelected) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
+              >
+                <AssetEmblem code={c.code} size={22} />
+                <span
+                  style={{
+                    fontWeight: isSelected ? 800 : 700,
+                    fontSize: '0.84rem',
+                    color: isSelected
+                      ? isLight ? '#b45309' : '#eab308'
+                      : 'var(--text-primary)',
+                  }}
+                >
+                  {c.code}
+                </span>
+                <span
+                  style={{
+                    color: isLight ? '#64748b' : '#94a3b8',
+                    fontSize: '0.76rem',
+                    fontWeight: 500,
+                    flex: 1,
+                  }}
+                >
+                  — {c.name}
+                </span>
+                {isSelected && (
+                  <Check size={14} color={isLight ? '#b45309' : '#eab308'} />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const MacroBattleView: React.FC<MacroBattleViewProps> = ({
   initialBase = 'EUR',
@@ -419,77 +712,37 @@ export const MacroBattleView: React.FC<MacroBattleViewProps> = ({
           </p>
         </div>
 
-        {/* Base & Quote Asset Selectors */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <label style={{ fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 700 }}>BASE:</label>
-            <select
-              value={baseCode}
-              onChange={(e) => setBaseCode(e.target.value)}
-              style={{
-                background: isLight ? 'var(--surface-1)' : 'var(--surface-2)',
-                border: isLight ? '1px solid var(--border-active)' : '1px solid var(--border-subtle)',
-                color: 'var(--text-primary)',
-                padding: '6px 12px',
-                borderRadius: 'var(--radius-sm)',
-                fontFamily: 'JetBrains Mono, monospace',
-                fontSize: '0.8rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
-            >
-              <optgroup label="Global Currencies">
-                {clashAssets.filter((c) => c.group === 'Currencies').map((c) => (
-                  <option key={`base-${c.code}`} value={c.code}>
-                    {c.code} — {c.name}
-                  </option>
-                ))}
-              </optgroup>
-              <optgroup label="Precious Metals & Commodities">
-                {clashAssets.filter((c) => c.group === 'Precious Metals').map((c) => (
-                  <option key={`base-${c.code}`} value={c.code}>
-                    {c.code} — {c.name}
-                  </option>
-                ))}
-              </optgroup>
-            </select>
-          </div>
+        {/* Base & Quote Asset Selectors with Flag & Emblem Dropdowns */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+          <AssetDropdown
+            label="BASE"
+            selectedCode={baseCode}
+            onSelect={(code) => setBaseCode(code)}
+            disabledCode={quoteCode}
+            items={clashAssets}
+            isLight={isLight}
+          />
 
-          <span style={{ color: isLight ? '#0284c7' : 'var(--accent-cyan)', fontWeight: 800, fontSize: '0.8rem' }}>VS</span>
+          <span
+            style={{
+              color: isLight ? '#0284c7' : 'var(--accent-cyan)',
+              fontWeight: 900,
+              fontSize: '0.82rem',
+              userSelect: 'none',
+              padding: '0 2px',
+            }}
+          >
+            VS
+          </span>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <label style={{ fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 700 }}>QUOTE:</label>
-            <select
-              value={quoteCode}
-              onChange={(e) => setQuoteCode(e.target.value)}
-              style={{
-                background: isLight ? 'var(--surface-1)' : 'var(--surface-2)',
-                border: isLight ? '1px solid var(--border-active)' : '1px solid var(--border-subtle)',
-                color: 'var(--text-primary)',
-                padding: '6px 12px',
-                borderRadius: 'var(--radius-sm)',
-                fontFamily: 'JetBrains Mono, monospace',
-                fontSize: '0.8rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
-            >
-              <optgroup label="Global Currencies">
-                {clashAssets.filter((c) => c.group === 'Currencies').map((c) => (
-                  <option key={`quote-${c.code}`} value={c.code} disabled={c.code === baseCode}>
-                    {c.code} — {c.name}
-                  </option>
-                ))}
-              </optgroup>
-              <optgroup label="Precious Metals & Commodities">
-                {clashAssets.filter((c) => c.group === 'Precious Metals').map((c) => (
-                  <option key={`quote-${c.code}`} value={c.code} disabled={c.code === baseCode}>
-                    {c.code} — {c.name}
-                  </option>
-                ))}
-              </optgroup>
-            </select>
-          </div>
+          <AssetDropdown
+            label="QUOTE"
+            selectedCode={quoteCode}
+            onSelect={(code) => setQuoteCode(code)}
+            disabledCode={baseCode}
+            items={clashAssets}
+            isLight={isLight}
+          />
         </div>
       </div>
 
