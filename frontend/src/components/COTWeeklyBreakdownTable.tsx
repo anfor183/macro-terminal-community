@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Download, ArrowUpDown, ChevronUp, ChevronDown, Calendar, Layers, Shield, Users, BarChart3 } from 'lucide-react';
+import { Download, ArrowUpDown, BarChart3, Palette } from 'lucide-react';
 import { COTWeeklyBreakdownResponse, COTWeeklyBreakdownRow } from '../types/macro';
 
 interface COTWeeklyBreakdownTableProps {
@@ -73,6 +73,7 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
   }, [propIsLight]);
 
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc'); // asc = oldest to newest (like cot-reports.com)
+  const [heatmapMode, setHeatmapMode] = useState<'vibrant' | 'subtle'>('vibrant');
 
   const rows: COTWeeklyBreakdownRow[] = useMemo(() => {
     if (!data?.reports) return [];
@@ -83,110 +84,257 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
     return list;
   }, [data, sortDirection]);
 
-  // Max Open Interest across the dataset for relative heatmapping
-  const maxOI = useMemo(() => {
-    if (!rows.length) return 1;
-    return Math.max(...rows.map((r) => r.open_interest || 1));
+  // Precompute stats across all columns for relative multi-tier heatmapping
+  const stats = useMemo(() => {
+    if (!rows.length) return null;
+
+    const getMinMax = (getter: (r: COTWeeklyBreakdownRow) => number | undefined | null) => {
+      let min = Infinity;
+      let max = -Infinity;
+      for (const r of rows) {
+        const v = getter(r);
+        if (v !== undefined && v !== null && !isNaN(v)) {
+          if (v < min) min = v;
+          if (v > max) max = v;
+        }
+      }
+      return {
+        min: min === Infinity ? 0 : min,
+        max: max === -Infinity ? 1 : max,
+      };
+    };
+
+    const getMaxAbs = (getter: (r: COTWeeklyBreakdownRow) => number | undefined | null) => {
+      let maxAbs = 0;
+      for (const r of rows) {
+        const v = getter(r);
+        if (v !== undefined && v !== null && !isNaN(v)) {
+          const abs = Math.abs(v);
+          if (abs > maxAbs) maxAbs = abs;
+        }
+      }
+      return maxAbs || 1;
+    };
+
+    return {
+      // Non-Commercial (Large Speculators)
+      noncomm_long: getMinMax((r) => r.noncomm_long),
+      noncomm_short: getMinMax((r) => r.noncomm_short),
+      change_noncomm_long_abs: getMaxAbs((r) => r.change_noncomm_long),
+      change_noncomm_short_abs: getMaxAbs((r) => r.change_noncomm_short),
+      noncomm_net_abs: getMaxAbs((r) => r.noncomm_net),
+      noncomm_spreading: getMinMax((r) => r.noncomm_spreading),
+      pct_oi_noncomm_spreading: getMinMax((r) => r.pct_oi_noncomm_spreading),
+      pct_oi_noncomm_long: getMinMax((r) => r.pct_oi_noncomm_long),
+      pct_oi_noncomm_short: getMinMax((r) => r.pct_oi_noncomm_short),
+
+      // Commercial (Hedgers)
+      comm_long: getMinMax((r) => r.comm_long),
+      comm_short: getMinMax((r) => r.comm_short),
+      change_comm_long_abs: getMaxAbs((r) => r.change_comm_long),
+      change_comm_short_abs: getMaxAbs((r) => r.change_comm_short),
+      comm_net_abs: getMaxAbs((r) => r.comm_net),
+      pct_oi_comm_long: getMinMax((r) => r.pct_oi_comm_long),
+      pct_oi_comm_short: getMinMax((r) => r.pct_oi_comm_short),
+
+      // Non-Reportable (Small Speculators)
+      nonrept_long: getMinMax((r) => r.nonrept_long),
+      nonrept_short: getMinMax((r) => r.nonrept_short),
+      change_nonrept_long_abs: getMaxAbs((r) => r.change_nonrept_long),
+      change_nonrept_short_abs: getMaxAbs((r) => r.change_nonrept_short),
+      nonrept_net_abs: getMaxAbs((r) => r.nonrept_net),
+      pct_oi_nonrept_long: getMinMax((r) => r.pct_oi_nonrept_long),
+      pct_oi_nonrept_short: getMinMax((r) => r.pct_oi_nonrept_short),
+
+      // Open Interest & Price
+      open_interest: getMinMax((r) => r.open_interest),
+      price: getMinMax((r) => r.price),
+    };
   }, [rows]);
 
-  const minOI = useMemo(() => {
-    if (!rows.length) return 1;
-    return Math.min(...rows.map((r) => r.open_interest || 1));
-  }, [rows]);
+  // Heatmap intensity modifier
+  const intensity = heatmapMode === 'vibrant' ? 1.0 : 0.6;
 
-  // Heatmap styling helpers with enhanced high-contrast light and dark palettes
-  const getSpreadHeatmap = (pct: number) => {
-    const alpha = Math.min(0.45, Math.max(0.08, (pct / 40) * 0.4));
+  // 1. Contracts Magnitude Heatmap (Longs - Emerald Green gradient)
+  const getLongContractsHeatmap = (val: number, range?: { min: number; max: number }) => {
+    if (!range || range.max === range.min) return { color: isLight ? '#0f172a' : '#f8fafc' };
+    const ratio = Math.max(0, Math.min(1, (val - range.min) / (range.max - range.min)));
+    const alpha = (0.05 + ratio * 0.22) * intensity;
     return {
-      backgroundColor: isLight ? `rgba(59, 130, 246, ${alpha * 0.55})` : `rgba(37, 99, 235, ${alpha})`,
-      color: isLight ? '#1e3a8a' : '#bfdbfe',
+      backgroundColor: isLight ? `rgba(16, 185, 129, ${alpha})` : `rgba(16, 185, 129, ${alpha * 1.1})`,
+      color: isLight ? '#0f172a' : '#f8fafc',
       fontWeight: 600,
     };
   };
 
-  const getLongHeatmap = (pct: number) => {
-    const alpha = Math.min(0.45, Math.max(0.08, (pct / 60) * 0.4));
+  // 2. Contracts Magnitude Heatmap (Shorts - Coral/Ruby gradient)
+  const getShortContractsHeatmap = (val: number, range?: { min: number; max: number }) => {
+    if (!range || range.max === range.min) return { color: isLight ? '#0f172a' : '#f8fafc' };
+    const ratio = Math.max(0, Math.min(1, (val - range.min) / (range.max - range.min)));
+    const alpha = (0.05 + ratio * 0.22) * intensity;
     return {
-      backgroundColor: isLight ? `rgba(16, 185, 129, ${alpha * 0.55})` : `rgba(5, 150, 105, ${alpha})`,
-      color: isLight ? '#065f46' : '#a7f3d0',
+      backgroundColor: isLight ? `rgba(244, 63, 94, ${alpha})` : `rgba(244, 63, 94, ${alpha * 1.1})`,
+      color: isLight ? '#0f172a' : '#f8fafc',
       fontWeight: 600,
     };
   };
 
-  const getShortHeatmap = (pct: number) => {
-    const alpha = Math.min(0.45, Math.max(0.08, (pct / 70) * 0.4));
-    return {
-      backgroundColor: isLight ? `rgba(239, 68, 68, ${alpha * 0.55})` : `rgba(220, 38, 38, ${alpha})`,
-      color: isLight ? '#991b1b' : '#fecaca',
-      fontWeight: 600,
-    };
-  };
+  // 3. Change in Longs (Signed Heatmap: Positive = Green Bullish, Negative = Red Bearish)
+  const getChangeLongsHeatmap = (val: number, maxAbs?: number) => {
+    if (!val || val === 0) {
+      return { color: isLight ? '#64748b' : '#94a3b8' };
+    }
+    const maxVal = maxAbs || 1;
+    const ratio = Math.max(0.12, Math.min(1, Math.abs(val) / maxVal));
+    const alpha = (0.10 + ratio * 0.38) * intensity;
 
-  const getOIHeatmap = (oi: number) => {
-    const span = Math.max(1, maxOI - minOI);
-    const ratio = Math.max(0, Math.min(1, (oi - minOI) / span));
-    const alpha = 0.08 + ratio * 0.28;
-    return {
-      backgroundColor: isLight ? `rgba(2, 132, 199, ${alpha * 0.55})` : `rgba(14, 165, 233, ${alpha})`,
-      color: isLight ? '#0369a1' : '#bae6fd',
-      fontWeight: 600,
-    };
-  };
-
-  // Change coloring
-  const getChangeStyle = (val: number) => {
     if (val > 0) {
       return {
-        color: isLight ? '#15803d' : '#4ade80',
-        fontWeight: 700,
-      };
-    }
-    if (val < 0) {
-      return {
-        color: isLight ? '#dc2626' : '#f87171',
+        backgroundColor: isLight ? `rgba(34, 197, 94, ${alpha})` : `rgba(34, 197, 94, ${alpha * 0.95})`,
+        color: isLight ? '#14532d' : '#86efac',
         fontWeight: 700,
       };
     }
     return {
-      color: isLight ? '#64748b' : 'var(--text-muted)',
+      backgroundColor: isLight ? `rgba(239, 68, 68, ${alpha})` : `rgba(239, 68, 68, ${alpha * 0.95})`,
+      color: isLight ? '#7f1d1d' : '#fca5a5',
+      fontWeight: 700,
     };
   };
 
-  // Net position badge styling
-  const getNetStyle = (net: number, group: 'noncomm' | 'comm' | 'nonrept') => {
-    const isPos = net > 0;
-    if (group === 'noncomm') {
+  // 4. Change in Shorts (COT Convention Heatmap: Positive shorts increase = Red Bearish, Negative shorts reduction = Green Bullish)
+  const getChangeShortsHeatmap = (val: number, maxAbs?: number) => {
+    if (!val || val === 0) {
+      return { color: isLight ? '#64748b' : '#94a3b8' };
+    }
+    const maxVal = maxAbs || 1;
+    const ratio = Math.max(0.12, Math.min(1, Math.abs(val) / maxVal));
+    const alpha = (0.10 + ratio * 0.38) * intensity;
+
+    // Positive shorts addition = Bearish (Red)
+    if (val > 0) {
       return {
-        backgroundColor: isPos
-          ? isLight ? 'rgba(16, 185, 129, 0.16)' : 'rgba(16, 185, 129, 0.25)'
-          : isLight ? 'rgba(239, 68, 68, 0.16)' : 'rgba(239, 68, 68, 0.25)',
-        color: isPos
-          ? isLight ? '#047857' : '#34d399'
-          : isLight ? '#b91c1c' : '#f87171',
-        fontWeight: 800,
+        backgroundColor: isLight ? `rgba(239, 68, 68, ${alpha})` : `rgba(239, 68, 68, ${alpha * 0.95})`,
+        color: isLight ? '#7f1d1d' : '#fca5a5',
+        fontWeight: 700,
       };
     }
-    if (group === 'comm') {
-      return {
-        backgroundColor: isPos
-          ? isLight ? 'rgba(16, 185, 129, 0.16)' : 'rgba(16, 185, 129, 0.22)'
-          : isLight ? 'rgba(239, 68, 68, 0.16)' : 'rgba(239, 68, 68, 0.22)',
-        color: isPos
-          ? isLight ? '#047857' : '#34d399'
-          : isLight ? '#b91c1c' : '#f87171',
-        fontWeight: 800,
-      };
-    }
-    // non-reportable
+    // Negative shorts reduction (covering) = Bullish (Green)
     return {
-      backgroundColor: isPos
-        ? isLight ? 'rgba(245, 158, 11, 0.16)' : 'rgba(245, 158, 11, 0.25)'
-        : isLight ? 'rgba(239, 68, 68, 0.16)' : 'rgba(239, 68, 68, 0.25)',
-      color: isPos
-        ? isLight ? '#b45309' : '#fbbf24'
-        : isLight ? '#b91c1c' : '#f87171',
+      backgroundColor: isLight ? `rgba(34, 197, 94, ${alpha})` : `rgba(34, 197, 94, ${alpha * 0.95})`,
+      color: isLight ? '#14532d' : '#86efac',
+      fontWeight: 700,
+    };
+  };
+
+  // 5. Net Positions (Full Bi-directional Divergent Heatmap: Positive = Green Net Long, Negative = Red Net Short)
+  const getNetPositionsHeatmap = (net: number, maxAbs?: number) => {
+    if (!net || net === 0) {
+      return { color: isLight ? '#64748b' : '#94a3b8', fontWeight: 700 };
+    }
+    const maxVal = maxAbs || 1;
+    const ratio = Math.max(0.14, Math.min(1, Math.abs(net) / maxVal));
+    const alpha = (0.12 + ratio * 0.40) * intensity;
+
+    if (net > 0) {
+      return {
+        backgroundColor: isLight ? `rgba(16, 185, 129, ${alpha})` : `rgba(16, 185, 129, ${alpha * 0.95})`,
+        color: isLight ? '#064e3b' : '#6ee7b7',
+        fontWeight: 800,
+      };
+    }
+    return {
+      backgroundColor: isLight ? `rgba(239, 68, 68, ${alpha})` : `rgba(239, 68, 68, ${alpha * 0.95})`,
+      color: isLight ? '#7f1d1d' : '#fca5a5',
       fontWeight: 800,
     };
+  };
+
+  // 6. Spreads Contracts Heatmap (Purple/Violet gradient)
+  const getSpreadContractsHeatmap = (val: number, range?: { min: number; max: number }) => {
+    if (!range || range.max === range.min) return { color: isLight ? '#0f172a' : '#f8fafc' };
+    const ratio = Math.max(0, Math.min(1, (val - range.min) / (range.max - range.min)));
+    const alpha = (0.05 + ratio * 0.22) * intensity;
+    return {
+      backgroundColor: isLight ? `rgba(147, 51, 234, ${alpha})` : `rgba(147, 51, 234, ${alpha * 1.1})`,
+      color: isLight ? '#581c87' : '#e9d5ff',
+      fontWeight: 600,
+    };
+  };
+
+  // 7. %OI Spreads Heatmap (Indigo/Cyan saturated gradient)
+  const getSpreadPctHeatmap = (pct: number, range?: { min: number; max: number }) => {
+    const span = range && range.max > range.min ? range.max - range.min : 30;
+    const min = range ? range.min : 0;
+    const ratio = Math.max(0, Math.min(1, (pct - min) / (span || 1)));
+    const alpha = (0.10 + ratio * 0.38) * intensity;
+    return {
+      backgroundColor: isLight ? `rgba(99, 102, 241, ${alpha})` : `rgba(99, 102, 241, ${alpha * 0.95})`,
+      color: isLight ? '#312e81' : '#c7d2fe',
+      fontWeight: 700,
+    };
+  };
+
+  // 8. %OI Longs Heatmap (Rich Emerald Green gradient)
+  const getLongPctHeatmap = (pct: number, range?: { min: number; max: number }) => {
+    const span = range && range.max > range.min ? range.max - range.min : 50;
+    const min = range ? range.min : 0;
+    const ratio = Math.max(0, Math.min(1, (pct - min) / (span || 1)));
+    const alpha = (0.10 + ratio * 0.40) * intensity;
+    return {
+      backgroundColor: isLight ? `rgba(16, 185, 129, ${alpha})` : `rgba(16, 185, 129, ${alpha * 0.95})`,
+      color: isLight ? '#064e3b' : '#6ee7b7',
+      fontWeight: 700,
+    };
+  };
+
+  // 9. %OI Shorts Heatmap (Rich Crimson Red gradient)
+  const getShortPctHeatmap = (pct: number, range?: { min: number; max: number }) => {
+    const span = range && range.max > range.min ? range.max - range.min : 50;
+    const min = range ? range.min : 0;
+    const ratio = Math.max(0, Math.min(1, (pct - min) / (span || 1)));
+    const alpha = (0.10 + ratio * 0.40) * intensity;
+    return {
+      backgroundColor: isLight ? `rgba(239, 68, 68, ${alpha})` : `rgba(239, 68, 68, ${alpha * 0.95})`,
+      color: isLight ? '#7f1d1d' : '#fca5a5',
+      fontWeight: 700,
+    };
+  };
+
+  // 10. Open Interest Total Heatmap (Electric Sapphire Blue gradient)
+  const getOIHeatmap = (oi: number, range?: { min: number; max: number }) => {
+    const span = range && range.max > range.min ? range.max - range.min : 1;
+    const min = range ? range.min : 0;
+    const ratio = Math.max(0, Math.min(1, (oi - min) / (span || 1)));
+    const alpha = (0.08 + ratio * 0.38) * intensity;
+    return {
+      backgroundColor: isLight ? `rgba(2, 132, 199, ${alpha})` : `rgba(2, 132, 199, ${alpha * 0.95})`,
+      color: isLight ? '#075985' : '#bae6fd',
+      fontWeight: 700,
+    };
+  };
+
+  // 11. Price Heatmap (Subtle warm gold/amber gradient)
+  const getPriceHeatmap = (price: number | undefined | null, range?: { min: number; max: number }) => {
+    if (price === undefined || price === null || !range || range.max === range.min) {
+      return { color: isLight ? '#0f172a' : '#f8fafc', fontWeight: 700 };
+    }
+    const ratio = Math.max(0, Math.min(1, (price - range.min) / (range.max - range.min)));
+    const alpha = (0.04 + ratio * 0.20) * intensity;
+    return {
+      backgroundColor: isLight ? `rgba(245, 158, 11, ${alpha})` : `rgba(245, 158, 11, ${alpha * 0.85})`,
+      color: isLight ? '#0f172a' : '#f8fafc',
+      fontWeight: 700,
+    };
+  };
+
+  // Distinct category boundary divider styles
+  const categoryDividers = {
+    date: isLight ? '3px solid #cbd5e1' : '3px solid rgba(255, 255, 255, 0.22)',
+    noncomm: isLight ? '3px solid #f87171' : '3px solid #ef4444',
+    comm: isLight ? '3px solid #60a5fa' : '3px solid #3b82f6',
+    nonrept: isLight ? '3px solid #2dd4bf' : '3px solid #14b8a6',
+    internal: isLight ? '1px solid #e2e8f0' : '1px solid rgba(255, 255, 255, 0.08)',
   };
 
   const handleExportCSV = () => {
@@ -229,7 +377,7 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
         fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
       }}
     >
-      {/* ── Time Period & Export Controls Bar ────── */}
+      {/* ── Time Period, Heatmap & Export Controls Bar ────── */}
       <div
         style={{
           display: 'flex',
@@ -266,7 +414,7 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                   onClick={() => onTimeframeChange(tf)}
                   style={{
                     background: active
-                      ? isLight ? '#0d9488' : '#0d9488'
+                      ? '#0d9488'
                       : isLight ? 'var(--surface-2)' : '#0f172a',
                     color: active ? '#ffffff' : isLight ? 'var(--text-secondary)' : '#94a3b8',
                     border: active
@@ -288,8 +436,39 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
           </div>
         </div>
 
-        {/* Right: Sort Order & CSV Export */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        {/* Right: Heatmap Intensity Toggle, Sort Order & CSV Export */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          {/* Heatmap Mode Selector */}
+          <button
+            onClick={() => setHeatmapMode(heatmapMode === 'vibrant' ? 'subtle' : 'vibrant')}
+            title="Toggle between vibrant institutional heatmap and subtle pastel shading"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              background: heatmapMode === 'vibrant'
+                ? isLight ? '#ecfdf5' : '#064e3b'
+                : isLight ? 'var(--surface-2)' : '#0f172a',
+              border: heatmapMode === 'vibrant'
+                ? isLight ? '1px solid #10b981' : '1px solid #059669'
+                : isLight ? '1px solid var(--border-subtle)' : '1px solid rgba(51, 65, 85, 0.7)',
+              color: heatmapMode === 'vibrant'
+                ? isLight ? '#065f46' : '#6ee7b7'
+                : isLight ? 'var(--text-primary)' : '#e2e8f0',
+              padding: '6px 12px',
+              borderRadius: 6,
+              fontSize: '0.74rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              boxShadow: isLight ? 'var(--shadow-sm)' : 'none',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <Palette size={13} />
+            <span>Heatmap: {heatmapMode === 'vibrant' ? 'Vibrant' : 'Subtle'}</span>
+          </button>
+
+          {/* Sort Chronological Direction */}
           <button
             onClick={() => setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')}
             title="Toggle chronological order"
@@ -312,6 +491,7 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
             <span>{sortDirection === 'asc' ? 'Oldest First' : 'Newest First'}</span>
           </button>
 
+          {/* CSV Export */}
           <button
             onClick={handleExportCSV}
             title="Export CSV"
@@ -454,11 +634,14 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
       <div
         style={{
           width: '100%',
+          maxWidth: '100%',
           background: isLight ? '#ffffff' : '#070b13',
-          border: isLight ? '1px solid var(--border-subtle)' : '1px solid rgba(255, 255, 255, 0.08)',
+          border: isLight ? '1px solid var(--border-subtle)' : '1px solid rgba(255, 255, 255, 0.1)',
           borderRadius: 8,
           boxShadow: isLight ? 'var(--shadow-sm)' : '0 8px 30px rgba(0,0,0,0.6)',
           overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
         {/* Table Title Bar (Full width fixed card header, never cuts off when scrolling) */}
@@ -470,9 +653,10 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            borderBottom: isLight ? '1px solid #e2e8f0' : '1px solid rgba(255, 255, 255, 0.1)',
+            borderBottom: isLight ? '1px solid #e2e8f0' : '1px solid rgba(255, 255, 255, 0.12)',
             flexWrap: 'wrap',
             gap: 8,
+            boxSizing: 'border-box',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -499,15 +683,18 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
         <div
           style={{
             width: '100%',
-            overflow: 'auto',
-            maxHeight: 'calc(100vh - 240px)',
+            overflowX: 'auto',
+            overflowY: 'auto',
+            maxHeight: 'calc(100vh - 220px)',
             minHeight: 480,
-            borderBottom: isLight ? '1px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.1)',
+            borderBottom: isLight ? '1px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.12)',
+            WebkitOverflowScrolling: 'touch',
           }}
         >
           <table
             style={{
-              width: '100%',
+              minWidth: '100%',
+              width: 'max-content',
               borderCollapse: 'collapse',
               fontSize: '0.72rem',
               textAlign: 'right',
@@ -531,8 +718,8 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                     padding: '10px 14px',
                     background: isLight ? '#f1f5f9' : '#080d1a',
                     color: isLight ? '#0f172a' : '#ffffff',
-                    borderRight: isLight ? '1px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.12)',
-                    borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.15)',
+                    borderRight: categoryDividers.date,
+                    borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.2)',
                     position: 'sticky',
                     left: 0,
                     top: 0,
@@ -551,9 +738,9 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                     textAlign: 'center',
                     padding: '8px 10px',
                     background: isLight ? '#fee2e2' : '#7f1d1d',
-                    color: isLight ? '#991b1b' : '#ffffff',
-                    borderRight: isLight ? '1px solid #f87171' : '1px solid rgba(255, 255, 255, 0.12)',
-                    borderBottom: isLight ? '1px solid #fca5a5' : '1px solid rgba(255, 255, 255, 0.15)',
+                    color: isLight ? '#7f1d1d' : '#ffffff',
+                    borderRight: categoryDividers.noncomm,
+                    borderBottom: isLight ? '1px solid #fca5a5' : '1px solid rgba(255, 255, 255, 0.18)',
                     fontWeight: 900,
                     position: 'sticky',
                     top: 0,
@@ -570,9 +757,9 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                     textAlign: 'center',
                     padding: '8px 10px',
                     background: isLight ? '#dbeafe' : '#1e3a8a',
-                    color: isLight ? '#1e40af' : '#ffffff',
-                    borderRight: isLight ? '1px solid #60a5fa' : '1px solid rgba(255, 255, 255, 0.12)',
-                    borderBottom: isLight ? '1px solid #93c5fd' : '1px solid rgba(255, 255, 255, 0.15)',
+                    color: isLight ? '#1e3a8a' : '#ffffff',
+                    borderRight: categoryDividers.comm,
+                    borderBottom: isLight ? '1px solid #93c5fd' : '1px solid rgba(255, 255, 255, 0.18)',
                     fontWeight: 900,
                     position: 'sticky',
                     top: 0,
@@ -590,8 +777,8 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                     padding: '8px 10px',
                     background: isLight ? '#ccfbf1' : '#134e4a',
                     color: isLight ? '#0f766e' : '#ffffff',
-                    borderRight: isLight ? '1px solid #2dd4bf' : '1px solid rgba(255, 255, 255, 0.12)',
-                    borderBottom: isLight ? '1px solid #5eead4' : '1px solid rgba(255, 255, 255, 0.15)',
+                    borderRight: categoryDividers.nonrept,
+                    borderBottom: isLight ? '1px solid #5eead4' : '1px solid rgba(255, 255, 255, 0.18)',
                     fontWeight: 900,
                     position: 'sticky',
                     top: 0,
@@ -601,7 +788,7 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                   NON-REPORTABLE (SMALL SPECULATORS)
                 </th>
 
-                {/* OPEN INTEREST & PRICE Band */}
+                {/* OPEN INTEREST & PRICE Band (Sky Blue) */}
                 <th
                   colSpan={2}
                   style={{
@@ -609,7 +796,7 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                     padding: '8px 10px',
                     background: isLight ? '#e0f2fe' : '#075985',
                     color: isLight ? '#0369a1' : '#ffffff',
-                    borderBottom: isLight ? '1px solid #7dd3fc' : '1px solid rgba(255, 255, 255, 0.15)',
+                    borderBottom: isLight ? '1px solid #7dd3fc' : '1px solid rgba(255, 255, 255, 0.18)',
                     fontWeight: 900,
                     position: 'sticky',
                     top: 0,
@@ -620,46 +807,46 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                 </th>
               </tr>
 
-              {/* Header Tier 2 (Sub-Columns with sticky top: 34px and high contrast) */}
+              {/* Header Tier 2 (Sub-Columns with sticky top: 34px and razor-sharp contrast) */}
               <tr
                 style={{
                   fontSize: '0.66rem',
                   fontWeight: 800,
-                  borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.15)',
+                  borderBottom: isLight ? '2px solid #cbd5e1' : '2px solid rgba(255, 255, 255, 0.18)',
                 }}
               >
                 {/* Non-Commercial sub-columns */}
-                <th style={{ padding: '6px 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#991b1b' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>LONGS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#991b1b' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>SHORTS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#991b1b' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>CHANGE LONGS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#991b1b' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>CHANGE SHORTS</th>
+                <th style={{ padding: '6px 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>LONGS</th>
+                <th style={{ padding: '6px 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>SHORTS</th>
+                <th style={{ padding: '6px 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>CHANGE LONGS</th>
+                <th style={{ padding: '6px 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>CHANGE SHORTS</th>
                 <th style={{ padding: '6px 8px', background: isLight ? '#fecaca' : '#5b1212', color: isLight ? '#7f1d1d' : '#ffffff', fontWeight: 900, position: 'sticky', top: 34, zIndex: 20 }}>NET POSITIONS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#991b1b' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>SPREADS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#991b1b' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>%OI SPREADS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#991b1b' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>%OI LONGS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#991b1b' : '#ffffff', borderRight: isLight ? '1px solid #f87171' : '1px solid rgba(255,255,255,0.15)', position: 'sticky', top: 34, zIndex: 20 }}>%OI SHORTS</th>
+                <th style={{ padding: '6px 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>SPREADS</th>
+                <th style={{ padding: '6px 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>%OI SPREADS</th>
+                <th style={{ padding: '6px 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>%OI LONGS</th>
+                <th style={{ padding: '6px 8px', background: isLight ? '#fef2f2' : '#991b1b', color: isLight ? '#7f1d1d' : '#ffffff', borderRight: categoryDividers.noncomm, position: 'sticky', top: 34, zIndex: 20 }}>%OI SHORTS</th>
 
                 {/* Commercial sub-columns */}
-                <th style={{ padding: '6px 8px', background: isLight ? '#eff6ff' : '#1e40af', color: isLight ? '#1e40af' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>LONGS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#eff6ff' : '#1e40af', color: isLight ? '#1e40af' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>SHORTS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#eff6ff' : '#1e40af', color: isLight ? '#1e40af' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>CHANGE LONGS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#eff6ff' : '#1e40af', color: isLight ? '#1e40af' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>CHANGE SHORTS</th>
+                <th style={{ padding: '6px 8px', background: isLight ? '#eff6ff' : '#1d4ed8', color: isLight ? '#1e3a8a' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>LONGS</th>
+                <th style={{ padding: '6px 8px', background: isLight ? '#eff6ff' : '#1d4ed8', color: isLight ? '#1e3a8a' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>SHORTS</th>
+                <th style={{ padding: '6px 8px', background: isLight ? '#eff6ff' : '#1d4ed8', color: isLight ? '#1e3a8a' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>CHANGE LONGS</th>
+                <th style={{ padding: '6px 8px', background: isLight ? '#eff6ff' : '#1d4ed8', color: isLight ? '#1e3a8a' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>CHANGE SHORTS</th>
                 <th style={{ padding: '6px 8px', background: isLight ? '#bfdbfe' : '#172554', color: isLight ? '#1e3a8a' : '#ffffff', fontWeight: 900, position: 'sticky', top: 34, zIndex: 20 }}>NET POSITIONS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#eff6ff' : '#1e40af', color: isLight ? '#1e40af' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>%OI LONGS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#eff6ff' : '#1e40af', color: isLight ? '#1e40af' : '#ffffff', borderRight: isLight ? '1px solid #60a5fa' : '1px solid rgba(255,255,255,0.15)', position: 'sticky', top: 34, zIndex: 20 }}>%OI SHORTS</th>
+                <th style={{ padding: '6px 8px', background: isLight ? '#eff6ff' : '#1d4ed8', color: isLight ? '#1e3a8a' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>%OI LONGS</th>
+                <th style={{ padding: '6px 8px', background: isLight ? '#eff6ff' : '#1d4ed8', color: isLight ? '#1e3a8a' : '#ffffff', borderRight: categoryDividers.comm, position: 'sticky', top: 34, zIndex: 20 }}>%OI SHORTS</th>
 
                 {/* Non-Reportable sub-columns */}
-                <th style={{ padding: '6px 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#0f766e' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>LONGS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#0f766e' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>SHORTS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#0f766e' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>CHANGE LONGS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#0f766e' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>CHANGE SHORTS</th>
+                <th style={{ padding: '6px 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#115e59' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>LONGS</th>
+                <th style={{ padding: '6px 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#115e59' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>SHORTS</th>
+                <th style={{ padding: '6px 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#115e59' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>CHANGE LONGS</th>
+                <th style={{ padding: '6px 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#115e59' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>CHANGE SHORTS</th>
                 <th style={{ padding: '6px 8px', background: isLight ? '#99f6e4' : '#042f2e', color: isLight ? '#115e59' : '#ffffff', fontWeight: 900, position: 'sticky', top: 34, zIndex: 20 }}>NET POSITIONS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#0f766e' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>%OI LONGS</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#0f766e' : '#ffffff', borderRight: isLight ? '1px solid #2dd4bf' : '1px solid rgba(255,255,255,0.15)', position: 'sticky', top: 34, zIndex: 20 }}>%OI SHORTS</th>
+                <th style={{ padding: '6px 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#115e59' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>%OI LONGS</th>
+                <th style={{ padding: '6px 8px', background: isLight ? '#f0fdfa' : '#0f766e', color: isLight ? '#115e59' : '#ffffff', borderRight: categoryDividers.nonrept, position: 'sticky', top: 34, zIndex: 20 }}>%OI SHORTS</th>
 
                 {/* Open Interest sub-columns */}
-                <th style={{ padding: '6px 8px', background: isLight ? '#f0f9ff' : '#0369a1', color: isLight ? '#0369a1' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>TOTAL</th>
-                <th style={{ padding: '6px 8px', background: isLight ? '#f0f9ff' : '#0369a1', color: isLight ? '#0369a1' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>PRICE</th>
+                <th style={{ padding: '6px 8px', background: isLight ? '#f0f9ff' : '#0284c7', color: isLight ? '#075985' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>TOTAL</th>
+                <th style={{ padding: '6px 8px', background: isLight ? '#f0f9ff' : '#0284c7', color: isLight ? '#075985' : '#ffffff', position: 'sticky', top: 34, zIndex: 20 }}>PRICE</th>
               </tr>
             </thead>
 
@@ -706,7 +893,7 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                           padding: '7px 12px',
                           fontWeight: 700,
                           color: isLight ? '#0f172a' : '#f8fafc',
-                          borderRight: isLight ? '1px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.08)',
+                          borderRight: categoryDividers.date,
                           backgroundColor: rowBg,
                           position: 'sticky',
                           left: 0,
@@ -716,104 +903,104 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
                         {r.date_formatted}
                       </td>
 
-                      {/* Non-Commercial (Large Speculators) */}
-                      <td style={{ padding: '7px 8px', color: isLight ? '#1e293b' : '#cbd5e1' }}>
+                      {/* ── Non-Commercial (Large Speculators) ── */}
+                      <td style={{ padding: '7px 8px', ...getLongContractsHeatmap(r.noncomm_long, stats?.noncomm_long) }}>
                         {formatNumber(r.noncomm_long)}
                       </td>
-                      <td style={{ padding: '7px 8px', color: isLight ? '#1e293b' : '#cbd5e1' }}>
+                      <td style={{ padding: '7px 8px', ...getShortContractsHeatmap(r.noncomm_short, stats?.noncomm_short) }}>
                         {formatNumber(r.noncomm_short)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getChangeStyle(r.change_noncomm_long) }}>
+                      <td style={{ padding: '7px 8px', ...getChangeLongsHeatmap(r.change_noncomm_long, stats?.change_noncomm_long_abs) }}>
                         {formatSigned(r.change_noncomm_long)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getChangeStyle(r.change_noncomm_short) }}>
+                      <td style={{ padding: '7px 8px', ...getChangeShortsHeatmap(r.change_noncomm_short, stats?.change_noncomm_short_abs) }}>
                         {formatSigned(r.change_noncomm_short)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getNetStyle(r.noncomm_net, 'noncomm') }}>
+                      <td style={{ padding: '7px 8px', ...getNetPositionsHeatmap(r.noncomm_net, stats?.noncomm_net_abs) }}>
                         {formatNumber(r.noncomm_net)}
                       </td>
-                      <td style={{ padding: '7px 8px', color: isLight ? '#1e293b' : '#cbd5e1' }}>
+                      <td style={{ padding: '7px 8px', ...getSpreadContractsHeatmap(r.noncomm_spreading, stats?.noncomm_spreading) }}>
                         {formatNumber(r.noncomm_spreading)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getSpreadHeatmap(r.pct_oi_noncomm_spreading) }}>
+                      <td style={{ padding: '7px 8px', ...getSpreadPctHeatmap(r.pct_oi_noncomm_spreading, stats?.pct_oi_noncomm_spreading) }}>
                         {formatPercent(r.pct_oi_noncomm_spreading)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getLongHeatmap(r.pct_oi_noncomm_long) }}>
+                      <td style={{ padding: '7px 8px', ...getLongPctHeatmap(r.pct_oi_noncomm_long, stats?.pct_oi_noncomm_long) }}>
                         {formatPercent(r.pct_oi_noncomm_long)}
                       </td>
                       <td
                         style={{
                           padding: '7px 8px',
-                          borderRight: isLight ? '1px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.1)',
-                          ...getShortHeatmap(r.pct_oi_noncomm_short),
+                          borderRight: categoryDividers.noncomm,
+                          ...getShortPctHeatmap(r.pct_oi_noncomm_short, stats?.pct_oi_noncomm_short),
                         }}
                       >
                         {formatPercent(r.pct_oi_noncomm_short)}
                       </td>
 
-                      {/* Commercial (Hedgers) */}
-                      <td style={{ padding: '7px 8px', color: isLight ? '#1e293b' : '#cbd5e1' }}>
+                      {/* ── Commercial (Hedgers) ── */}
+                      <td style={{ padding: '7px 8px', ...getLongContractsHeatmap(r.comm_long, stats?.comm_long) }}>
                         {formatNumber(r.comm_long)}
                       </td>
-                      <td style={{ padding: '7px 8px', color: isLight ? '#1e293b' : '#cbd5e1' }}>
+                      <td style={{ padding: '7px 8px', ...getShortContractsHeatmap(r.comm_short, stats?.comm_short) }}>
                         {formatNumber(r.comm_short)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getChangeStyle(r.change_comm_long) }}>
+                      <td style={{ padding: '7px 8px', ...getChangeLongsHeatmap(r.change_comm_long, stats?.change_comm_long_abs) }}>
                         {formatSigned(r.change_comm_long)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getChangeStyle(r.change_comm_short) }}>
+                      <td style={{ padding: '7px 8px', ...getChangeShortsHeatmap(r.change_comm_short, stats?.change_comm_short_abs) }}>
                         {formatSigned(r.change_comm_short)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getNetStyle(r.comm_net, 'comm') }}>
+                      <td style={{ padding: '7px 8px', ...getNetPositionsHeatmap(r.comm_net, stats?.comm_net_abs) }}>
                         {formatNumber(r.comm_net)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getLongHeatmap(r.pct_oi_comm_long) }}>
+                      <td style={{ padding: '7px 8px', ...getLongPctHeatmap(r.pct_oi_comm_long, stats?.pct_oi_comm_long) }}>
                         {formatPercent(r.pct_oi_comm_long)}
                       </td>
                       <td
                         style={{
                           padding: '7px 8px',
-                          borderRight: isLight ? '1px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.1)',
-                          ...getShortHeatmap(r.pct_oi_comm_short),
+                          borderRight: categoryDividers.comm,
+                          ...getShortPctHeatmap(r.pct_oi_comm_short, stats?.pct_oi_comm_short),
                         }}
                       >
                         {formatPercent(r.pct_oi_comm_short)}
                       </td>
 
-                      {/* Non-Reportable (Small Speculators) */}
-                      <td style={{ padding: '7px 8px', color: isLight ? '#1e293b' : '#cbd5e1' }}>
+                      {/* ── Non-Reportable (Small Speculators) ── */}
+                      <td style={{ padding: '7px 8px', ...getLongContractsHeatmap(r.nonrept_long, stats?.nonrept_long) }}>
                         {formatNumber(r.nonrept_long)}
                       </td>
-                      <td style={{ padding: '7px 8px', color: isLight ? '#1e293b' : '#cbd5e1' }}>
+                      <td style={{ padding: '7px 8px', ...getShortContractsHeatmap(r.nonrept_short, stats?.nonrept_short) }}>
                         {formatNumber(r.nonrept_short)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getChangeStyle(r.change_nonrept_long) }}>
+                      <td style={{ padding: '7px 8px', ...getChangeLongsHeatmap(r.change_nonrept_long, stats?.change_nonrept_long_abs) }}>
                         {formatSigned(r.change_nonrept_long)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getChangeStyle(r.change_nonrept_short) }}>
+                      <td style={{ padding: '7px 8px', ...getChangeShortsHeatmap(r.change_nonrept_short, stats?.change_nonrept_short_abs) }}>
                         {formatSigned(r.change_nonrept_short)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getNetStyle(r.nonrept_net, 'nonrept') }}>
+                      <td style={{ padding: '7px 8px', ...getNetPositionsHeatmap(r.nonrept_net, stats?.nonrept_net_abs) }}>
                         {formatNumber(r.nonrept_net)}
                       </td>
-                      <td style={{ padding: '7px 8px', ...getLongHeatmap(r.pct_oi_nonrept_long) }}>
+                      <td style={{ padding: '7px 8px', ...getLongPctHeatmap(r.pct_oi_nonrept_long, stats?.pct_oi_nonrept_long) }}>
                         {formatPercent(r.pct_oi_nonrept_long)}
                       </td>
                       <td
                         style={{
                           padding: '7px 8px',
-                          borderRight: isLight ? '1px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.1)',
-                          ...getShortHeatmap(r.pct_oi_nonrept_short),
+                          borderRight: categoryDividers.nonrept,
+                          ...getShortPctHeatmap(r.pct_oi_nonrept_short, stats?.pct_oi_nonrept_short),
                         }}
                       >
                         {formatPercent(r.pct_oi_nonrept_short)}
                       </td>
 
-                      {/* Open Interest & Price */}
-                      <td style={{ padding: '7px 8px', ...getOIHeatmap(r.open_interest) }}>
+                      {/* ── Open Interest & Price ── */}
+                      <td style={{ padding: '7px 8px', ...getOIHeatmap(r.open_interest, stats?.open_interest) }}>
                         {formatNumber(r.open_interest)}
                       </td>
-                      <td style={{ padding: '7px 8px', color: isLight ? '#0f172a' : '#f8fafc', fontWeight: 700 }}>
+                      <td style={{ padding: '7px 8px', ...getPriceHeatmap(r.price, stats?.price) }}>
                         {formatPrice(r.price)}
                       </td>
                     </tr>
@@ -864,7 +1051,7 @@ export const COTWeeklyBreakdownTable: React.FC<COTWeeklyBreakdownTableProps> = (
             <span
               style={{
                 background: isLight ? '#fee2e2' : '#7f1d1d',
-                color: isLight ? '#991b1b' : '#fecaca',
+                color: isLight ? '#7f1d1d' : '#fecaca',
                 border: isLight ? '1px solid #fca5a5' : 'none',
                 padding: '2px 8px',
                 borderRadius: 4,
