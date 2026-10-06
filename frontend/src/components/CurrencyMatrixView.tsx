@@ -272,14 +272,14 @@ export const CurrencyMatrixView: React.FC<CurrencyMatrixViewProps> = ({
                 letterSpacing: '0.05em',
               }}
             >
-              {displayCurrencies.length}?{displayCurrencies.length} Cross Matrix
+              {displayCurrencies.length}×{displayCurrencies.length} Cross Matrix
             </span>
           </div>
           <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 4 }}>
-            Base vs. Quote relative fundamental strength model ? Hover cells for driver attribution
+            Base vs. Quote relative fundamental strength model • Hover cells for driver attribution
             {lastRefreshedDate && (
               <span style={{ marginLeft: 8, color: 'var(--text-muted)' }}>
-                ? Synced{' '}
+                • Synced{' '}
                 <span className="mono" style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>
                   {formatTime(lastRefreshedDate, true)}
                 </span>
@@ -550,10 +550,10 @@ export const CurrencyMatrixView: React.FC<CurrencyMatrixViewProps> = ({
         )}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
           <h3 style={{ fontSize: '0.92rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
-            Pair Relative Macro Scores (Row Base ? Column Quote)
+            Pair Relative Macro Scores (Row Base vs. Column Quote)
           </h3>
           <span className="matrix-legend-text" style={{ fontSize: '0.75rem', fontWeight: 600 }}>
-            Green = Base Asset Strength (Bullish Cross) ? Red = Quote Asset Strength ? Click cell to launch Macro Battle
+            Green = Base Asset Strength (Bullish Cross) • Red = Quote Asset Strength • Click cell to launch Macro Battle
           </span>
         </div>
 

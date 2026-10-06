@@ -312,6 +312,7 @@ export function App() {
               initialBase={battleCurrencies.base}
               initialQuote={battleCurrencies.quote}
               onSelectPairAsset={setSelectedAsset}
+              theme={activeTheme}
             />
           ) : activeTab === 'watchlist' ? (
             <WatchlistPortfolio

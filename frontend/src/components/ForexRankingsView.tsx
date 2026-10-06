@@ -54,7 +54,7 @@ export const ForexRankingsView: React.FC<{ onSelectAsset?: (symbol: string) => v
             </span>
           </div>
           <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 4 }}>
-            Ranked by fundamental conviction (|Tactical Macro Score| ? Confidence %) ? Multi-asset quantitative relative value
+            Ranked by fundamental conviction (|Tactical Macro Score| × Confidence %) • Multi-asset quantitative relative value
           </div>
         </div>
 
