@@ -955,6 +955,24 @@ async def get_cot_index_chart(
     )
 
 
+@router.get("/cot/breakdown")
+async def get_cot_breakdown_table(
+    symbol: str = Query("SILVER", description="Contract symbol or CFTC code (e.g. SILVER, GOLD, EUR, JPY, SI, GC)"),
+    timeframe: str = Query("6M", description="Lookback window: 3M, 6M, 1Y, 2Y, 3Y, 5Y, 10Y, YTD"),
+    sort: str = Query("asc", description="Sort order: asc (oldest to newest) or desc (newest to oldest)"),
+):
+    """
+    Retrieve comprehensive weekly COT historical reports breakdown table matching COT-Reports.com format.
+    Includes full Non-Commercial, Commercial, and Non-Reportable Long/Short positions, weekly changes,
+    net positions, spreads, %OI breakdowns, total open interest, and benchmark price.
+    """
+    return COTIndexEngine.get_weekly_breakdown_table(
+        symbol=symbol,
+        timeframe=timeframe,
+        sort=sort,
+    )
+
+
 @router.get("/cot/legacy")
 async def get_legacy_cot_report(
     category: Optional[str] = Query(None, description="Category filter (e.g. CURRENCIES, ENERGIES, FINANCIALS, etc.)"),

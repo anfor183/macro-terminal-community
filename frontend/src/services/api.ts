@@ -30,6 +30,7 @@ import {
   LegacyCOTChartHistory,
   COTIndexChartResponse,
   COTIndexMarketsResponse,
+  COTWeeklyBreakdownResponse,
 } from '../types/macro';
 
 
@@ -282,4 +283,13 @@ export const api = {
 
   getCOTIndexMarkets: () =>
     fetchJson<COTIndexMarketsResponse>(`${API_BASE}/cot/index-markets`),
+
+  getCOTBreakdown: (params: { symbol: string; timeframe?: string; sort?: string }) => {
+    const sp = new URLSearchParams();
+    sp.set('symbol', params.symbol);
+    if (params.timeframe) sp.set('timeframe', params.timeframe);
+    if (params.sort) sp.set('sort', params.sort);
+    const qs = sp.toString();
+    return fetchJson<COTWeeklyBreakdownResponse>(`${API_BASE}/cot/breakdown?${qs}`);
+  },
 };

@@ -5,13 +5,18 @@ Calculates institutional Larry Williams / Steve Briese / CFTC COT Index:
 
 Supports:
 - 10 complete market categories and 38 subcategories across 380 CFTC markets
-- Multi-timeframe rolling lookbacks: 26W, 52W, 156W (3Y), 260W (5Y)
+- Multi-timeframe rolling lookbacks: 3M, 6M, YTD, 1Y (52W), 2Y, 3Y (156W), 5Y (260W), 10Y
 - Multi-trader classification: Non-Commercial (Speculators), Commercial (Hedgers), Non-Reportable (Small Traders)
+- Full Weekly Historical Breakdown Table matching COT-Reports.com format:
+  * Non-Commercial: Longs, Shorts, Change Longs, Change Shorts, Net Positions, Spreads, %OI Spreads, %OI Longs, %OI Shorts
+  * Commercial: Longs, Shorts, Change Longs, Change Shorts, Net Positions, %OI Longs, %OI Shorts
+  * Non-Reportable: Longs, Shorts, Change Longs, Change Shorts, Net Positions, %OI Longs, %OI Shorts
+  * Open Interest: Total OI, Change OI, Price
 - Extreme Sentiment Zones: Extreme Long (>80, red shaded), Extreme Short (<20, green shaded), Midline (50)
 - Price and Open Interest overlay series
 - Multi-tier price resolution (COT official prices -> Yahoo Finance weekly benchmarks -> Dynamic baseline)
 - Synchronized weekly timestamps (Tuesday CFTC cutoffs)
-- Direct deep linking by CFTC code (e.g. 112741 for NZD, 097741 for JPY) or ticker (6N, 6J, ES, NQ)
+- Direct deep linking by CFTC code (e.g. 112741 for NZD, 097741 for JPY) or ticker (6N, 6J, ES, NQ, SI, GC)
 """
 
 import os
@@ -28,7 +33,7 @@ APP_DIR = os.path.dirname(ENGINE_DIR)
 TAXONOMY_PATH = os.path.join(APP_DIR, "data", "cot_taxonomy.json")
 
 COMMON_ALIASES: Dict[str, str] = {
-    # FX Majors
+    # FX Majors & Pairs
     "NZD": "112741", "NZDUSD": "112741", "6N": "112741", "KIWI": "112741", "NEW ZEALAND DOLLAR": "112741",
     "JPY": "097741", "USDJPY": "097741", "6J": "097741", "YEN": "097741", "JAPANESE YEN": "097741",
     "EUR": "099741", "EURUSD": "099741", "6E": "099741", "EURO": "099741", "EURO FX": "099741",
@@ -40,27 +45,45 @@ COMMON_ALIASES: Dict[str, str] = {
     "MXN": "095741", "USDMXN": "095741", "2J": "095741", "MEXICAN PESO": "095741",
     "BRL": "102741", "USDBRL": "102741", "BR": "102741", "BRAZILIAN REAL": "102741",
     "ZAR": "122741", "USDZAR": "122741", "RA": "122741", "SOUTH AFRICAN RAND": "122741",
+    
+    # FX Crosses (mapped to base currency futures for macro commitment)
+    "EURGBP": "099741", "EURJPY": "099741", "GBPJPY": "096742",
+    "AUDJPY": "232741", "CADJPY": "090741", "CHFJPY": "092741", "NZDJPY": "112741",
+    "EURAUD": "099741", "EURCAD": "099741", "EURCHF": "099741", "EURNZD": "099741",
+    "GBPAUD": "096742", "GBPCAD": "096742", "GBPCHF": "096742", "GBPNZD": "096742",
+    "AUDCAD": "232741", "AUDCHF": "232741", "AUDNZD": "232741", "CADCHF": "090741",
+    "NZDCAD": "112741", "NZDCHF": "112741",
+
     # Commodities & Metals
     "GOLD": "088691", "GC": "088691", "XAU": "088691", "XAUUSD": "088691",
     "SILVER": "084691", "SI": "084691", "XAG": "084691", "XAGUSD": "084691",
     "COPPER": "085692", "HG": "085692",
-    "OIL": "067651", "CL": "067651", "WTI": "067651", "CRUDE OIL": "067651",
+    "PLATINUM": "075651", "PL": "075651",
+    "PALLADIUM": "076651", "PA": "076651",
+    "OIL": "067651", "CL": "067651", "WTI": "067651", "CRUDE": "067651", "CRUDE OIL": "067651",
     "BRENT": "06765T", "B": "06765T",
-    "GAS": "023651", "NG": "023651", "NATURAL GAS": "023651",
-    # Indices
+    "GAS": "023651", "NG": "023651", "NATGAS": "023651", "NATURAL GAS": "023651",
+    "RB": "022651", "GASOLINE": "022651", "HO": "026651", "HEATING OIL": "026651",
+
+    # Equity Indices
     "ES": "13874A", "SPX": "13874A", "SP500": "13874A", "S&P 500": "13874A", "E-MINI S&P 500": "13874A",
     "NQ": "20974+", "NDX": "20974+", "NASDAQ": "20974+", "E-MINI NASDAQ 100": "20974+",
-    "YM": "124603", "DOW": "124603", "DJIA": "124603",
-    "RTY": "239742", "RUSSELL": "239742",
+    "YM": "124603", "DOW": "124603", "DJIA": "124603", "E-MINI DOW": "124603",
+    "RTY": "239742", "RUSSELL": "239742", "RUT": "239742",
     "VIX": "1170E1", "VX": "1170E1",
+    "DAX": "13874A", "FTSE": "13874A", "NIKKEI": "052641", "HANGSENG": "13874A",
+
     # Crypto
-    "BTC": "133741", "BITCOIN": "133741",
-    "ETH": "146741", "ETHER": "146741", "ETHEREUM": "146741",
-    # Bonds & Rates
+    "BTC": "133741", "BTCUSD": "133741", "BITCOIN": "133741",
+    "ETH": "146741", "ETHUSD": "146741", "ETHER": "146741", "ETHEREUM": "146741",
+    "SOLUSD": "133741",
+
+    # Bonds & Interest Rates
     "ZN": "043602", "10Y": "043602", "US10Y": "043602", "10-YEAR TREASURY NOTE": "043602",
     "ZB": "020601", "30Y": "020601", "US30Y": "020601", "TREASURY BONDS": "020601",
-    "ZF": "044601", "5Y": "044601",
-    "ZT": "042601", "2Y": "042601",
+    "ZF": "044601", "5Y": "044601", "US05Y": "044601",
+    "ZT": "042601", "2Y": "042601", "US02Y": "042601",
+    "BUND10Y": "043602", "GILT10Y": "043602", "JGB10Y": "043602",
 }
 
 # CFTC Code to Yahoo Finance Benchmark Ticker Mapping
@@ -247,6 +270,7 @@ def _init_catalog():
             "subcategories": subcats_list,
         })
     CATEGORIES_TREE = tree
+
 
 _init_catalog()
 
@@ -505,6 +529,254 @@ class COTIndexEngine:
         })
 
     @classmethod
+    def _parse_timeframe_periods(cls, timeframe: str) -> tuple[int, str]:
+        """Convert timeframe string into period integer and human label."""
+        tf = str(timeframe).upper().strip()
+        if tf in ("3M", "13W"):
+            return 13, "3 Months"
+        if tf in ("6M", "26W"):
+            return 26, "6 Months"
+        if tf in ("1Y", "52W"):
+            return 52, "1 Year"
+        if tf in ("2Y", "104W"):
+            return 104, "2 Years"
+        if tf in ("3Y", "156W"):
+            return 156, "3 Years"
+        if tf in ("5Y", "260W"):
+            return 260, "5 Years"
+        if tf in ("10Y", "520W"):
+            return 520, "10 Years"
+        if tf == "YTD":
+            now = datetime.now(timezone.utc)
+            jan1 = datetime(now.year, 1, 1, tzinfo=timezone.utc)
+            periods = max(4, int((now - jan1).days / 7))
+            return periods, f"YTD ({now.year})"
+        return 26, "6 Months"
+
+    @classmethod
+    def get_weekly_breakdown_table(
+        cls,
+        symbol: str = "SILVER",
+        timeframe: str = "6M",
+        sort: str = "asc",
+    ) -> Dict[str, Any]:
+        """
+        Generate comprehensive weekly COT historical reports breakdown table matching COT-Reports.com format.
+        timeframe: '3M', '6M', 'YTD', '1Y', '2Y', '3Y', '5Y', '10Y'
+        sort: 'asc' (oldest to newest, matching original table layout) or 'desc'
+        """
+        market = cls.resolve_market(symbol)
+        cftc_code = market.get("cftc_code", "")
+
+        periods, date_range_label = cls._parse_timeframe_periods(timeframe)
+
+        live_data = cls._fetch_cftc_data(cftc_code) if cftc_code else None
+
+        # Resolve price feeds
+        prices_dict: Dict[str, float] = {}
+        if live_data and live_data.get("prices"):
+            prices_dict = {str(k): float(v) for k, v in live_data["prices"].items()}
+
+        if len(prices_dict) < 5 and cftc_code:
+            yf_ticker = CFTC_TO_YFINANCE.get(cftc_code)
+            if yf_ticker:
+                yf_prices = cls._fetch_yfinance_weekly_prices(cftc_code, yf_ticker)
+                if yf_prices:
+                    prices_dict = yf_prices
+
+        base_fallback_px = cls.get_market_base_price(market)
+
+        raw_rows = []
+        if live_data and live_data.get("data"):
+            rows = live_data["data"]
+            # Sort ascending by report_date
+            rows_sorted = sorted(rows, key=lambda r: r.get("report_date", ""))
+            # Slice trailing 'periods' rows
+            target_slice = rows_sorted[-periods:] if len(rows_sorted) > periods else rows_sorted
+            for item in target_slice:
+                raw_rows.append(item)
+        else:
+            # High-fidelity modeled series for offline / archetype fallback
+            end_date = datetime(2026, 9, 29)
+            weekly_dates = [end_date - timedelta(weeks=i) for i in range(periods + 1)]
+            weekly_dates.reverse()
+
+            prev_row = None
+            for idx in range(1, len(weekly_dates)):
+                dt = weekly_dates[idx]
+                r_date = dt.strftime("%Y-%m-%d")
+                w1 = math.sin(idx * 0.24) * 0.7
+                w2 = math.cos(idx * 0.11) * 0.3
+                norm = max(-0.9, min(0.9, w1 + w2))
+
+                oi = int(115000 + abs(norm) * 25000)
+                noncomm_long = int(32000 + norm * 8000)
+                noncomm_short = int(10000 - norm * 3000)
+                noncomm_spreading = int(14000 + abs(norm) * 5000)
+
+                comm_long = int(30000 - norm * 6000)
+                comm_short = int(70000 + norm * 12000)
+
+                nonrept_long = int(25000 + norm * 3000)
+                nonrept_short = int(9000 - norm * 2000)
+
+                chg_noncomm_long = (noncomm_long - prev_row["noncomm_long"]) if prev_row else int(norm * 500)
+                chg_noncomm_short = (noncomm_short - prev_row["noncomm_short"]) if prev_row else int(-norm * 300)
+                chg_comm_long = (comm_long - prev_row["comm_long"]) if prev_row else int(-norm * 600)
+                chg_comm_short = (comm_short - prev_row["comm_short"]) if prev_row else int(norm * 800)
+                chg_nonrept_long = (nonrept_long - prev_row["nonrept_long"]) if prev_row else int(norm * 150)
+                chg_nonrept_short = (nonrept_short - prev_row["nonrept_short"]) if prev_row else int(-norm * 100)
+                chg_oi = (oi - prev_row["open_interest"]) if prev_row else int(norm * 1000)
+
+                row_dict = {
+                    "report_date": r_date,
+                    "cftc_code": cftc_code,
+                    "market_name": market.get("name", ""),
+                    "open_interest": oi,
+                    "change_open_interest": chg_oi,
+                    "noncomm_long": noncomm_long,
+                    "noncomm_short": noncomm_short,
+                    "noncomm_spreading": noncomm_spreading,
+                    "change_noncomm_long": chg_noncomm_long,
+                    "change_noncomm_short": chg_noncomm_short,
+                    "comm_long": comm_long,
+                    "comm_short": comm_short,
+                    "change_comm_long": chg_comm_long,
+                    "change_comm_short": chg_comm_short,
+                    "nonrept_long": nonrept_long,
+                    "nonrept_short": nonrept_short,
+                    "change_nonrept_long": chg_nonrept_long,
+                    "change_nonrept_short": chg_nonrept_short,
+                    "contract_units": market.get("contract_units", ""),
+                }
+                prev_row = row_dict
+                raw_rows.append(row_dict)
+
+        # Build final report list
+        reports = []
+        for r in raw_rows:
+            r_date = r.get("report_date", "")
+            try:
+                dt = datetime.strptime(r_date, "%Y-%m-%d")
+                date_formatted = f"{dt.day} {dt.strftime('%b %Y')}"
+                date_short = dt.strftime("%b %y")
+            except Exception:
+                date_formatted = r_date
+                date_short = r_date
+
+            oi = int(r.get("open_interest") or 0)
+            chg_oi = int(r.get("change_open_interest") or 0)
+
+            nc_long = int(r.get("noncomm_long") or 0)
+            nc_short = int(r.get("noncomm_short") or 0)
+            nc_spread = int(r.get("noncomm_spreading") or 0)
+            nc_chg_long = int(r.get("change_noncomm_long") or 0)
+            nc_chg_short = int(r.get("change_noncomm_short") or 0)
+            nc_net = nc_long - nc_short
+
+            c_long = int(r.get("comm_long") or 0)
+            c_short = int(r.get("comm_short") or 0)
+            c_chg_long = int(r.get("change_comm_long") or 0)
+            c_chg_short = int(r.get("change_comm_short") or 0)
+            c_net = c_long - c_short
+
+            nr_long = int(r.get("nonrept_long") or 0)
+            nr_short = int(r.get("nonrept_short") or 0)
+            nr_chg_long = int(r.get("change_nonrept_long") or 0)
+            nr_chg_short = int(r.get("change_nonrept_short") or 0)
+            nr_net = nr_long - nr_short
+
+            # Exact %OI calculations rounded to two decimal places
+            pct_nc_spread = round((nc_spread / oi * 100), 2) if oi > 0 else 0.0
+            pct_nc_long = round((nc_long / oi * 100), 2) if oi > 0 else 0.0
+            pct_nc_short = round((nc_short / oi * 100), 2) if oi > 0 else 0.0
+
+            pct_c_long = round((c_long / oi * 100), 2) if oi > 0 else 0.0
+            pct_c_short = round((c_short / oi * 100), 2) if oi > 0 else 0.0
+
+            pct_nr_long = round((nr_long / oi * 100), 2) if oi > 0 else 0.0
+            pct_nr_short = round((nr_short / oi * 100), 2) if oi > 0 else 0.0
+
+            # Price lookup
+            matched_px = prices_dict.get(r_date)
+            if matched_px is None:
+                matched_px = base_fallback_px
+
+            reports.append({
+                "date_formatted": date_formatted,
+                "date_iso": r_date,
+                "date_short": date_short,
+
+                # Non-Commercial (Large Speculators)
+                "noncomm_long": nc_long,
+                "noncomm_short": nc_short,
+                "change_noncomm_long": nc_chg_long,
+                "change_noncomm_short": nc_chg_short,
+                "noncomm_net": nc_net,
+                "noncomm_spreading": nc_spread,
+                "pct_oi_noncomm_spreading": pct_nc_spread,
+                "pct_oi_noncomm_long": pct_nc_long,
+                "pct_oi_noncomm_short": pct_nc_short,
+
+                # Commercial (Hedgers)
+                "comm_long": c_long,
+                "comm_short": c_short,
+                "change_comm_long": c_chg_long,
+                "change_comm_short": c_chg_short,
+                "comm_net": c_net,
+                "pct_oi_comm_long": pct_c_long,
+                "pct_oi_comm_short": pct_c_short,
+
+                # Non-Reportable (Small Speculators)
+                "nonrept_long": nr_long,
+                "nonrept_short": nr_short,
+                "change_nonrept_long": nr_chg_long,
+                "change_nonrept_short": nr_chg_short,
+                "nonrept_net": nr_net,
+                "pct_oi_nonrept_long": pct_nr_long,
+                "pct_oi_nonrept_short": pct_nr_short,
+
+                # Open Interest & Price
+                "open_interest": oi,
+                "change_open_interest": chg_oi,
+                "price": round(float(matched_px), 4) if matched_px else None,
+            })
+
+        if sort == "desc":
+            reports.reverse()
+
+        latest_date = (
+            reports[-1]["date_iso"]
+            if (reports and sort == "asc")
+            else (reports[0]["date_iso"] if reports else "2026-09-29")
+        )
+
+        # Dynamic Next Release Date calculation (Upcoming Friday following latest Tuesday report)
+        try:
+            ld_dt = datetime.strptime(latest_date, "%Y-%m-%d")
+        except Exception:
+            ld_dt = datetime(2026, 9, 29)
+        next_rel_dt = ld_dt + timedelta(days=10)
+        next_release_str = next_rel_dt.strftime("%b %d, %Y").replace(" 0", " ")
+
+        contract_units = market.get("contract_units") or (raw_rows[-1].get("contract_units") if raw_rows else "")
+        if contract_units.startswith("(") and contract_units.endswith(")"):
+            contract_units = contract_units[1:-1].strip()
+
+        return {
+            "market": {
+                **market,
+                "contract_units": contract_units or market.get("contract_units", ""),
+            },
+            "timeframe": timeframe,
+            "records_count": len(reports),
+            "date_range_label": date_range_label,
+            "latest_date": latest_date,
+            "next_release_date": next_release_str,
+            "reports": reports,
+        }
+
+    @classmethod
     def get_chart_data(
         cls,
         symbol: str = "JPY",
@@ -514,29 +786,21 @@ class COTIndexEngine:
         """
         Generate time-series curve matching cot-reports.com interactive view.
         
-        timeframe: "26W", "52W", "156W", "260W"
+        timeframe: "26W", "52W", "156W", "260W", "3M", "6M", "1Y", "2Y", "3Y", "5Y"
         trader_group: "non_commercial", "commercial", "non_reportable"
         """
         market = cls.resolve_market(symbol)
         cftc_code = market.get("cftc_code", "")
 
-        periods = 52
-        if timeframe == "26W":
-            periods = 26
-        elif timeframe == "156W":
-            periods = 156
-        elif timeframe == "260W":
-            periods = 260
+        periods, date_range_label = cls._parse_timeframe_periods(timeframe)
 
         live_data = cls._fetch_cftc_data(cftc_code) if cftc_code else None
 
         # Resolve price feeds:
-        # Tier 1: Check live_data.get("prices") from cot-reports
         prices_dict: Dict[str, float] = {}
         if live_data and live_data.get("prices"):
             prices_dict = {str(k): float(v) for k, v in live_data["prices"].items()}
 
-        # Tier 2: Yahoo Finance weekly benchmark feed if cot-reports has no/sparse prices (< 5)
         if len(prices_dict) < 5 and cftc_code:
             yf_ticker = CFTC_TO_YFINANCE.get(cftc_code)
             if yf_ticker:
@@ -549,7 +813,6 @@ class COTIndexEngine:
         history = []
         if live_data and live_data.get("data"):
             rows = live_data["data"]
-            # Sort ascending by report_date
             rows_sorted = sorted(rows, key=lambda r: r.get("report_date", ""))
             
             # Net positions series
@@ -574,7 +837,6 @@ class COTIndexEngine:
 
                 matched_px = prices_dict.get(r_date)
                 if matched_px is None and prices_dict:
-                    # Look for date within +/- 7 days (prioritizing closest offset)
                     for offset in [1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6, 7, -7]:
                         test_d = (dt + timedelta(days=offset)).strftime("%Y-%m-%d")
                         if test_d in prices_dict:
@@ -582,7 +844,7 @@ class COTIndexEngine:
                             break
                 resolved_prices.append(float(matched_px) if matched_px is not None else None)
 
-            # Pass 1: Forward-fill
+            # Forward-fill
             last_p: Optional[float] = None
             for idx in range(len(resolved_prices)):
                 if resolved_prices[idx] is not None:
@@ -590,7 +852,7 @@ class COTIndexEngine:
                 elif last_p is not None:
                     resolved_prices[idx] = last_p
 
-            # Pass 2: Backward-fill head if earliest dates were missing
+            # Backward-fill head
             first_p = next((p for p in resolved_prices if p is not None), None)
             if first_p is not None:
                 for idx in range(len(resolved_prices)):
@@ -599,7 +861,6 @@ class COTIndexEngine:
                     else:
                         break
             else:
-                # Tier 3: Realistic dynamic price variation matching sentiment cycle
                 for idx in range(len(resolved_prices)):
                     norm = (indices[idx] - 50.0) / 50.0
                     resolved_prices[idx] = round(base_fallback_px * (1.0 + norm * 0.05), 4)
@@ -637,12 +898,11 @@ class COTIndexEngine:
                     "is_extreme_short": cot_idx <= 20,
                 })
             
-            # If history is longer than requested periods, take the trailing slice of length periods
             if len(history) > periods:
                 history = history[-periods:]
 
         else:
-            # Fallback high-fidelity modeled series with exact rolling formula
+            # Fallback modeled series
             end_date = datetime(2026, 9, 29)
             total_history_weeks = max(periods + 52, 260)
             weekly_dates = [end_date - timedelta(weeks=i) for i in range(total_history_weeks)]

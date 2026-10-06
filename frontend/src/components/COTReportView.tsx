@@ -17,12 +17,14 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { api } from '../services/api';
+import { COTWeeklyBreakdownTable } from './COTWeeklyBreakdownTable';
 import {
   LegacyCOTReportResponse,
   COTReportRow,
   COTIndexChartResponse,
   COTMarketInfo,
   COTCategoryItem,
+  COTWeeklyBreakdownResponse,
 } from '../types/macro';
 
 interface COTReportViewProps {
@@ -74,7 +76,10 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
 
   const isLight = activeTheme === 'light';
   // Navigation View Mode: 'studio' (cot-reports.com graphics), 'table' (legacy grid), 'both'
-  const [viewMode, setViewMode] = useState<'both' | 'studio' | 'table'>('both');
+  // Navigation View Mode: 'breakdown' (COT Reports Table), 'both' (Split Studio + Table), 'studio' (Chart), 'table' (All-Markets Grid)
+  const [viewMode, setViewMode] = useState<'breakdown' | 'both' | 'studio' | 'table'>('breakdown');
+  const [breakdownData, setBreakdownData] = useState<COTWeeklyBreakdownResponse | null>(null);
+  const [breakdownLoading, setBreakdownLoading] = useState<boolean>(true);
 
   // ── COT Index Studio State (cot-reports.com style) ─────────────────────────
   // Read initial market from URL query param ?m=112741 if present
@@ -92,7 +97,7 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
   };
 
   const [activeSymbol, setActiveSymbol] = useState<string>(getInitialMarket);
-  const [timeframe, setTimeframe] = useState<string>('52W');
+  const [timeframe, setTimeframe] = useState<string>('6M');
   const [traderCategory, setTraderCategory] = useState<string>('non_commercial'); // 'non_commercial', 'commercial', 'non_reportable'
   const [marketSearch, setMarketSearch] = useState<string>('');
   const [marketsList, setMarketsList] = useState<COTMarketInfo[]>([]);
@@ -150,6 +155,25 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
       // Ignored in non-browser context
     }
   }, [activeSymbol, chartData]);
+
+
+  // Load Weekly Breakdown Table Data
+  const loadBreakdownData = () => {
+    setBreakdownLoading(true);
+    api.getCOTBreakdown({
+      symbol: activeSymbol,
+      timeframe,
+    })
+      .then((res) => {
+        setBreakdownData(res);
+      })
+      .catch((err) => console.error('Failed to load COT breakdown table', err))
+      .finally(() => setBreakdownLoading(false));
+  };
+
+  useEffect(() => {
+    loadBreakdownData();
+  }, [activeSymbol, timeframe]);
 
   // Load COT Index Chart Data
   const loadChartData = () => {
@@ -429,7 +453,7 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
           </span>
         </div>
 
-        {/* View Mode Toggle: Both, Studio, Grid */}
+        {/* View Mode Toggle: Breakdown Table, Both, Studio, Grid */}
         <div
           style={{
             display: 'flex',
@@ -441,6 +465,58 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
             gap: 2,
           }}
         >
+          <button
+            onClick={() => setViewMode('breakdown')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              background:
+                viewMode === 'breakdown'
+                  ? isLight ? 'rgba(20, 184, 166, 0.15)' : 'rgba(20, 184, 166, 0.2)'
+                  : 'transparent',
+              border:
+                viewMode === 'breakdown'
+                  ? isLight ? '1px solid rgba(13, 148, 136, 0.4)' : '1px solid rgba(20, 184, 166, 0.5)'
+                  : '1px solid transparent',
+              color: viewMode === 'breakdown' ? (isLight ? '#0f766e' : '#2dd4bf') : 'var(--text-secondary)',
+              fontSize: '0.78rem',
+              fontWeight: viewMode === 'breakdown' ? 700 : 500,
+              padding: '5px 12px',
+              borderRadius: 4,
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <Table size={14} />
+            COT Reports Table
+          </button>
+          <button
+            onClick={() => setViewMode('both')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              background:
+                viewMode === 'both'
+                  ? isLight ? 'rgba(20, 184, 166, 0.15)' : 'rgba(20, 184, 166, 0.2)'
+                  : 'transparent',
+              border:
+                viewMode === 'both'
+                  ? isLight ? '1px solid rgba(13, 148, 136, 0.4)' : '1px solid rgba(20, 184, 166, 0.5)'
+                  : '1px solid transparent',
+              color: viewMode === 'both' ? (isLight ? '#0f766e' : '#2dd4bf') : 'var(--text-secondary)',
+              fontSize: '0.78rem',
+              fontWeight: viewMode === 'both' ? 700 : 500,
+              padding: '5px 12px',
+              borderRadius: 4,
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <Layers size={14} />
+            Full Terminal (Split)
+          </button>
           <button
             onClick={() => setViewMode('studio')}
             style={{
@@ -490,34 +566,8 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
               transition: 'all 0.15s ease',
             }}
           >
-            <Table size={14} />
-            Legacy Grid
-          </button>
-          <button
-            onClick={() => setViewMode('both')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              background:
-                viewMode === 'both'
-                  ? isLight ? 'rgba(20, 184, 166, 0.15)' : 'rgba(20, 184, 166, 0.2)'
-                  : 'transparent',
-              border:
-                viewMode === 'both'
-                  ? isLight ? '1px solid rgba(13, 148, 136, 0.4)' : '1px solid rgba(20, 184, 166, 0.5)'
-                  : '1px solid transparent',
-              color: viewMode === 'both' ? (isLight ? '#0f766e' : '#2dd4bf') : 'var(--text-secondary)',
-              fontSize: '0.78rem',
-              fontWeight: viewMode === 'both' ? 700 : 500,
-              padding: '5px 12px',
-              borderRadius: 4,
-              cursor: 'pointer',
-              transition: 'all 0.15s ease',
-            }}
-          >
-            <Layers size={14} />
-            Full Terminal (Split)
+            <SlidersHorizontal size={14} />
+            All-Markets Grid
           </button>
         </div>
       </div>
@@ -525,7 +575,7 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
       {/* ═══════════════════════════════════════════════════════════════════════
           SECTION 1: COT INDEX STUDIO (cot-reports.com Graphics Design)
       ══════════════════════════════════════════════════════════════════════════ */}
-      {(viewMode === 'studio' || viewMode === 'both') && (
+      {(viewMode === 'breakdown' || viewMode === 'studio' || viewMode === 'both') && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {/* ── Configuration Parameters Card (Matching cot-reports.com) ────────── */}
           <div
@@ -907,6 +957,9 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
             </button>
           </div>
 
+          {/* ── Main COT Index Chart (Rendered for Studio or Both) ── */}
+          {(viewMode === 'studio' || viewMode === 'both') && (
+            <>
           {/* ── Trader Category Selector Bar ───────────────────────────────── */}
           <div
             style={{
@@ -1700,13 +1753,26 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
               </div>
             </div>
           </div>
+            </>
+          )}
+
+          {/* ── Historical COT Reports Breakdown Table (Rendered for Breakdown or Both) ── */}
+          {(viewMode === 'breakdown' || viewMode === 'both') && (
+            <COTWeeklyBreakdownTable
+              data={breakdownData}
+              loading={breakdownLoading}
+              timeframe={timeframe}
+              onTimeframeChange={(tf) => setTimeframe(tf)}
+              isLight={isLight}
+            />
+          )}
         </div>
       )}
 
       {/* ═══════════════════════════════════════════════════════════════════════
           SECTION 2: BARCHART LEGACY NET POSITIONS GRID
       ══════════════════════════════════════════════════════════════════════════ */}
-      {(viewMode === 'table' || viewMode === 'both') && (
+      {viewMode === 'table' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {/* Controls Bar */}
           <div

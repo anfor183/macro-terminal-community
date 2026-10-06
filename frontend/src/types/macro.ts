@@ -939,3 +939,45 @@ export interface COTIndexMarketsResponse {
   categories?: COTCategoryItem[];
 }
 
+
+export interface COTWeeklyBreakdownRow {
+  date_formatted: string;
+  date_iso: string;
+  date_short: string;
+  noncomm_long: number;
+  noncomm_short: number;
+  change_noncomm_long: number;
+  change_noncomm_short: number;
+  noncomm_net: number;
+  noncomm_spreading: number;
+  pct_oi_noncomm_spreading: number;
+  pct_oi_noncomm_long: number;
+  pct_oi_noncomm_short: number;
+  comm_long: number;
+  comm_short: number;
+  change_comm_long: number;
+  change_comm_short: number;
+  comm_net: number;
+  pct_oi_comm_long: number;
+  pct_oi_comm_short: number;
+  nonrept_long: number;
+  nonrept_short: number;
+  change_nonrept_long: number;
+  change_nonrept_short: number;
+  nonrept_net: number;
+  pct_oi_nonrept_long: number;
+  pct_oi_nonrept_short: number;
+  open_interest: number;
+  change_open_interest: number;
+  price?: number;
+}
+
+export interface COTWeeklyBreakdownResponse {
+  market: COTMarketInfo;
+  timeframe: string;
+  records_count: number;
+  date_range_label: string;
+  latest_date: string;
+  next_release_date: string;
+  reports: COTWeeklyBreakdownRow[];
+}
