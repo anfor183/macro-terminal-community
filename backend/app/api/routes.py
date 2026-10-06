@@ -69,6 +69,31 @@ router = APIRouter()
 calendar_provider = EconomicCalendarProvider()
 ai_service = MacroAIService()
 
+_vix_cache: Dict[str, Any] = {"val": 15.4, "timestamp": 0.0}
+
+
+def get_live_vix_score() -> float:
+    """Fetch live CBOE VIX index with a 5-minute memory cache and graceful fallback."""
+    import time
+    import yfinance as yf
+    now = time.time()
+    if now - _vix_cache["timestamp"] < 300.0:
+        return _vix_cache["val"]
+    try:
+        ticker = yf.Ticker("^VIX")
+        price = getattr(ticker.fast_info, "last_price", None)
+        if not price or price <= 0:
+            hist = ticker.history(period="2d")
+            if not hist.empty:
+                price = float(hist["Close"].iloc[-1])
+        if price and price > 0:
+            _vix_cache["val"] = round(float(price), 1)
+            _vix_cache["timestamp"] = now
+            return _vix_cache["val"]
+    except Exception:
+        pass
+    return _vix_cache["val"]
+
 
 @router.get("/macro/regime")
 async def get_macro_regime(db: AsyncSession = Depends(get_db)):
@@ -109,11 +134,14 @@ async def get_macro_regime(db: AsyncSession = Depends(get_db)):
         avg_z = sum(zscores) / len(zscores) if zscores else -0.2
         inflation_momentum = round(max(-30.0, min(30.0, avg_z * 15.0)), 1)
 
+        # 4. Volatility regime from live CBOE VIX
+        vix_score = get_live_vix_score()
+
         return detect_macro_regime(
             global_growth_score=growth_score,
             inflation_momentum=inflation_momentum,
             liquidity_score=liquidity_score,
-            vix_volatility_score=16.5,
+            vix_volatility_score=vix_score,
         )
     except Exception as exc:
         return detect_macro_regime()

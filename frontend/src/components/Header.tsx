@@ -354,8 +354,9 @@ export const Header: React.FC<HeaderProps> = ({
                   gap: 5,
                   fontSize: '0.72rem',
                   fontWeight: 700,
+                  cursor: 'help',
                 }}
-                title={`Macro Regime: ${regime.risk_sentiment} • ${regime.growth_cycle}`}
+                title={`Macro Regime: ${regime.primary_regime || `${regime.risk_sentiment} ? ${regime.growth_cycle}`}\n${regime.summary || ''}\n\nKey Drivers:\n${(regime.key_drivers || []).map((d: string) => `? ${d}`).join('\n')}`}
               >
                 <span
                   style={{

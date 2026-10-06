@@ -76,7 +76,7 @@ def detect_macro_regime(
         "key_drivers": [
             f"Global growth momentum tracking at {global_growth_score:+.1f}",
             f"Inflation momentum annualized at {inflation_momentum:+.1f}",
-            f"Central bank liquidity impulse scored at {liquidity_score:+.1f}"
-        ],
+            f"Central bank liquidity impulse scored at {liquidity_score:+.1f}",
+            f"CBOE VIX volatility tracking at {vix_volatility_score:.1f} ({'Subdued / Risk-Seeking' if vix_volatility_score < 18.0 else 'Elevated Caution' if vix_volatility_score < 25.0 else 'High Fear'})"],
         "timestamp": datetime.now(timezone.utc),
     }
