@@ -26,6 +26,10 @@ import {
   CopilotResponse,
   RAGSearchResponse,
   NLPSentimentAnalysis,
+  LegacyCOTReportResponse,
+  LegacyCOTChartHistory,
+  COTIndexChartResponse,
+  COTIndexMarketsResponse,
 } from '../types/macro';
 
 
@@ -243,4 +247,39 @@ export const api = {
     fetchJson<any>(`${API_BASE}/vps/toggle-mode?mode=${encodeURIComponent(mode)}`, {
       method: 'POST',
     }),
+
+  // Legacy Commitments of Traders (COT) Reports & Analytics
+  getLegacyCOTReport: (params?: {
+    category?: string;
+    trader_group?: string;
+    search?: string;
+    detailed?: boolean;
+  }) => {
+    const sp = new URLSearchParams();
+    if (params?.category) sp.set('category', params.category);
+    if (params?.trader_group) sp.set('trader_group', params.trader_group);
+    if (params?.search) sp.set('search', params.search);
+    if (params?.detailed !== undefined) sp.set('detailed', params.detailed.toString());
+    const qs = sp.toString();
+    return fetchJson<LegacyCOTReportResponse>(`${API_BASE}/cot/legacy${qs ? `?${qs}` : ''}`);
+  },
+
+  getLegacyCOTChart: (symbol: string) =>
+    fetchJson<LegacyCOTChartHistory>(`${API_BASE}/cot/legacy/chart/${encodeURIComponent(symbol)}`),
+
+  getCOTIndexChart: (params?: {
+    symbol?: string;
+    timeframe?: string;
+    trader_group?: string;
+  }) => {
+    const sp = new URLSearchParams();
+    if (params?.symbol) sp.set('symbol', params.symbol);
+    if (params?.timeframe) sp.set('timeframe', params.timeframe);
+    if (params?.trader_group) sp.set('trader_group', params.trader_group);
+    const qs = sp.toString();
+    return fetchJson<COTIndexChartResponse>(`${API_BASE}/cot/index-chart${qs ? `?${qs}` : ''}`);
+  },
+
+  getCOTIndexMarkets: () =>
+    fetchJson<COTIndexMarketsResponse>(`${API_BASE}/cot/index-markets`),
 };

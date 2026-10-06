@@ -1113,7 +1113,7 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
                       key={tfLabel}
                       onClick={() => setTimeframe(tfCode)}
                       style={{
-                        background: active ? '#0d9488' : '#0f172a',
+                        background: active ? '#0d9488' : isLight ? 'var(--surface-2)' : '#0f172a',
                         color: active ? '#ffffff' : isLight ? 'var(--text-secondary)' : '#94a3b8',
                         border: active
                           ? '1px solid #14b8a6'
@@ -1135,9 +1135,9 @@ export const COTReportView: React.FC<COTReportViewProps> = ({ onSelectAsset, the
                   onClick={handleExportCSV}
                   title="Export Chart CSV"
                   style={{
-                    background: '#0f172a',
+                    background: isLight ? 'var(--surface-2)' : '#0f172a',
                     border: isLight ? '1px solid var(--border-subtle)' : '1px solid rgba(51, 65, 85, 0.7)',
-                    color: '#94a3b8',
+                    color: isLight ? 'var(--text-secondary)' : '#94a3b8',
                     padding: '5px 8px',
                     borderRadius: 4,
                     cursor: 'pointer',

@@ -41,14 +41,14 @@ export const MacroBattleView: React.FC<MacroBattleViewProps> = ({
   }, []);
 
   const currencies = [
-    { code: 'USD', name: 'US Dollar', flag: '????', defaultScore: -16.8, yield: 4.25, policy: 'Active Easing (Dovish)', growth: 'Resilient' },
-    { code: 'EUR', name: 'Euro', flag: '????', defaultScore: -1.7, yield: 2.38, policy: 'Gradual Easing', growth: 'Stabilizing' },
-    { code: 'GBP', name: 'British Pound', flag: '????', defaultScore: 6.1, yield: 4.12, policy: 'Cautious Cuts', growth: 'Sluggish' },
-    { code: 'JPY', name: 'Japanese Yen', flag: '????', defaultScore: 5.0, yield: 1.05, policy: 'Normalization (Hawkish)', growth: 'Weak Domestic' },
-    { code: 'CAD', name: 'Canadian Dollar', flag: '????', defaultScore: -21.1, yield: 3.25, policy: 'Active Easing', growth: 'Moderate' },
-    { code: 'AUD', name: 'Australian Dollar', flag: '????', defaultScore: 3.8, yield: 4.10, policy: 'Restrictive Hold', growth: 'China Drag' },
-    { code: 'NZD', name: 'New Zealand Dollar', flag: '????', defaultScore: -17.6, yield: 4.50, policy: 'Accelerated Cuts', growth: 'Recessionary' },
-    { code: 'CHF', name: 'Swiss Franc', flag: '????', defaultScore: -8.8, yield: 1.00, policy: 'Accommodative', growth: 'Subdued' },
+    { code: 'USD', name: 'US Dollar', flag: '🇺🇸', defaultScore: -16.8, yield: 4.25, policy: 'Active Easing (Dovish)', growth: 'Resilient' },
+    { code: 'EUR', name: 'Euro', flag: '🇪🇺', defaultScore: -1.7, yield: 2.38, policy: 'Gradual Easing', growth: 'Stabilizing' },
+    { code: 'GBP', name: 'British Pound', flag: '🇬🇧', defaultScore: 6.1, yield: 4.12, policy: 'Cautious Cuts', growth: 'Sluggish' },
+    { code: 'JPY', name: 'Japanese Yen', flag: '🇯🇵', defaultScore: 5.0, yield: 1.05, policy: 'Normalization (Hawkish)', growth: 'Weak Domestic' },
+    { code: 'CAD', name: 'Canadian Dollar', flag: '🇨🇦', defaultScore: -21.1, yield: 3.25, policy: 'Active Easing', growth: 'Moderate' },
+    { code: 'AUD', name: 'Australian Dollar', flag: '🇦🇺', defaultScore: 3.8, yield: 4.10, policy: 'Restrictive Hold', growth: 'China Drag' },
+    { code: 'NZD', name: 'New Zealand Dollar', flag: '🇳🇿', defaultScore: -17.6, yield: 4.50, policy: 'Accelerated Cuts', growth: 'Recessionary' },
+    { code: 'CHF', name: 'Swiss Franc', flag: '🇨🇭', defaultScore: -8.8, yield: 1.00, policy: 'Accommodative', growth: 'Subdued' },
   ];
 
   const baseCurr = currencies.find((c) => c.code === baseCode) || currencies[1];

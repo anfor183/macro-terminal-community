@@ -4,6 +4,7 @@ import {
   Swords,
   Star,
   Grid3X3,
+  FileSpreadsheet,
   TrendingUp,
   Sparkles,
   Droplet,
@@ -27,6 +28,7 @@ export type ViewTab =
   | 'watchlist'
   | 'forex'
   | 'matrix'
+  | 'cot_report'
   | 'gold'
   | 'oil'
   | 'indices'
@@ -70,6 +72,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       items: [
         { id: 'forex', label: 'Forex Rankings', icon: <TrendingUp size={17} /> },
         { id: 'matrix', label: 'Currency Matrix', icon: <Grid3X3 size={17} /> },
+        { id: 'cot_report', label: 'CFTC COT Report', icon: <FileSpreadsheet size={17} />, badge: 'CFTC' },
         { id: 'gold', label: 'Gold Macro Desk', icon: <Sparkles size={17} /> },
         { id: 'oil', label: 'Oil Macro Desk', icon: <Droplet size={17} /> },
         { id: 'indices', label: 'Equity Indices', icon: <BarChart2 size={17} /> },

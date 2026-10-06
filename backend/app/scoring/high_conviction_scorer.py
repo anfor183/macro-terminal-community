@@ -88,6 +88,14 @@ class HighConvictionScorer:
             # Long liquidation trap: damp COT bullish score towards 0
             effective_cot_score = min(20.0, raw_cot_score * 0.3)
             crowding_penalty = -25.0
+        elif macro_score > 15.0 and crowding <= 18.0:
+            # Bullish contrarian squeeze setup: market is overly short against bullish fundamentals
+            effective_cot_score = min(25.0, abs(raw_cot_score) * 0.3)
+            crowding_penalty = -10.0
+        elif macro_score < -15.0 and crowding >= 82.0:
+            # Bearish contrarian flush setup: market is overly long against bearish fundamentals
+            effective_cot_score = max(-25.0, -raw_cot_score * 0.3)
+            crowding_penalty = -10.0
         else:
             effective_cot_score = raw_cot_score
             crowding_penalty = 0.0

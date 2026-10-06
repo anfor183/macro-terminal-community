@@ -77,8 +77,21 @@ def classify_macro_news(title: str, summary: str, default_category: str) -> Dict
     """
     combined = f"{title} {summary}".lower()
 
+    # Check for relevant macro keywords before processing Tier-2 feeds
+    macro_kw = [
+        "inflation", "cpi", "pce", "price pressures", "deflation",
+        "rate hike", "rate cut", "fomc", "ecb", "boe", "boj", "interest rate", "quantitative", "central bank", "federal reserve",
+        "jobless", "unemployment", "payroll", "wage growth", "labor market", "hiring",
+        "gdp", "recession", "growth", "manufacturing", "pmi", "expansion",
+        "yield", "treasury", "bond", "curve inversion",
+        "oil", "crude", "energy", "opec", "gasoline", "brent",
+        "war", "sanctions", "conflict", "geopolitical", "tariff", "trade war",
+        "dollar", "euro", "yen", "pound", "forex", "fx", "currency"
+    ]
+    is_macro_relevant = any(k in combined for k in macro_kw)
+
     # Determine category
-    category = default_category
+    category = default_category if is_macro_relevant else "general" 
     if any(k in combined for k in ["inflation", "cpi", "pce", "price pressures", "deflation"]):
         category = "inflation"
     elif any(k in combined for k in ["rate hike", "rate cut", "fomc", "ecb", "boe", "boj", "interest rate", "quantitative"]):

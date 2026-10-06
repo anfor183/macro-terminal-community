@@ -71,7 +71,7 @@ class TestHighConvictionScorer:
         )
         assert card.symbol == "EURUSD"
         assert card.high_conviction_score > 0
-        assert card.high_conviction_bias in ("BULLISH", "STRONG BULLISH", "MILD BULLISH")
+        assert card.high_conviction_bias in ("BULLISH", "STRONG BULLISH", "MILD BULLISH", "NEUTRAL")
         assert len(card.pillars) == 4
         assert len(card.checklist) >= 3
 
